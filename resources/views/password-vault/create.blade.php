@@ -1,0 +1,138 @@
+@extends('layouts.dashboard')
+
+@section('title', 'Add Password')
+
+@section('content')
+    <div class="bg-white shadow rounded-lg max-w-2xl mx-auto">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h1 class="text-3xl font-semibold text-gray-900">Add New Password</h1>
+            <p class="text-lg text-gray-600 mt-1">Store a password safely</p>
+        </div>
+
+        <form action="{{ route('password-vault.store') }}" method="POST" class="p-6 space-y-6">
+            @csrf
+
+            <!-- Title -->
+            <div>
+                <label for="title" class="block text-lg font-medium text-gray-700 mb-2">What is this password for?
+                    *</label>
+                <input type="text" id="title" name="title" value="{{ old('title') }}" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g., Gmail, Facebook, Online Banking">
+                @error('title')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Username -->
+            <div>
+                <label for="username" class="block text-lg font-medium text-gray-700 mb-2">Your Username or Email</label>
+                <input type="text" id="username" name="username" value="{{ old('username') }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="your.email@example.com or username">
+                @error('username')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Password -->
+            <div>
+                <label for="password" class="block text-lg font-medium text-gray-700 mb-2">Password *</label>
+                <div class="relative">
+                    <input type="password" id="password" name="password" required
+                        class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter your password">
+                    <button type="button" onclick="togglePassword()"
+                        class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <svg id="password-show" class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <svg id="password-hide" class="h-6 w-6 text-gray-400 hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                        </svg>
+                    </button>
+                </div>
+                @error('password')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Category (simplified) -->
+            <div>
+                <label for="category" class="block text-lg font-medium text-gray-700 mb-2">What type is this? *</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="category" value="work"
+                            {{ old('category') === 'work' ? 'checked' : '' }} class="mr-3">
+                        <span class="text-lg">Work</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="category" value="personal"
+                            {{ old('category') === 'personal' ? 'checked' : '' }} class="mr-3">
+                        <span class="text-lg">Personal</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="category" value="banking"
+                            {{ old('category') === 'banking' ? 'checked' : '' }} class="mr-3">
+                        <span class="text-lg">Banking</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="category" value="social"
+                            {{ old('category') === 'social' ? 'checked' : '' }} class="mr-3">
+                        <span class="text-lg">Social Media</span>
+                    </label>
+                </div>
+                @error('category')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Notes (simplified) -->
+            <div>
+                <label for="notes" class="block text-lg font-medium text-gray-700 mb-2">Any notes? (Optional)</label>
+                <textarea id="notes" name="notes" rows="3"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Any extra information you want to remember...">{{ old('notes') }}</textarea>
+                @error('notes')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <a href="{{ route('password-vault.index') }}"
+                    class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-8 py-3 rounded-lg text-lg">
+                    Cancel
+                </a>
+                <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-medium">
+                    Save Password
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            const showIcon = document.getElementById('password-show');
+            const hideIcon = document.getElementById('password-hide');
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                showIcon.classList.add('hidden');
+                hideIcon.classList.remove('hidden');
+            } else {
+                passwordField.type = 'password';
+                showIcon.classList.remove('hidden');
+                hideIcon.classList.add('hidden');
+            }
+        }
+    </script>
+@endsection

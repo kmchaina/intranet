@@ -1,0 +1,198 @@
+@extends('layouts.dashboard')
+
+@section('title', 'Edit Password')
+
+@section('content')
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-semibold text-gray-900">Edit Password</h1>
+                    <p class="text-lg text-gray-600 mt-1">Update your password details</p>
+                </div>
+                <a href="{{ route('password-vault.index') }}"
+                    class="flex items-center bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Vault
+                </a>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <form method="POST" action="{{ route('password-vault.update', $password) }}" class="space-y-8">
+                @csrf
+                @method('PUT')
+
+                <!-- Title -->
+                <div class="mb-6">
+                    <label for="title" class="block text-lg font-medium text-gray-700 mb-2">
+                        What is this password for? *
+                    </label>
+                    <input type="text" name="title" id="title" value="{{ old('title', $password->title) }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="e.g., Gmail Account, Facebook, Online Banking" required>
+                    @error('title')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Website -->
+                <div class="mb-6">
+                    <label for="website" class="block text-lg font-medium text-gray-700 mb-2">
+                        Website Address (optional)
+                    </label>
+                    <input type="url" name="website" id="website" value="{{ old('website', $password->website) }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="https://www.example.com">
+                    @error('website')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Username -->
+                <div class="mb-6">
+                    <label for="username" class="block text-lg font-medium text-gray-700 mb-2">
+                        Username or Email *
+                    </label>
+                    <input type="text" name="username" id="username" value="{{ old('username', $password->username) }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Your username or email address" required>
+                    @error('username')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Password -->
+                <div class="mb-6">
+                    <label for="password" class="block text-lg font-medium text-gray-700 mb-2">
+                        Password *
+                    </label>
+                    <div class="relative">
+                        <input type="password" name="password" id="password"
+                            value="{{ old('password', $password->password) }}"
+                            class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter the password" required>
+                        <button type="button" onclick="togglePasswordVisibility()"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                            <svg id="eye-open" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <svg id="eye-closed" class="w-5 h-5 hidden" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                            </svg>
+                        </button>
+                    </div>
+                    @error('password')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Category Selection -->
+                <div class="mb-6">
+                    <label class="block text-lg font-medium text-gray-700 mb-4">
+                        What type of account is this? *
+                    </label>
+                    <div class="space-y-3">
+                        <label
+                            class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="category" value="work"
+                                {{ old('category', $password->category) === 'work' ? 'checked' : '' }}
+                                class="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300">
+                            <span class="ml-3 text-lg">Work Related (company accounts, work email, etc.)</span>
+                        </label>
+
+                        <label
+                            class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="category" value="personal"
+                                {{ old('category', $password->category) === 'personal' ? 'checked' : '' }}
+                                class="w-5 h-5 text-green-600 focus:ring-green-500 border-gray-300">
+                            <span class="ml-3 text-lg">Personal (shopping, entertainment, personal email,
+                                etc.)</span>
+                        </label>
+
+                        <label
+                            class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="category" value="banking"
+                                {{ old('category', $password->category) === 'banking' ? 'checked' : '' }}
+                                class="w-5 h-5 text-red-600 focus:ring-red-500 border-gray-300">
+                            <span class="ml-3 text-lg">Banking & Finance (bank accounts, credit cards,
+                                investments, etc.)</span>
+                        </label>
+
+                        <label
+                            class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="category" value="social"
+                                {{ old('category', $password->category) === 'social' ? 'checked' : '' }}
+                                class="w-5 h-5 text-purple-600 focus:ring-purple-500 border-gray-300">
+                            <span class="ml-3 text-lg">Social Media (Facebook, Twitter, Instagram, etc.)</span>
+                        </label>
+
+                        <label
+                            class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="category" value="other"
+                                {{ old('category', $password->category) === 'other' ? 'checked' : '' }}
+                                class="w-5 h-5 text-gray-600 focus:ring-gray-500 border-gray-300">
+                            <span class="ml-3 text-lg">Other</span>
+                        </label>
+                    </div>
+                    @error('category')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Notes -->
+                <div class="mb-8">
+                    <label for="notes" class="block text-lg font-medium text-gray-700 mb-2">
+                        Additional Notes (optional)
+                    </label>
+                    <textarea name="notes" id="notes" rows="4"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Any additional information you want to remember...">{{ old('notes', $password->notes) }}</textarea>
+                    @error('notes')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex justify-end space-x-4">
+                    <a href="{{ route('password-vault.show', $password) }}"
+                        class="px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg text-lg font-medium transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-lg font-medium transition-colors">
+                        Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <script>
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('password');
+            const eyeOpen = document.getElementById('eye-open');
+            const eyeClosed = document.getElementById('eye-closed');
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
+            } else {
+                passwordField.type = 'password';
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
+            }
+        }
+    </script>
+@endsection

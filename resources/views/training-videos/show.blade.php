@@ -1,0 +1,302 @@
+@extends('layouts.dashboard')
+
+@section('title', $video->title)
+
+@section('content')
+    <div class="bg-white shadow rounded-lg">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a href="{{ route('training-videos.index') }}"
+                        class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="text-3xl font-semibold text-gray-900">{{ $video->title }}</h1>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                                {{ $categories[$video->category] ?? $video->category }}
+                            </span>
+                            <span class="text-sm text-gray-500">{{ $video->view_count }} views</span>
+                            @if ($video->duration_minutes)
+                                <span class="text-sm text-gray-500">{{ $video->formatted_duration }}</span>
+                            @endif
+                            <span class="text-sm text-gray-500">Added {{ $video->created_at->format('M j, Y') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <a href="{{ route('training-videos.edit', $video) }}"
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Edit
+                    </a>
+                    <form action="{{ route('training-videos.destroy', $video) }}" method="POST" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" onclick="return confirm('Are you sure you want to delete this video?')"
+                            class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg flex items-center transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Player -->
+        <div class="bg-black">
+            <div class="aspect-video">
+                @if ($video->video_type === 'youtube')
+                    <iframe src="{{ $video->embed_url }}" frameborder="0" allowfullscreen
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin" class="w-full h-full"
+                        onload="console.log('Video loaded successfully')"
+                        onerror="console.log('Video failed to load'); this.style.display='none'; document.getElementById('videoError').style.display='block';">
+                    </iframe>
+
+                    <!-- Fallback for embedding issues -->
+                    <div id="videoError"
+                        class="w-full h-full bg-gray-800 flex items-center justify-center text-center text-white"
+                        style="display: none;">
+                        <div>
+                            <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <h3 class="text-lg font-semibold mb-2">Video Unavailable for Embedding</h3>
+                            <p class="text-gray-300 mb-4">This video cannot be embedded but you can watch it directly on
+                                YouTube.</p>
+                            <a href="{{ $video->video_url }}" target="_blank"
+                                class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg inline-flex items-center transition-colors">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                                </svg>
+                                Watch on YouTube
+                            </a>
+                        </div>
+                    </div>
+                @elseif($video->video_type === 'vimeo')
+                    <iframe src="{{ $video->embed_url }}" frameborder="0" allowfullscreen
+                        allow="autoplay; fullscreen; picture-in-picture" class="w-full h-full">
+                    </iframe>
+                @elseif($video->video_type === 'file')
+                    <video controls class="w-full h-full">
+                        <source src="{{ $video->video_url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                @else
+                    <div class="w-full h-full bg-gray-800 flex items-center justify-center">
+                        <div class="text-center text-white">
+                            <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.348 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                            <p class="text-lg">Video format not supported</p>
+                            <a href="{{ $video->video_url }}" target="_blank"
+                                class="text-blue-400 hover:text-blue-300 underline">
+                                View Original Link
+                            </a>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Video Information -->
+        <div class="p-6">
+            <!-- Description -->
+            @if ($video->description)
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Description</h3>
+                    <div class="text-gray-700 prose max-w-none">
+                        {!! nl2br(e($video->description)) !!}
+                    </div>
+                </div>
+            @endif
+
+            <!-- Additional Information -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                @if ($video->target_audience)
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-gray-900 mb-2">Target Audience</h4>
+                        <p class="text-gray-700">{{ $targetAudiences[$video->target_audience] ?? $video->target_audience }}
+                        </p>
+                    </div>
+                @endif
+
+                @if ($video->tags)
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-gray-900 mb-2">Tags</h4>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach (explode(',', $video->tags) as $tag)
+                                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                                    {{ trim($tag) }}
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-2">Video Details</h4>
+                    <div class="space-y-1 text-sm text-gray-700">
+                        <p><span class="font-medium">Type:</span> {{ ucfirst($video->video_type) }}</p>
+                        <p><span class="font-medium">Views:</span> {{ $video->view_count }}</p>
+                        @if ($video->duration_minutes)
+                            <p><span class="font-medium">Duration:</span> {{ $video->formatted_duration }}</p>
+                        @endif
+                        <p><span class="font-medium">Added:</span> {{ $video->created_at->format('M j, Y g:i A') }}</p>
+                        @if ($video->updated_at != $video->created_at)
+                            <p><span class="font-medium">Updated:</span> {{ $video->updated_at->format('M j, Y g:i A') }}
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- External Link -->
+            @if ($video->video_url && $video->video_type !== 'file')
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-semibold text-blue-900">Watch on {{ ucfirst($video->video_type) }}</h4>
+                            <p class="text-blue-700 text-sm">Open this video in a new tab for full
+                                {{ $video->video_type }} experience</p>
+                        </div>
+                        <a href="{{ $video->video_url }}" target="_blank"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            Open Original
+                        </a>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Related Videos -->
+            @if ($relatedVideos->count() > 0)
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Related Videos</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @foreach ($relatedVideos as $relatedVideo)
+                            <a href="{{ route('training-videos.show', $relatedVideo) }}"
+                                class="group border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
+                                <div class="relative aspect-video bg-gray-100">
+                                    @if ($relatedVideo->video_type === 'youtube')
+                                        @php
+                                            preg_match(
+                                                '/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/',
+                                                $relatedVideo->video_url,
+                                                $matches,
+                                            );
+                                            $videoId = $matches[1] ?? '';
+                                            $thumbnailUrl = "https://img.youtube.com/vi/{$videoId}/mqdefault.jpg";
+                                        @endphp
+                                        <img src="{{ $thumbnailUrl }}" alt="{{ $relatedVideo->title }}"
+                                            class="w-full h-full object-cover">
+                                    @else
+                                        <div
+                                            class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                        </div>
+                                    @endif
+
+                                    @if ($relatedVideo->duration_minutes)
+                                        <div
+                                            class="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                                            {{ $relatedVideo->formatted_duration }}
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="p-3">
+                                    <h4 class="font-medium text-gray-900 group-hover:text-blue-600 line-clamp-2">
+                                        {{ $relatedVideo->title }}</h4>
+                                    <p class="text-sm text-gray-500 mt-1">{{ $relatedVideo->view_count }} views</p>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <script>
+        // Increment view count when page loads
+        fetch(`{{ route('training-videos.increment-view', $video) }}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+        });
+
+        // Handle YouTube embedding issues
+        @if ($video->video_type === 'youtube')
+            document.addEventListener('DOMContentLoaded', function() {
+                const iframe = document.querySelector('iframe');
+                const errorDiv = document.getElementById('videoError');
+
+                if (iframe && errorDiv) {
+                    // Set a timeout to check if the video loads
+                    setTimeout(function() {
+                        try {
+                            // Try to access the iframe content to see if it loaded properly
+                            if (iframe.contentDocument === null) {
+                                // If we can't access the content, it might be due to embedding restrictions
+                                console.log('Potential embedding restriction detected');
+                            }
+                        } catch (e) {
+                            console.log('iframe access blocked, video likely loaded correctly');
+                        }
+                    }, 3000);
+
+                    // Listen for iframe load events
+                    iframe.onload = function() {
+                        console.log('YouTube iframe loaded');
+                    };
+
+                    iframe.onerror = function() {
+                        console.log('YouTube iframe failed to load');
+                        iframe.style.display = 'none';
+                        errorDiv.style.display = 'flex';
+                    };
+
+                    // Handle message from YouTube iframe
+                    window.addEventListener('message', function(event) {
+                        if (event.origin !== 'https://www.youtube.com') return;
+
+                        if (event.data && typeof event.data === 'string') {
+                            try {
+                                const data = JSON.parse(event.data);
+                                if (data.event === 'video-unavailable' || data.event === 'onError') {
+                                    iframe.style.display = 'none';
+                                    errorDiv.style.display = 'flex';
+                                }
+                            } catch (e) {
+                                // Ignore JSON parse errors
+                            }
+                        }
+                    });
+                }
+            });
+        @endif
+    </script>
+@endsection

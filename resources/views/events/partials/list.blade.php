@@ -1,0 +1,195 @@
+<!-- List View -->
+<div class="space-y-6">
+    @php
+        // Handle both paginated and non-paginated collections
+        $eventItems = method_exists($events, 'items') ? $events->items() : $events;
+        $groupedEvents = collect($eventItems)->groupBy(function ($event) {
+            return $event->start_datetime->format('Y-m-d');
+        });
+    @endphp
+
+    @forelse($groupedEvents as $date => $dayEvents)
+        <!-- Date Header -->
+        <div class="border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {{ \Carbon\Carbon::parse($date)->format('l, F j, Y') }}
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ $dayEvents->count() }} event{{ $dayEvents->count() !== 1 ? 's' : '' }}
+            </p>
+        </div>
+
+        <!-- Events for this date -->
+        <div class="space-y-4 mb-8">
+            @foreach ($dayEvents->sortBy('start_datetime') as $event)
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                        <div class="flex-1">
+                            <!-- Event Header -->
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0">
+                                    <div
+                                        class="w-12 h-12 {{ $event->category_color }} rounded-lg flex items-center justify-center">
+                                        @switch($event->category)
+                                            @case('meeting')
+                                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+                                                </svg>
+                                            @break
+
+                                            @case('training')
+                                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path
+                                                        d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                                                </svg>
+                                            @break
+
+                                            @default
+                                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd"
+                                                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+                                        @endswitch
+                                    </div>
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
+                                            <a href="{{ route('events.show', $event) }}"
+                                                class="hover:text-indigo-600 dark:hover:text-indigo-400">
+                                                {{ $event->title }}
+                                            </a>
+                                        </h3>
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $event->category_color }}">
+                                            {{ ucfirst($event->category) }}
+                                        </span>
+                                        @if ($event->priority !== 'medium')
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $event->priority_color }}">
+                                                {{ ucfirst($event->priority) }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <!-- Event Details -->
+                                    <div
+                                        class="flex flex-wrap items-center text-sm text-gray-500 dark:text-gray-400 space-x-4 mb-2">
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                </path>
+                                            </svg>
+                                            {{ $event->start_datetime->format('M j, Y') }}
+                                        </div>
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            @if ($event->all_day)
+                                                All Day
+                                            @else
+                                                {{ $event->start_datetime->format('g:i A') }} -
+                                                {{ $event->end_datetime->format('g:i A') }}
+                                            @endif
+                                        </div>
+                                        @if ($event->location)
+                                            <div class="flex items-center">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                                    </path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                </svg>
+                                                {{ $event->location }}
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    @if ($event->description)
+                                        <p class="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
+                                            {{ Str::limit($event->description, 150) }}
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event Actions -->
+                        <div class="mt-4 lg:mt-0 lg:ml-6 flex flex-col space-y-2">
+                            @if ($event->requires_rsvp)
+                                @php
+                                    $userRsvp = $event->getRsvpStatusForUser(auth()->user());
+                                @endphp
+
+                                @if ($userRsvp)
+                                    <span
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                                         {{ $userRsvp === 'attending' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : '' }}
+                                         {{ $userRsvp === 'declined' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' : '' }}
+                                         {{ $userRsvp === 'maybe' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' : '' }}">
+                                        {{ ucfirst($userRsvp) }}
+                                    </span>
+                                @elseif($event->can_rsvp)
+                                    <a href="{{ route('events.show', $event) }}"
+                                        class="inline-flex items-center px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg transition-colors duration-200">
+                                        RSVP
+                                    </a>
+                                @else
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">RSVP Closed</span>
+                                @endif
+
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    {{ $event->attendees_count }} attending
+                                    @if ($event->max_attendees)
+                                        / {{ $event->max_attendees }}
+                                    @endif
+                                </div>
+                            @endif
+
+                            <!-- Created by -->
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                by {{ $event->creator->name }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+        @empty
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No events found</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating a new event.</p>
+                <div class="mt-6">
+                    <a href="{{ route('events.create') }}"
+                        class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Create Event
+                    </a>
+                </div>
+            </div>
+        @endforelse
+
+        @if (method_exists($events, 'links'))
+            <div class="mt-6">
+                {{ $events->links() }}
+            </div>
+        @endif
+    </div>

@@ -1,0 +1,286 @@
+@extends('layouts.dashboard')
+
+@section('title', 'Announcements')
+@section('page-title', 'Announcements')
+@section('page-subtitle', 'Stay updated with the latest news from NIMR')
+
+@section('content')
+    <div class="p-6">
+        <!-- Header Section -->
+        <div class="bg-white/95 backdrop-blur-md rounded-xl border border-gray-200 shadow-lg p-6 mb-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">Announcements</h1>
+                    <p class="text-gray-600">Stay updated with the latest news from NIMR</p>
+                </div>
+
+                @if (auth()->user()->canCreateAnnouncements())
+                    <div class="mt-4 lg:mt-0">
+                        <a href="{{ route('announcements.create') }}"
+                            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Create Announcement
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="bg-white/95 backdrop-blur-md rounded-xl border border-gray-200 shadow-lg p-6 mb-6">
+            <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+                <!-- Search Bar -->
+                <div class="flex-1">
+                    <div class="relative">
+                        <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search announcements..."
+                            class="w-full pl-12 pr-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 placeholder-gray-500 shadow-sm">
+                    </div>
+                </div>
+
+                <!-- Category Filter -->
+                <div class="lg:w-48">
+                    <select id="categoryFilter"
+                        class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 shadow-sm">
+                        <option value="">All Categories</option>
+                        <option value="general">General</option>
+                        <option value="urgent">Urgent</option>
+                        <option value="event">Event</option>
+                        <option value="policy">Policy</option>
+                        <option value="training">Training</option>
+                    </select>
+                </div>
+
+                <!-- Priority Filter -->
+                <div class="lg:w-48">
+                    <select id="priorityFilter"
+                        class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 shadow-sm">
+                        <option value="">All Priorities</option>
+                        <option value="high">High Priority</option>
+                        <option value="medium">Medium Priority</option>
+                        <option value="low">Low Priority</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Announcements List -->
+        <div class="bg-white/95 backdrop-blur-md rounded-xl border border-gray-200 shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-800">Latest Announcements</h2>
+                <p class="text-gray-600 text-sm mt-1">{{ $announcements->total() }} announcement(s) found</p>
+            </div>
+
+            <div id="announcementsList" class="divide-y divide-gray-100">
+                @forelse($announcements as $announcement)
+                    <div class="announcement-item p-6 hover:bg-gray-50 transition-colors duration-150"
+                        data-title="{{ strtolower($announcement->title) }}" data-category="{{ $announcement->category }}"
+                        data-priority="{{ $announcement->priority }}">
+
+                        <div class="flex items-start space-x-4">
+                            <!-- Priority & Read Status Indicator -->
+                            <div class="flex-shrink-0 flex items-center space-x-2">
+                                <!-- Priority Icon -->
+                                <div
+                                    class="w-10 h-10 rounded-lg flex items-center justify-center
+                                    @if ($announcement->priority === 'high') bg-red-100 text-red-600
+                                    @elseif($announcement->priority === 'medium') bg-yellow-100 text-yellow-600  
+                                    @else bg-green-100 text-green-600 @endif">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        @if ($announcement->priority === 'high')
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                        @elseif($announcement->priority === 'medium')
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        @else
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        @endif
+                                    </svg>
+                                </div>
+
+                                <!-- Unread Indicator -->
+                                @if (!$announcement->isReadBy(auth()->user()))
+                                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                @endif
+                            </div>
+
+                            <!-- Content Area -->
+                            <div class="flex-1 min-w-0">
+                                <!-- Header Row -->
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex-1">
+                                        <h3
+                                            class="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                                            <a href="{{ route('announcements.show', $announcement) }}" class="block">
+                                                {{ $announcement->title }}
+                                            </a>
+                                        </h3>
+
+                                        <!-- Meta Info -->
+                                        <div class="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                                            <span>{{ $announcement->creator->name }}</span>
+                                            <span>•</span>
+                                            <span>{{ $announcement->published_at->format('M j, Y') }}</span>
+                                            <span>•</span>
+                                            <span
+                                                class="capitalize">{{ str_replace('_', ' ', $announcement->target_scope) }}</span>
+                                            @if ($announcement->attachments->count() > 0)
+                                                <span>•</span>
+                                                <span class="flex items-center">
+                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                                    </svg>
+                                                    {{ $announcement->attachments->count() }} file(s)
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Category Badge -->
+                                    <div class="flex-shrink-0 ml-4">
+                                        <span
+                                            class="inline-flex px-3 py-1 text-xs font-medium rounded-full
+                                            @if ($announcement->category === 'urgent') bg-red-100 text-red-800
+                                            @elseif($announcement->category === 'event') bg-blue-100 text-blue-800
+                                            @elseif($announcement->category === 'policy') bg-purple-100 text-purple-800
+                                            @elseif($announcement->category === 'training') bg-indigo-100 text-indigo-800
+                                            @else bg-gray-100 text-gray-800 @endif">
+                                            {{ ucfirst($announcement->category) }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Content Preview -->
+                                <p class="text-gray-600 text-sm line-clamp-2 mb-3">
+                                    {{ Str::limit(strip_tags($announcement->content), 150) }}
+                                </p>
+
+                                <!-- Attachments Preview -->
+                                @if ($announcement->attachments->count() > 0)
+                                    <div class="flex items-center space-x-2 mb-3">
+                                        @foreach ($announcement->attachments->take(3) as $attachment)
+                                            <div
+                                                class="flex items-center space-x-1 bg-gray-100 rounded-lg px-2 py-1 text-xs">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="{{ $attachment->getFileIcon() }}" />
+                                                </svg>
+                                                <span
+                                                    class="text-gray-600">{{ Str::limit($attachment->original_name, 15) }}</span>
+                                            </div>
+                                        @endforeach
+                                        @if ($announcement->attachments->count() > 3)
+                                            <span
+                                                class="text-xs text-gray-500">+{{ $announcement->attachments->count() - 3 }}
+                                                more</span>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                <!-- Action Buttons -->
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <a href="{{ route('announcements.show', $announcement) }}"
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                            Read More →
+                                        </a>
+
+                                        @if (auth()->user()->canManageAnnouncement($announcement))
+                                            <a href="{{ route('announcements.edit', $announcement) }}"
+                                                class="text-gray-500 hover:text-gray-700 text-sm">
+                                                Edit
+                                            </a>
+                                        @endif
+                                    </div>
+
+                                    <!-- Time Ago -->
+                                    <span class="text-xs text-gray-400">
+                                        {{ $announcement->published_at->diffForHumans() }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="p-12 text-center">
+                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-2.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 009.586 13H7" />
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No announcements found</h3>
+                        <p class="text-gray-500 mb-6">There are no announcements matching your current filters.</p>
+
+                        @if (auth()->user()->canCreateAnnouncements())
+                            <a href="{{ route('announcements.create') }}"
+                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                                Create First Announcement
+                            </a>
+                        @endif
+                    </div>
+                @endforelse
+            </div>
+
+            <!-- Pagination -->
+            @if ($announcements->hasPages())
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50/50">
+                    {{ $announcements->links() }}
+                </div>
+            @endif
+        </div>
+    </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchInput = document.getElementById('searchInput');
+                const categoryFilter = document.getElementById('categoryFilter');
+                const priorityFilter = document.getElementById('priorityFilter');
+                const announcementsList = document.getElementById('announcementsList');
+                const announcements = announcementsList.querySelectorAll('.announcement-item');
+
+                function filterAnnouncements() {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const selectedCategory = categoryFilter.value;
+                    const selectedPriority = priorityFilter.value;
+
+                    announcements.forEach(announcement => {
+                        const title = announcement.dataset.title;
+                        const category = announcement.dataset.category;
+                        const priority = announcement.dataset.priority;
+
+                        const matchesSearch = !searchTerm || title.includes(searchTerm);
+                        const matchesCategory = !selectedCategory || category === selectedCategory;
+                        const matchesPriority = !selectedPriority || priority === selectedPriority;
+
+                        if (matchesSearch && matchesCategory && matchesPriority) {
+                            announcement.style.display = 'block';
+                        } else {
+                            announcement.style.display = 'none';
+                        }
+                    });
+                }
+
+                searchInput.addEventListener('input', filterAnnouncements);
+                categoryFilter.addEventListener('change', filterAnnouncements);
+                priorityFilter.addEventListener('change', filterAnnouncements);
+            });
+        </script>
+    @endpush
+@endsection
