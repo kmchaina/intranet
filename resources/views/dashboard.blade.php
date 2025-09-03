@@ -413,6 +413,9 @@
                 </div>
             </div>
 
+            <!-- Birthday & Celebrations Widget -->
+            @include('components.birthday-widget')
+
             <!-- Weather Widget -->
             <div class="card-modern rounded-3xl p-6">
                 <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Today in Dar es Salaam</h3>

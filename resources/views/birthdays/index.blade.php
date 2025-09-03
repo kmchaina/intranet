@@ -1,0 +1,275 @@
+@extends('layouts.dashboard')
+
+@section('title', 'Birthdays & Anniversaries')
+
+@section('content')
+<div class="min-h-screen bg-gray-50 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">🎂 Birthdays & Anniversaries</h1>
+            <p class="text-gray-600 mt-1">Celebrate your colleagues' special days</p>
+        </div>
+
+        <!-- Today's Celebrations -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Today's Birthdays -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                        🎂 Today's Birthdays
+                        @if($todaysBirthdays->count() > 0)
+                            <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                                {{ $todaysBirthdays->count() }}
+                            </span>
+                        @endif
+                    </h2>
+                </div>
+                <div class="p-6">
+                    @if($todaysBirthdays->count() > 0)
+                        <div class="space-y-4">
+                            @foreach($todaysBirthdays as $user)
+                                <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                            {{ substr($user->name, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900">{{ $user->name }}</h3>
+                                            <p class="text-sm text-gray-600">
+                                                @if($user->getAge())
+                                                    Turning {{ $user->getAge() }} today!
+                                                @else
+                                                    🎉 Happy Birthday!
+                                                @endif
+                                            </p>
+                                            <p class="text-xs text-gray-500">
+                                                @if($user->centre)
+                                                    {{ $user->centre->name }}
+                                                @elseif($user->station)
+                                                    {{ $user->station->name }}
+                                                @elseif($user->headquarters)
+                                                    {{ $user->headquarters->name }}
+                                                @endif
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button onclick="celebrate({{ $user->id }})" 
+                                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                        🎉 Celebrate
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-8">
+                            <div class="text-gray-400 text-4xl mb-2">🎂</div>
+                            <p class="text-gray-500">No birthdays today</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Today's Work Anniversaries -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                        🏆 Work Anniversaries
+                        @if($todaysAnniversaries->count() > 0)
+                            <span class="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                                {{ $todaysAnniversaries->count() }}
+                            </span>
+                        @endif
+                    </h2>
+                </div>
+                <div class="p-6">
+                    @if($todaysAnniversaries->count() > 0)
+                        <div class="space-y-4">
+                            @foreach($todaysAnniversaries as $user)
+                                <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                            {{ substr($user->name, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900">{{ $user->name }}</h3>
+                                            <p class="text-sm text-gray-600">
+                                                {{ $user->getYearsOfService() }} {{ Str::plural('year', $user->getYearsOfService()) }} of service!
+                                            </p>
+                                            <p class="text-xs text-gray-500">
+                                                Joined {{ $user->hire_date->format('M j, Y') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button onclick="celebrate({{ $user->id }})" 
+                                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                        👏 Congratulate
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-8">
+                            <div class="text-gray-400 text-4xl mb-2">🏆</div>
+                            <p class="text-gray-500">No work anniversaries today</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- This Week's Upcoming Birthdays -->
+        @if($weekBirthdays->count() > 0)
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                        📅 This Week's Birthdays
+                        <span class="ml-2 bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">
+                            {{ $weekBirthdays->count() }}
+                        </span>
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @foreach($weekBirthdays as $user)
+                            @php
+                                $today = now();
+                                $birthdate = $user->birth_date->setYear($today->year);
+                                if ($birthdate->lt($today)) {
+                                    $birthdate = $birthdate->addYear();
+                                }
+                                $daysUntil = $today->diffInDays($birthdate);
+                            @endphp
+                            <div class="p-4 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                                        {{ substr($user->name, 0, 1) }}
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="font-medium text-gray-900">{{ $user->name }}</h3>
+                                        <p class="text-sm text-gray-600">
+                                            {{ $birthdate->format('M j') }} 
+                                            @if($daysUntil > 0)
+                                                ({{ $daysUntil }} {{ Str::plural('day', $daysUntil) }})
+                                            @endif
+                                        </p>
+                                        <p class="text-xs text-gray-500">
+                                            @if($user->centre)
+                                                {{ $user->centre->name }}
+                                            @elseif($user->station)
+                                                {{ $user->station->name }}
+                                            @elseif($user->headquarters)
+                                                {{ $user->headquarters->name }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Update Profile Section -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">⚙️ Your Birthday & Anniversary Settings</h2>
+                <p class="text-sm text-gray-600 mt-1">Manage your celebration preferences</p>
+            </div>
+            <div class="p-6">
+                <form action="{{ route('birthdays.update-profile') }}" method="POST" class="space-y-6">
+                    @csrf
+                    @method('PATCH')
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Birthday Settings -->
+                        <div class="space-y-4">
+                            <h3 class="font-medium text-gray-900">Birthday Settings</h3>
+                            
+                            <div>
+                                <label for="birth_date" class="block text-sm font-medium text-gray-700">Birth Date</label>
+                                <input type="date" name="birth_date" id="birth_date" 
+                                       value="{{ auth()->user()->birth_date?->format('Y-m-d') }}"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <p class="mt-1 text-xs text-gray-500">Optional - only the month and day will be shown to others</p>
+                            </div>
+
+                            <div>
+                                <label for="birthday_visibility" class="block text-sm font-medium text-gray-700">Who can see your birthday?</label>
+                                <select name="birthday_visibility" id="birthday_visibility" 
+                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="private" {{ (auth()->user()->birthday_visibility ?? 'private') === 'private' ? 'selected' : '' }}>
+                                        Private (only you)
+                                    </option>
+                                    <option value="team" {{ auth()->user()->birthday_visibility === 'team' ? 'selected' : '' }}>
+                                        Team (same location)
+                                    </option>
+                                    <option value="public" {{ auth()->user()->birthday_visibility === 'public' ? 'selected' : '' }}>
+                                        Everyone
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Work Anniversary Settings -->
+                        <div class="space-y-4">
+                            <h3 class="font-medium text-gray-900">Work Anniversary Settings</h3>
+                            
+                            <div>
+                                <label for="hire_date" class="block text-sm font-medium text-gray-700">Hire Date</label>
+                                <input type="date" name="hire_date" id="hire_date" 
+                                       value="{{ auth()->user()->hire_date?->format('Y-m-d') }}"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <p class="mt-1 text-xs text-gray-500">Optional - your start date with the organization</p>
+                            </div>
+
+                            <div class="flex items-center">
+                                <input type="checkbox" name="show_work_anniversary" id="show_work_anniversary" value="1"
+                                       {{ auth()->user()->show_work_anniversary ? 'checked' : '' }}
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="show_work_anniversary" class="ml-2 block text-sm text-gray-700">
+                                    Show my work anniversaries publicly
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" 
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md text-sm font-medium transition-colors">
+                            Save Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function celebrate(userId) {
+    fetch(`/birthdays/${userId}/celebrate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message (you can replace this with a toast notification)
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to send celebration. Please try again.');
+    });
+}
+</script>
+@endpush
+
+@endsection

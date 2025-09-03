@@ -9,6 +9,7 @@ use App\Http\Controllers\TodoController;
 use App\Http\Controllers\TrainingVideoController;
 use App\Http\Controllers\SystemLinkController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\BirthdayController;
 use App\Http\Controllers\Admin\UserAdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -84,6 +85,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('feedback', FeedbackController::class);
     Route::patch('feedback/{feedback}/update-status', [FeedbackController::class, 'updateStatus'])
         ->name('feedback.update-status');
+
+    // Birthday routes
+    Route::get('birthdays', [BirthdayController::class, 'index'])->name('birthdays.index');
+    Route::get('birthdays/widget', [BirthdayController::class, 'widget'])->name('birthdays.widget');
+    Route::patch('birthdays/profile', [BirthdayController::class, 'updateProfile'])->name('birthdays.update-profile');
+    Route::post('birthdays/{user}/celebrate', [BirthdayController::class, 'celebrate'])->name('birthdays.celebrate');
 
     // Admin routes (Super Admin only)
     Route::prefix('admin')->name('admin.')->group(function () {

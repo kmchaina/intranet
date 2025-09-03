@@ -28,6 +28,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'centre_id',
         'station_id',
         'role',
+        'birth_date',
+        'birthday_visibility',
+        'hire_date',
+        'show_work_anniversary',
     ];
 
     /**
@@ -50,6 +54,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'birth_date' => 'date',
+            'hire_date' => 'date',
+            'show_work_anniversary' => 'boolean',
         ];
     }
 
@@ -352,5 +359,124 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return false;
+    }
+
+    // Birthday and Anniversary Helper Methods
+    public function hasBirthday(): bool
+    {
+        return !is_null($this->birth_date);
+    }
+
+    public function isBirthdayToday(): bool
+    {
+        if (!$this->hasBirthday()) {
+            return false;
+        }
+        
+        return $this->birth_date->format('m-d') === now()->format('m-d');
+    }
+
+    public function isBirthdayThisWeek(): bool
+    {
+        if (!$this->hasBirthday()) {
+            return false;
+        }
+        
+        $today = now();
+        $birthdate = $this->birth_date->setYear($today->year);
+        
+        // If birthday already passed this year, check next year
+        if ($birthdate->lt($today)) {
+            $birthdate = $birthdate->addYear();
+        }
+        
+        return $birthdate->between($today, $today->copy()->addWeek());
+    }
+
+    public function getAge(): ?int
+    {
+        if (!$this->hasBirthday()) {
+            return null;
+        }
+        
+        return $this->birth_date->age;
+    }
+
+    public function hasWorkAnniversary(): bool
+    {
+        return !is_null($this->hire_date) && $this->show_work_anniversary;
+    }
+
+    public function isWorkAnniversaryToday(): bool
+    {
+        if (!$this->hasWorkAnniversary()) {
+            return false;
+        }
+        
+        return $this->hire_date->format('m-d') === now()->format('m-d');
+    }
+
+    public function getYearsOfService(): ?int
+    {
+        if (!$this->hire_date) {
+            return null;
+        }
+        
+        return $this->hire_date->diffInYears(now());
+    }
+
+    public function canViewBirthday(User $viewer): bool
+    {
+        if ($this->id === $viewer->id) {
+            return true; // Can always see own birthday
+        }
+        
+        if (!$this->hasBirthday()) {
+            return false;
+        }
+        
+        return match($this->birthday_visibility) {
+            'public' => true,
+            'team' => $this->isInSameTeam($viewer),
+            'private' => false,
+            default => false,
+        };
+    }
+
+    public function isInSameTeam(User $user): bool
+    {
+        // Same headquarters, centre, or station
+        return $this->headquarters_id === $user->headquarters_id ||
+               $this->centre_id === $user->centre_id ||
+               $this->station_id === $user->station_id;
+    }
+
+    // Static methods for queries
+    public static function birthdaysToday()
+    {
+        return static::whereNotNull('birth_date')
+            ->whereIn('birthday_visibility', ['public', 'team'])
+            ->whereRaw('DATE_FORMAT(birth_date, "%m-%d") = ?', [now()->format('m-d')]);
+    }
+
+    public static function birthdaysThisWeek()
+    {
+        $today = now();
+        $nextWeek = $today->copy()->addWeek();
+        
+        return static::whereNotNull('birth_date')
+            ->whereIn('birthday_visibility', ['public', 'team'])
+            ->where(function($query) use ($today, $nextWeek) {
+                for ($date = $today->copy(); $date <= $nextWeek; $date->addDay()) {
+                    $query->orWhereRaw('DATE_FORMAT(birth_date, "%m-%d") = ?', [$date->format('m-d')]);
+                }
+            });
+    }
+
+    public static function workAnniversariesToday()
+    {
+        return static::whereNotNull('hire_date')
+            ->where('show_work_anniversary', true)
+            ->whereRaw('DATE_FORMAT(hire_date, "%m-%d") = ?', [now()->format('m-d')]);
     }
 }
