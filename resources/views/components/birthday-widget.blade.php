@@ -18,24 +18,24 @@
 </div>
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    loadBirthdayWidget();
-});
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBirthdayWidget();
+        });
 
-function loadBirthdayWidget() {
-    fetch('/birthdays/widget')
-        .then(response => response.json())
-        .then(data => {
-            const widget = document.getElementById('birthday-widget');
-            let content = '';
+        function loadBirthdayWidget() {
+            fetch('/birthdays/widget')
+                .then(response => response.json())
+                .then(data => {
+                    const widget = document.getElementById('birthday-widget');
+                    let content = '';
 
-            // Today's birthdays
-            if (data.todays_birthdays && data.todays_birthdays.length > 0) {
-                content += '<div class="mb-4">';
-                content += '<h4 class="text-xs font-medium text-gray-700 mb-2">🎂 Today\'s Birthdays</h4>';
-                data.todays_birthdays.forEach(user => {
-                    content += `
+                    // Today's birthdays
+                    if (data.todays_birthdays && data.todays_birthdays.length > 0) {
+                        content += '<div class="mb-4">';
+                        content += '<h4 class="text-xs font-medium text-gray-700 mb-2">🎂 Today\'s Birthdays</h4>';
+                        data.todays_birthdays.forEach(user => {
+                            content += `
                         <div class="flex items-center space-x-2 py-1">
                             <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                                 ${user.name.charAt(0)}
@@ -46,17 +46,18 @@ function loadBirthdayWidget() {
                             </div>
                         </div>
                     `;
-                });
-                content += '</div>';
-            }
+                        });
+                        content += '</div>';
+                    }
 
-            // Today's anniversaries
-            if (data.todays_anniversaries && data.todays_anniversaries.length > 0) {
-                content += '<div class="mb-4">';
-                content += '<h4 class="text-xs font-medium text-gray-700 mb-2">🏆 Work Anniversaries</h4>';
-                data.todays_anniversaries.forEach(user => {
-                    const years = user.hire_date ? new Date().getFullYear() - new Date(user.hire_date).getFullYear() : 0;
-                    content += `
+                    // Today's anniversaries
+                    if (data.todays_anniversaries && data.todays_anniversaries.length > 0) {
+                        content += '<div class="mb-4">';
+                        content += '<h4 class="text-xs font-medium text-gray-700 mb-2">🏆 Work Anniversaries</h4>';
+                        data.todays_anniversaries.forEach(user => {
+                            const years = user.hire_date ? new Date().getFullYear() - new Date(user.hire_date)
+                                .getFullYear() : 0;
+                            content += `
                         <div class="flex items-center space-x-2 py-1">
                             <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                                 ${user.name.charAt(0)}
@@ -67,24 +68,24 @@ function loadBirthdayWidget() {
                             </div>
                         </div>
                     `;
-                });
-                content += '</div>';
-            }
-
-            // Upcoming birthdays
-            if (data.upcoming_birthdays && data.upcoming_birthdays.length > 0) {
-                content += '<div>';
-                content += '<h4 class="text-xs font-medium text-gray-700 mb-2">📅 This Week</h4>';
-                data.upcoming_birthdays.forEach(user => {
-                    const birthDate = new Date(user.birth_date);
-                    const today = new Date();
-                    birthDate.setFullYear(today.getFullYear());
-                    if (birthDate < today) {
-                        birthDate.setFullYear(today.getFullYear() + 1);
+                        });
+                        content += '</div>';
                     }
-                    const daysUntil = Math.ceil((birthDate - today) / (1000 * 60 * 60 * 24));
-                    
-                    content += `
+
+                    // Upcoming birthdays
+                    if (data.upcoming_birthdays && data.upcoming_birthdays.length > 0) {
+                        content += '<div>';
+                        content += '<h4 class="text-xs font-medium text-gray-700 mb-2">📅 This Week</h4>';
+                        data.upcoming_birthdays.forEach(user => {
+                            const birthDate = new Date(user.birth_date);
+                            const today = new Date();
+                            birthDate.setFullYear(today.getFullYear());
+                            if (birthDate < today) {
+                                birthDate.setFullYear(today.getFullYear() + 1);
+                            }
+                            const daysUntil = Math.ceil((birthDate - today) / (1000 * 60 * 60 * 24));
+
+                            content += `
                         <div class="flex items-center space-x-2 py-1">
                             <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                                 ${user.name.charAt(0)}
@@ -95,29 +96,29 @@ function loadBirthdayWidget() {
                             </div>
                         </div>
                     `;
-                });
-                content += '</div>';
-            }
+                        });
+                        content += '</div>';
+                    }
 
-            if (!content) {
-                content = `
+                    if (!content) {
+                        content = `
                     <div class="text-center py-6">
                         <div class="text-gray-400 text-2xl mb-2">🎂</div>
                         <p class="text-gray-500 text-sm">No celebrations this week</p>
                     </div>
                 `;
-            }
+                    }
 
-            widget.innerHTML = content;
-        })
-        .catch(error => {
-            console.error('Error loading birthday widget:', error);
-            document.getElementById('birthday-widget').innerHTML = `
+                    widget.innerHTML = content;
+                })
+                .catch(error => {
+                    console.error('Error loading birthday widget:', error);
+                    document.getElementById('birthday-widget').innerHTML = `
                 <div class="text-center py-6">
                     <p class="text-gray-500 text-sm">Failed to load celebrations</p>
                 </div>
             `;
-        });
-}
-</script>
+                });
+        }
+    </script>
 @endpush

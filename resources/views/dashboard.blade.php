@@ -368,6 +368,9 @@
                 </div>
             </div>
 
+            <!-- FAQ Widget -->
+            <x-faq-widget :featuredFaqs="$featuredFaqs" />
+
             <!-- System Status -->
             <div class="card-modern rounded-3xl p-6">
                 <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">System Status</h3>

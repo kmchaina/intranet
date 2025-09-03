@@ -11,12 +11,12 @@ class BirthdayController extends Controller
     public function index()
     {
         $currentUser = Auth::user();
-        
+
         // Get today's birthdays
         $todaysBirthdays = User::birthdaysToday()
             ->with(['headquarters', 'centre', 'station'])
             ->get()
-            ->filter(function($user) use ($currentUser) {
+            ->filter(function ($user) use ($currentUser) {
                 return $user->canViewBirthday($currentUser);
             });
 
@@ -24,10 +24,10 @@ class BirthdayController extends Controller
         $weekBirthdays = User::birthdaysThisWeek()
             ->with(['headquarters', 'centre', 'station'])
             ->get()
-            ->filter(function($user) use ($currentUser) {
+            ->filter(function ($user) use ($currentUser) {
                 return $user->canViewBirthday($currentUser);
             })
-            ->sortBy(function($user) {
+            ->sortBy(function ($user) {
                 // Sort by upcoming birthday date
                 $today = now();
                 $birthdate = $user->birth_date->setYear($today->year);
@@ -54,6 +54,7 @@ class BirthdayController extends Controller
             'show_work_anniversary' => 'boolean'
         ]);
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $user->birth_date = $request->birth_date;
         $user->birthday_visibility = $request->birthday_visibility;
@@ -67,13 +68,13 @@ class BirthdayController extends Controller
     public function widget()
     {
         $currentUser = Auth::user();
-        
+
         // Get today's birthdays (limit to 5 for widget)
         $todaysBirthdays = User::birthdaysToday()
             ->with(['headquarters', 'centre', 'station'])
             ->limit(5)
             ->get()
-            ->filter(function($user) use ($currentUser) {
+            ->filter(function ($user) use ($currentUser) {
                 return $user->canViewBirthday($currentUser);
             });
 
@@ -88,7 +89,7 @@ class BirthdayController extends Controller
             ->with(['headquarters', 'centre', 'station'])
             ->limit(3)
             ->get()
-            ->filter(function($user) use ($currentUser) {
+            ->filter(function ($user) use ($currentUser) {
                 return $user->canViewBirthday($currentUser) && !$user->isBirthdayToday();
             });
 

@@ -10,7 +10,9 @@ use App\Http\Controllers\TrainingVideoController;
 use App\Http\Controllers\SystemLinkController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\BirthdayController;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\Admin\UserAdminController;
+use App\Models\Faq;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,7 +26,12 @@ Route::get('/check-users', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $featuredFaqs = Faq::published()
+        ->featured()
+        ->limit(3)
+        ->get();
+
+    return view('dashboard', compact('featuredFaqs'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/css-debug', function () {
@@ -91,6 +98,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('birthdays/widget', [BirthdayController::class, 'widget'])->name('birthdays.widget');
     Route::patch('birthdays/profile', [BirthdayController::class, 'updateProfile'])->name('birthdays.update-profile');
     Route::post('birthdays/{user}/celebrate', [BirthdayController::class, 'celebrate'])->name('birthdays.celebrate');
+
+    // FAQ routes
+    Route::resource('faqs', FaqController::class);
+    Route::get('faqs/suggest/new', [FaqController::class, 'suggest'])->name('faqs.suggest');
+    Route::post('faqs/suggest', [FaqController::class, 'storeSuggestion'])->name('faqs.suggest.store');
+    Route::get('faqs/suggestions/manage', [FaqController::class, 'suggestions'])->name('faqs.suggestions');
+    Route::patch('faqs/suggestions/{suggestion}/review', [FaqController::class, 'reviewSuggestion'])->name('faqs.suggestions.review');
+    Route::post('faqs/{faq}/helpful', [FaqController::class, 'helpful'])->name('faqs.helpful');
+    Route::post('faqs/{faq}/not-helpful', [FaqController::class, 'notHelpful'])->name('faqs.not-helpful');
 
     // Admin routes (Super Admin only)
     Route::prefix('admin')->name('admin.')->group(function () {

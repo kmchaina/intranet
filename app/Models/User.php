@@ -372,7 +372,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if (!$this->hasBirthday()) {
             return false;
         }
-        
+
         return $this->birth_date->format('m-d') === now()->format('m-d');
     }
 
@@ -381,15 +381,15 @@ class User extends Authenticatable implements MustVerifyEmail
         if (!$this->hasBirthday()) {
             return false;
         }
-        
+
         $today = now();
         $birthdate = $this->birth_date->setYear($today->year);
-        
+
         // If birthday already passed this year, check next year
         if ($birthdate->lt($today)) {
             $birthdate = $birthdate->addYear();
         }
-        
+
         return $birthdate->between($today, $today->copy()->addWeek());
     }
 
@@ -398,7 +398,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if (!$this->hasBirthday()) {
             return null;
         }
-        
+
         return $this->birth_date->age;
     }
 
@@ -412,7 +412,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if (!$this->hasWorkAnniversary()) {
             return false;
         }
-        
+
         return $this->hire_date->format('m-d') === now()->format('m-d');
     }
 
@@ -421,7 +421,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if (!$this->hire_date) {
             return null;
         }
-        
+
         return $this->hire_date->diffInYears(now());
     }
 
@@ -430,12 +430,12 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($this->id === $viewer->id) {
             return true; // Can always see own birthday
         }
-        
+
         if (!$this->hasBirthday()) {
             return false;
         }
-        
-        return match($this->birthday_visibility) {
+
+        return match ($this->birthday_visibility) {
             'public' => true,
             'team' => $this->isInSameTeam($viewer),
             'private' => false,
@@ -447,8 +447,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         // Same headquarters, centre, or station
         return $this->headquarters_id === $user->headquarters_id ||
-               $this->centre_id === $user->centre_id ||
-               $this->station_id === $user->station_id;
+            $this->centre_id === $user->centre_id ||
+            $this->station_id === $user->station_id;
     }
 
     // Static methods for queries
@@ -463,10 +463,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $today = now();
         $nextWeek = $today->copy()->addWeek();
-        
+
         return static::whereNotNull('birth_date')
             ->whereIn('birthday_visibility', ['public', 'team'])
-            ->where(function($query) use ($today, $nextWeek) {
+            ->where(function ($query) use ($today, $nextWeek) {
                 for ($date = $today->copy(); $date <= $nextWeek; $date->addDay()) {
                     $query->orWhereRaw('DATE_FORMAT(birth_date, "%m-%d") = ?', [$date->format('m-d')]);
                 }
@@ -478,5 +478,38 @@ class User extends Authenticatable implements MustVerifyEmail
         return static::whereNotNull('hire_date')
             ->where('show_work_anniversary', true)
             ->whereRaw('DATE_FORMAT(hire_date, "%m-%d") = ?', [now()->format('m-d')]);
+    }
+
+    // FAQ Permission Methods
+    public function canManageFaqs(): bool
+    {
+        return in_array($this->role, ['super_admin', 'admin', 'centre_admin']);
+    }
+
+    public function canCreateFaqs(): bool
+    {
+        return $this->canManageFaqs();
+    }
+
+    public function canEditFaq(Faq $faq): bool
+    {
+        if ($this->role === 'super_admin') {
+            return true;
+        }
+
+        if ($this->role === 'admin') {
+            return true;
+        }
+
+        if ($this->role === 'centre_admin') {
+            return $faq->created_by === $this->id;
+        }
+
+        return false;
+    }
+
+    public function canDeleteFaq(Faq $faq): bool
+    {
+        return $this->canEditFaq($faq);
     }
 }
