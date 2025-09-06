@@ -24,6 +24,11 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <!-- Alpine.js -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
@@ -37,7 +42,8 @@
         }
 
         .sidebar-gradient {
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+            border-right: 1px solid #e2e8f0;
         }
 
         .nav-item {
@@ -46,12 +52,12 @@
         }
 
         .nav-item:hover {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(59, 130, 246, 0.08);
             transform: translateX(4px);
         }
 
         .nav-item.active {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, transparent 100%);
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, transparent 100%);
             border-right: 3px solid #3b82f6;
         }
 
@@ -112,30 +118,24 @@
             class="sidebar-gradient flex-shrink-0 transition-all duration-300 ease-in-out shadow-2xl relative z-30">
 
             <!-- Logo Section -->
-            <div class="p-6 border-b border-gray-700/50">
+            <div class="p-6 border-b border-gray-200">
                 <div class="flex items-center" x-show="sidebarOpen"
                     x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="opacity-0 transform scale-95"
                     x-transition:enter-end="opacity-100 transform scale-100">
-                    <div
-                        class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
-                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0v-4a2 2 0 012-2h2a2 2 0 012 2v4" />
-                        </svg>
+                    <div class="w-12 h-12 mr-3">
+                        <img src="{{ asset('images/logos/NIMR.png') }}" alt="NIMR Logo"
+                            class="w-full h-full object-contain">
                     </div>
                     <div>
-                        <h1 class="text-xl font-bold text-white">NIMR Intranet</h1>
-                        <p class="text-sm text-blue-300">National Institute for Medical Research</p>
+                        <h1 class="text-xl font-bold text-gray-800">NIMR Intranet</h1>
+                        <p class="text-sm text-blue-600">National Institute for Medical Research</p>
                     </div>
                 </div>
                 <div x-show="!sidebarOpen" x-transition class="flex justify-center">
-                    <div
-                        class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0v-4a2 2 0 012-2h2a2 2 0 012 2v4" />
-                        </svg>
+                    <div class="w-12 h-12">
+                        <img src="{{ asset('images/logos/NIMR.png') }}" alt="NIMR Logo"
+                            class="w-full h-full object-contain">
                     </div>
                 </div>
             </div>
@@ -156,6 +156,13 @@
                                 'M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z',
                             'label' => 'Announcements',
                             'badge' => 3,
+                        ],
+                        [
+                            'route' => 'news.index',
+                            'icon' =>
+                                'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z',
+                            'label' => 'News Feed',
+                            'badge' => null,
                         ],
                         [
                             'route' => 'documents.index',
@@ -206,50 +213,16 @@
                             'badge' => null,
                         ],
                         [
-                            'route' => '#',
+                            'route' => 'polls.index',
                             'icon' =>
-                                'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
-                            'label' => 'Team Directory',
-                            'badge' => null,
-                        ],
-                        [
-                            'route' => '#',
-                            'icon' =>
-                                'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0v-4a2 2 0 012-2h2a2 2 0 012 2v4',
-                            'label' => 'Departments',
-                            'badge' => null,
-                        ],
-                        [
-                            'route' => '#',
-                            'icon' =>
-                                'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-                            'label' => 'Analytics',
-                            'badge' => null,
-                        ],
-                        [
-                            'route' => '#',
-                            'icon' =>
-                                'M8 7V3a4 4 0 118 0v4m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z',
-                            'label' => 'Research Hub',
-                            'badge' => 'NEW',
-                        ],
-                        [
-                            'route' => '#',
-                            'icon' =>
-                                'M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2',
-                            'label' => 'Documents',
-                            'badge' => null,
-                        ],
-                        [
-                            'route' => '#',
-                            'icon' =>
-                                'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
-                            'label' => 'Communications',
+                                'M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m-2 0V9a2 2 0 012-2h2a2 2 0 012 2v6a2 2 0 01-2 2H9m0 0v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2h2zm10-6h2a2 2 0 012 2v6a2 2 0 01-2 2h-2V7a2 2 0 00-2-2h-2v10h2z',
+                            'label' => 'Quick Polls',
                             'badge' => null,
                         ],
                     ];
 
-                    if (auth()->user()->isSuperAdmin()) {
+                    // Add Administration menu for all admin roles
+                    if (in_array(auth()->user()->role, ['super_admin', 'hq_admin', 'centre_admin', 'station_admin'])) {
                         $menuItems[] = [
                             'route' => 'admin.users.index',
                             'icon' =>
@@ -262,7 +235,7 @@
 
                 @foreach ($menuItems as $item)
                     <a href="{{ $item['route'] !== '#' ? route($item['route']) : '#' }}"
-                        class="nav-item group flex items-center px-4 py-3 text-gray-300 rounded-xl hover:text-white transition-all duration-200 {{ request()->routeIs($item['route']) ? 'active text-white' : '' }}">
+                        class="nav-item group flex items-center px-4 py-3 text-gray-600 rounded-xl hover:text-blue-600 transition-all duration-200 {{ request()->routeIs($item['route']) ? 'active text-blue-600' : '' }}">
                         <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="{{ $item['icon'] }}" />
@@ -289,16 +262,31 @@
                 <div class="flex items-center p-3 rounded-xl bg-white/10 backdrop-blur-sm">
                     <div class="relative">
                         <img class="w-12 h-12 rounded-xl object-cover ring-2 ring-white/20"
-                            src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=667eea&color=fff&size=48"
+                            src="https://ui-avatars.com/api/?name={{ urlencode(
+                                (function () {
+                                    $nameParts = explode(' ', auth()->user()->name);
+                                    $titles = ['Dr.', 'Dr', 'Prof.', 'Prof', 'Mr.', 'Mr', 'Mrs.', 'Mrs', 'Ms.', 'Ms', 'Miss'];
+                            
+                                    // Remove title if present and get meaningful parts
+                                    $cleanParts = [];
+                                    foreach ($nameParts as $part) {
+                                        if (!in_array($part, $titles)) {
+                                            $cleanParts[] = $part;
+                                        }
+                                    }
+                            
+                                    return implode(' ', array_slice($cleanParts, 0, 2)); // First and last name only
+                                })(),
+                            ) }}&background=667eea&color=fff&size=48"
                             alt="{{ auth()->user()->name }}">
                         <div
-                            class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-800">
+                            class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-100">
                         </div>
                     </div>
 
                     <div x-show="sidebarOpen" x-transition class="ml-3 flex-1 min-w-0">
-                        <p class="text-sm font-semibold text-white truncate">{{ auth()->user()->name }}</p>
-                        <p class="text-xs text-gray-400 truncate capitalize">
+                        <p class="text-sm font-semibold text-gray-800 truncate">{{ auth()->user()->name }}</p>
+                        <p class="text-xs text-gray-500 truncate capitalize">
                             {{ str_replace('_', ' ', auth()->user()->role) }}</p>
                     </div>
                 </div>
@@ -309,54 +297,50 @@
         <div class="flex-1 flex flex-col overflow-hidden">
             <!-- Top Header -->
             <header
-                class="glass-effect h-20 flex items-center justify-between px-8 border-b border-gray-200/50 dark:border-gray-700/50 relative z-20">
+                class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 relative z-20 shadow-sm">
                 <!-- Left Section -->
-                <div class="flex items-center space-x-6">
+                <div class="flex items-center space-x-4">
                     <button @click="sidebarOpen = !sidebarOpen"
-                        class="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
+                        class="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
 
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <h1 class="text-lg font-semibold text-gray-900">
                             @yield('page-title', 'Dashboard')
                         </h1>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                            @yield('page-subtitle', 'Welcome to NIMR Intranet')
-                        </p>
                     </div>
                 </div>
 
                 <!-- Center Section - Search -->
-                <div class="flex-1 max-w-2xl mx-8">
+                <div class="flex-1 max-w-lg mx-6">
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
-                        <input type="text" placeholder="Search across NIMR Intranet..."
-                            class="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800/50 border-0 rounded-2xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-800 transition-all">
+                        <input type="text" placeholder="Search..."
+                            class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all">
                     </div>
                 </div>
 
                 <!-- Right Section -->
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-3">
                     <!-- Quick Actions -->
                     <div class="hidden md:flex items-center space-x-2">
                         @if (auth()->user()->canCreateAnnouncements())
                             <a href="{{ route('announcements.create') }}"
-                                class="btn-primary flex items-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="inline-flex items-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 4v16m8-8H4" />
                                 </svg>
-                                <span>New Post</span>
+                                <span>Create</span>
                             </a>
                         @endif
                     </div>
@@ -364,13 +348,13 @@
                     <!-- Notifications -->
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open"
-                            class="relative p-3 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                            <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
+                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors relative">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 17h5l-5 5-5-5h5v-12" />
                             </svg>
-                            <div class="status-indicator"></div>
+                            <!-- Notification badge -->
+                            <span class="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
                         </button>
 
                         <!-- Notification Dropdown -->
@@ -378,46 +362,51 @@
                             x-transition:enter="transition ease-out duration-200"
                             x-transition:enter-start="opacity-0 transform scale-95"
                             x-transition:enter-end="opacity-100 transform scale-100"
-                            class="absolute right-0 mt-2 w-96 card-modern rounded-2xl shadow-2xl z-50 max-h-96 overflow-hidden">
-                            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Notifications</h3>
+                            class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-hidden">
+                            <div class="p-4 border-b border-gray-200">
+                                <h3 class="text-sm font-semibold text-gray-900">Notifications</h3>
                             </div>
                             <div class="overflow-y-auto max-h-80">
-                                <div class="p-6 text-center text-gray-500 dark:text-gray-400">
-                                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="p-6 text-center text-gray-500">
+                                    <svg class="w-8 h-8 mx-auto mb-3 text-gray-300" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                     </svg>
-                                    <p class="font-medium">All caught up!</p>
-                                    <p class="text-sm">No new notifications right now.</p>
+                                    <p class="font-medium text-sm">All caught up!</p>
+                                    <p class="text-xs">No new notifications right now.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Dark Mode Toggle -->
-                    <button @click="darkMode = !darkMode"
-                        class="p-3 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                        <svg x-show="!darkMode" class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                        </svg>
-                        <svg x-show="darkMode" class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                    </button>
-
                     <!-- User Profile Dropdown -->
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open"
-                            class="flex items-center space-x-3 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                            <img class="w-10 h-10 rounded-xl object-cover ring-2 ring-gray-200 dark:ring-gray-700"
-                                src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=667eea&color=fff&size=40"
+                            class="flex items-center space-x-2 p-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                            <img class="w-8 h-8 rounded-full object-cover border border-gray-200"
+                                src="https://ui-avatars.com/api/?name={{ urlencode(
+                                    (function () {
+                                        $nameParts = explode(' ', auth()->user()->name);
+                                        $titles = ['Dr.', 'Dr', 'Prof.', 'Prof', 'Mr.', 'Mr', 'Mrs.', 'Mrs', 'Ms.', 'Ms', 'Miss'];
+                                
+                                        // Remove title if present and get meaningful parts
+                                        $cleanParts = [];
+                                        foreach ($nameParts as $part) {
+                                            if (!in_array($part, $titles)) {
+                                                $cleanParts[] = $part;
+                                            }
+                                        }
+                                
+                                        return implode(' ', array_slice($cleanParts, 0, 2)); // First and last name only
+                                    })(),
+                                ) }}&background=667eea&color=fff&size=32"
                                 alt="{{ auth()->user()->name }}">
+                            <div class="hidden md:block text-left">
+                                <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</p>
+                                <p class="text-xs text-gray-500 capitalize">
+                                    {{ str_replace('_', ' ', auth()->user()->role) }}</p>
+                            </div>
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -430,19 +419,32 @@
                             x-transition:enter="transition ease-out duration-200"
                             x-transition:enter-start="opacity-0 transform scale-95"
                             x-transition:enter-end="opacity-100 transform scale-100"
-                            class="absolute right-0 mt-2 w-72 card-modern rounded-2xl shadow-2xl z-50 overflow-hidden">
-                            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                            class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden">
+                            <div class="p-4 border-b border-gray-200">
                                 <div class="flex items-center space-x-3">
-                                    <img class="w-12 h-12 rounded-xl object-cover"
-                                        src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=667eea&color=fff&size=48"
+                                    <img class="w-10 h-10 rounded-full object-cover"
+                                        src="https://ui-avatars.com/api/?name={{ urlencode(
+                                            (function () {
+                                                $nameParts = explode(' ', auth()->user()->name);
+                                                $titles = ['Dr.', 'Dr', 'Prof.', 'Prof', 'Mr.', 'Mr', 'Mrs.', 'Mrs', 'Ms.', 'Ms', 'Miss'];
+                                        
+                                                // Remove title if present and get meaningful parts
+                                                $cleanParts = [];
+                                                foreach ($nameParts as $part) {
+                                                    if (!in_array($part, $titles)) {
+                                                        $cleanParts[] = $part;
+                                                    }
+                                                }
+                                        
+                                                return implode(' ', array_slice($cleanParts, 0, 2)); // First and last name only
+                                            })(),
+                                        ) }}&background=667eea&color=fff&size=40"
                                         alt="{{ auth()->user()->name }}">
                                     <div>
-                                        <p class="font-semibold text-gray-900 dark:text-white">
-                                            {{ auth()->user()->name }}</p>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                                            {{ auth()->user()->email }}</p>
+                                        <p class="font-medium text-gray-900">{{ auth()->user()->name }}</p>
+                                        <p class="text-sm text-gray-500">{{ auth()->user()->email }}</p>
                                         <span
-                                            class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 capitalize mt-1">
+                                            class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 capitalize mt-1">
                                             {{ str_replace('_', ' ', auth()->user()->role) }}
                                         </span>
                                     </div>
@@ -450,8 +452,8 @@
                             </div>
                             <div class="p-2">
                                 <a href="{{ route('profile.edit') }}"
-                                    class="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
-                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor"
+                                    class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -461,8 +463,8 @@
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
-                                        class="w-full flex items-center px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
-                                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor"
+                                        class="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

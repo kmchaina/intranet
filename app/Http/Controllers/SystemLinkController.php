@@ -80,6 +80,7 @@ class SystemLinkController extends Controller
             'requires_vpn' => 'boolean',
             'is_featured' => 'boolean',
             'is_external' => 'boolean',
+            'show_on_dashboard' => 'boolean',
         ]);
 
         $validated['added_by'] = Auth::id();
@@ -122,6 +123,19 @@ class SystemLinkController extends Controller
 
     public function update(Request $request, SystemLink $systemLink)
     {
+        // Check if this is a dashboard toggle request
+        if ($request->has('show_on_dashboard')) {
+            $systemLink->update([
+                'show_on_dashboard' => $request->boolean('show_on_dashboard')
+            ]);
+
+            return redirect()->route('system-links.index')
+                ->with('success', $request->boolean('show_on_dashboard')
+                    ? 'Link added to dashboard!'
+                    : 'Link removed from dashboard!');
+        }
+
+        // Regular update validation
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -132,6 +146,7 @@ class SystemLinkController extends Controller
             'requires_vpn' => 'boolean',
             'is_featured' => 'boolean',
             'is_external' => 'boolean',
+            'show_on_dashboard' => 'boolean',
         ]);
 
         $systemLink->update($validated);
@@ -155,5 +170,14 @@ class SystemLinkController extends Controller
 
         // Return the URL for redirection
         return response()->json(['url' => $systemLink->url]);
+    }
+
+    public function incrementClick(SystemLink $systemLink)
+    {
+        // Increment click count
+        $systemLink->increment('click_count');
+
+        // Return success response
+        return response()->json(['success' => true]);
     }
 }

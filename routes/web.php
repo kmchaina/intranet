@@ -10,9 +10,10 @@ use App\Http\Controllers\TrainingVideoController;
 use App\Http\Controllers\SystemLinkController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\BirthdayController;
-use App\Http\Controllers\FaqController;
+use App\Http\Controllers\PollController;
+use App\Http\Controllers\NewsController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\UserAdminController;
-use App\Models\Faq;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,14 +26,8 @@ Route::get('/check-users', function () {
     return response()->json($users);
 });
 
-Route::get('/dashboard', function () {
-    $featuredFaqs = Faq::published()
-        ->featured()
-        ->limit(3)
-        ->get();
-
-    return view('dashboard', compact('featuredFaqs'));
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/css-debug', function () {
     return view('css-debug');
@@ -87,6 +82,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('system-links', SystemLinkController::class);
     Route::post('system-links/{link}/increment-click', [SystemLinkController::class, 'incrementClick'])
         ->name('system-links.increment-click');
+    Route::post('system-links/{link}/click', [SystemLinkController::class, 'incrementClick'])
+        ->name('system-links.click');
 
     // Feedback routes
     Route::resource('feedback', FeedbackController::class);
@@ -99,14 +96,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('birthdays/profile', [BirthdayController::class, 'updateProfile'])->name('birthdays.update-profile');
     Route::post('birthdays/{user}/celebrate', [BirthdayController::class, 'celebrate'])->name('birthdays.celebrate');
 
-    // FAQ routes
-    Route::resource('faqs', FaqController::class);
-    Route::get('faqs/suggest/new', [FaqController::class, 'suggest'])->name('faqs.suggest');
-    Route::post('faqs/suggest', [FaqController::class, 'storeSuggestion'])->name('faqs.suggest.store');
-    Route::get('faqs/suggestions/manage', [FaqController::class, 'suggestions'])->name('faqs.suggestions');
-    Route::patch('faqs/suggestions/{suggestion}/review', [FaqController::class, 'reviewSuggestion'])->name('faqs.suggestions.review');
-    Route::post('faqs/{faq}/helpful', [FaqController::class, 'helpful'])->name('faqs.helpful');
-    Route::post('faqs/{faq}/not-helpful', [FaqController::class, 'notHelpful'])->name('faqs.not-helpful');
+    // Poll routes
+    Route::resource('polls', PollController::class);
+    Route::post('polls/{poll}/vote', [PollController::class, 'vote'])->name('polls.vote');
+    Route::get('polls/{poll}/results', [PollController::class, 'results'])->name('polls.results');
+
+    // News routes
+    Route::resource('news', NewsController::class);
+    Route::post('news/{news}/like', [NewsController::class, 'toggleLike'])->name('news.like');
+    Route::post('news/{news}/comment', [NewsController::class, 'storeComment'])->name('news.comment');
 
     // Admin routes (Super Admin only)
     Route::prefix('admin')->name('admin.')->group(function () {

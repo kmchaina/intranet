@@ -21,6 +21,7 @@ class SystemLink extends Model
         'requires_vpn',
         'is_active',
         'is_featured',
+        'show_on_dashboard',
         'access_level',
         'click_count',
         'added_by',
@@ -31,6 +32,7 @@ class SystemLink extends Model
         'requires_vpn' => 'boolean',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
+        'show_on_dashboard' => 'boolean',
         'click_count' => 'integer',
     ];
 
@@ -61,6 +63,7 @@ class SystemLink extends Model
     public static function getCategories(): array
     {
         return [
+            'quick_access' => 'Quick Access',
             'general' => 'General Systems',
             'hr' => 'Human Resources',
             'finance' => 'Finance & Accounting',

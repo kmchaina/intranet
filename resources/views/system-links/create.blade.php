@@ -78,7 +78,8 @@
                                 class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('category') border-red-500 @enderror">
                                 <option value="">Select a category...</option>
                                 @foreach (\App\Models\SystemLink::getCategories() as $key => $label)
-                                    <option value="{{ $key }}" {{ old('category') === $key ? 'selected' : '' }}>
+                                    <option value="{{ $key }}"
+                                        {{ (old('category') ?: request('category')) === $key ? 'selected' : '' }}>
                                         {{ $label }}
                                     </option>
                                 @endforeach

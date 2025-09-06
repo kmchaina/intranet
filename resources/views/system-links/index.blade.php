@@ -1,196 +1,441 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Links')
+@section('title', 'System Links')
 
 @section('content')
     <div class="min-h-screen bg-gray-50 py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-900">🔗 Links</h1>
-                    <p class="text-gray-600 mt-1">Quick access to all organizational systems and external tools</p>
-                </div>
-                <div class="flex space-x-3">
-                    <!-- View Toggle -->
-                    <div class="flex border border-gray-300 rounded-md">
-                        <button type="button" onclick="setView('grid')" id="grid-view-btn"
-                            class="px-3 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 rounded-l-md border-r border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                            </svg>
-                        </button>
-                        <button type="button" onclick="setView('list')" id="list-view-btn"
-                            class="px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <a href="{{ route('system-links.create') }}"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Add New Link
-                    </a>
-                </div>
-            </div>
-
-            <!-- Filters -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-                <div class="p-4">
-                    <form method="GET" action="{{ route('system-links.index') }}" class="flex flex-wrap gap-4">
-                        <div class="flex-1 min-w-[250px]">
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="Search links..."
-                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            <div class="bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-100 mb-6">
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h1 class="text-3xl font-bold text-gray-900">System Links</h1>
+                                <p class="text-gray-600 mt-1">Quick access to all organizational systems</p>
+                            </div>
                         </div>
-                        <div class="min-w-[150px]">
-                            <select name="category"
-                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="">All Categories</option>
-                                @foreach (\App\Models\SystemLink::getCategories() as $key => $label)
-                                    <option value="{{ $key }}"
-                                        {{ request('category') === $key ? 'selected' : '' }}>
-                                        {{ $label }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="min-w-[150px]">
-                            <select name="access_level"
-                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="">All Access Levels</option>
-                                @foreach (\App\Models\SystemLink::getAccessLevels() as $key => $label)
-                                    <option value="{{ $key }}"
-                                        {{ request('access_level') === $key ? 'selected' : '' }}>
-                                        {{ $label }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button type="submit"
-                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        @if (auth()->user()->isAdmin())
+                            <a href="{{ route('system-links.create') }}"
+                                class="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        d="M12 4v16m8-8H4" />
                                 </svg>
+                                Add New Link
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Search and View Controls -->
+                <div class="px-6 py-4">
+                    <div class="flex items-center justify-between gap-4">
+                        <!-- Search Form -->
+                        <form method="GET" action="{{ route('system-links.index') }}" class="flex gap-4 flex-1">
+                            <div class="flex-1">
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <input type="text" name="search" value="{{ request('search') }}"
+                                        placeholder="Search links..."
+                                        class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+                                    <input type="hidden" name="view" value="{{ request('view', 'grid') }}">
+                                </div>
+                            </div>
+                            <button type="submit"
+                                class="inline-flex items-center px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors">
                                 Search
                             </button>
-                            @if (request()->hasAny(['search', 'category', 'access_level']))
-                                <a href="{{ route('system-links.index') }}"
-                                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            @if (request('search'))
+                                <a href="{{ route('system-links.index', ['view' => request('view', 'grid')]) }}"
+                                    class="inline-flex items-center px-3 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                                     Clear
                                 </a>
                             @endif
+                        </form>
+
+                        <!-- View Toggle -->
+                        <div class="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+                            <a href="{{ route('system-links.index', array_merge(request()->all(), ['view' => 'grid'])) }}"
+                                class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request('view', 'grid') === 'grid' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                                    </path>
+                                </svg>
+                                Grid
+                            </a>
+                            <a href="{{ route('system-links.index', array_merge(request()->all(), ['view' => 'list'])) }}"
+                                class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request('view') === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                                </svg>
+                                List
+                            </a>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
 
-            <!-- Featured Links -->
-            @if ($featured->count() > 0)
-                <div class="mb-8">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-4">⭐ Featured Links</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                        @foreach ($featured as $link)
-                            @include('system-links.partials.link-card', [
-                                'link' => $link,
-                                'featured' => true,
-                            ])
-                        @endforeach
+            <!-- Quick Access Management for Admins -->
+            @if (auth()->user()->isAdmin())
+                <div class="bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-100 mb-6">
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <h2 class="text-lg font-semibold text-gray-900">Dashboard Quick Access</h2>
+                            </div>
+                            <span class="text-sm text-gray-600">Toggle which links appear on user dashboards</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        @php
+                            $dashboardLinks = $links->where('show_on_dashboard', true);
+                        @endphp
+                        @if ($dashboardLinks->count() > 0)
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                @foreach ($dashboardLinks as $link)
+                                    <div
+                                        class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            @if ($link->icon)
+                                                @if (str_starts_with($link->icon, 'fa'))
+                                                    <i class="{{ $link->icon }} text-green-600"></i>
+                                                @else
+                                                    <span>{{ $link->icon }}</span>
+                                                @endif
+                                            @endif
+                                            <span class="text-sm font-medium text-gray-900">{{ $link->title }}</span>
+                                        </div>
+                                        <form action="{{ route('system-links.update', $link) }}" method="POST"
+                                            class="inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="show_on_dashboard" value="0">
+                                            <button type="submit" class="text-red-600 hover:text-red-800 text-sm">
+                                                Remove
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-gray-500 text-center py-4">No links are currently shown on the dashboard</p>
+                        @endif
                     </div>
                 </div>
             @endif
 
-            <!-- All Links -->
-            <div class="mb-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-semibold text-gray-900">All Links</h2>
-                    <div class="text-sm text-gray-500">
-                        {{ $links->total() }} {{ Str::plural('link', $links->total()) }} found
+            <!-- All Links - Simple Grid -->
+            <div class="bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-100">
+                <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-900">All System Links</h2>
+                        <span class="text-sm text-gray-600">{{ $links->total() }} links total</span>
                     </div>
                 </div>
 
                 @if ($links->count() > 0)
-                    <!-- Grid View (hidden by default) -->
-                    <div id="grid-view" class="hidden">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                            @foreach ($links as $link)
-                                @include('system-links.partials.link-card', [
-                                    'link' => $link,
-                                    'featured' => false,
-                                ])
-                            @endforeach
-                        </div>
-                    </div>
+                    <div class="p-6">
+                        @if (request('view') === 'list')
+                            <!-- List View -->
+                            <div class="space-y-3">
+                                @foreach ($links as $link)
+                                    @php
+                                        $colorClasses = $link->getColorClasses();
+                                    @endphp
+                                    <div
+                                        class="group relative flex items-center p-4 bg-white border border-gray-200 rounded-lg hover:border-green-300 hover:shadow-md transition-all duration-200">
+                                        <!-- Icon -->
+                                        <div
+                                            class="w-10 h-10 {{ $colorClasses[0] }} rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                                            @if ($link->icon)
+                                                @if (str_starts_with($link->icon, 'fa'))
+                                                    <i class="{{ $link->icon }} {{ $colorClasses[1] }}"></i>
+                                                @else
+                                                    <span>{{ $link->icon }}</span>
+                                                @endif
+                                            @else
+                                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                                                    </path>
+                                                </svg>
+                                            @endif
+                                        </div>
 
-                    <!-- List View (visible by default) -->
-                    <div id="list-view" class="">
-                        <div class="bg-white shadow-sm rounded-lg overflow-hidden">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Link
-                                        </th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Category
-                                        </th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Access
-                                        </th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Clicks
-                                        </th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Added
-                                        </th>
-                                        <th scope="col" class="relative px-6 py-3">
-                                            <span class="sr-only">Actions</span>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach ($links as $link)
-                                        @include('system-links.partials.link-row', ['link' => $link])
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                        <!-- Main Content -->
+                                        <div class="flex-1 min-w-0">
+                                            <a href="{{ $link->url }}"
+                                                target="{{ $link->opens_new_tab ? '_blank' : '_self' }}"
+                                                onclick="trackLinkClick({{ $link->id }})" class="block">
+                                                <div class="flex items-center justify-between">
+                                                    <div class="flex-1 min-w-0">
+                                                        <h3 class="text-base font-medium text-gray-900 truncate">
+                                                            {{ $link->title }}</h3>
+                                                        @if ($link->description)
+                                                            <p class="text-sm text-gray-500 truncate mt-1">
+                                                                {{ $link->description }}</p>
+                                                        @endif
+                                                        <div class="flex items-center space-x-3 mt-2">
+                                                            <span
+                                                                class="inline-block px-2 py-1 {{ $colorClasses[0] }} {{ $colorClasses[1] }} text-xs rounded-full">
+                                                                {{ \App\Models\SystemLink::getCategories()[$link->category] ?? $link->category }}
+                                                            </span>
+                                                            @if ($link->show_on_dashboard)
+                                                                <span
+                                                                    class="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                                                                    <svg class="w-3 h-3 mr-1" fill="currentColor"
+                                                                        viewBox="0 0 20 20">
+                                                                        <path
+                                                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                                        </path>
+                                                                    </svg>
+                                                                    On Dashboard
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <svg class="w-5 h-5 text-gray-400" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                                            </path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <!-- Admin Actions -->
+                                        @if (auth()->user()->isAdmin())
+                                            <div
+                                                class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div class="flex space-x-1">
+                                                    @if (!$link->show_on_dashboard)
+                                                        <form action="{{ route('system-links.update', $link) }}"
+                                                            method="POST" class="inline">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="show_on_dashboard"
+                                                                value="1">
+                                                            <button type="submit"
+                                                                class="p-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                                                                title="Add to Dashboard">
+                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                                    viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                                                </svg>
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                    <a href="{{ route('system-links.edit', $link) }}"
+                                                        class="p-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                                                        title="Edit">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                            </path>
+                                                        </svg>
+                                                    </a>
+                                                    <form action="{{ route('system-links.destroy', $link) }}"
+                                                        method="POST" class="inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                            onclick="return confirm('Delete this link?')"
+                                                            class="p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                                                            title="Delete">
+                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                                </path>
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <!-- Grid View (Default) -->
+                            <div
+                                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                                @foreach ($links as $link)
+                                    @php
+                                        $colorClasses = $link->getColorClasses();
+                                    @endphp
+                                    <div class="group relative">
+                                        <!-- Main Link -->
+                                        <a href="{{ $link->url }}"
+                                            target="{{ $link->opens_new_tab ? '_blank' : '_self' }}"
+                                            onclick="trackLinkClick({{ $link->id }})"
+                                            class="block p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-green-300 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+
+                                            <div class="text-center">
+                                                <!-- Icon -->
+                                                <div
+                                                    class="w-12 h-12 {{ $colorClasses[0] }} rounded-xl flex items-center justify-center mx-auto mb-3">
+                                                    @if ($link->icon)
+                                                        @if (str_starts_with($link->icon, 'fa'))
+                                                            <i
+                                                                class="{{ $link->icon }} {{ $colorClasses[1] }} text-lg"></i>
+                                                        @else
+                                                            <span class="text-xl">{{ $link->icon }}</span>
+                                                        @endif
+                                                    @else
+                                                        <svg class="w-6 h-6 text-gray-500" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                                                            </path>
+                                                        </svg>
+                                                    @endif
+                                                </div>
+
+                                                <!-- Title -->
+                                                <h3 class="text-sm font-medium text-gray-900 line-clamp-2 mb-1">
+                                                    {{ $link->title }}</h3>
+
+                                                <!-- Category Badge -->
+                                                <span
+                                                    class="inline-block px-2 py-1 {{ $colorClasses[0] }} {{ $colorClasses[1] }} text-xs rounded-full">
+                                                    {{ \App\Models\SystemLink::getCategories()[$link->category] ?? $link->category }}
+                                                </span>
+
+                                                @if ($link->show_on_dashboard)
+                                                    <div class="mt-2">
+                                                        <span
+                                                            class="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                                                            <svg class="w-3 h-3 mr-1" fill="currentColor"
+                                                                viewBox="0 0 20 20">
+                                                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                                </path>
+                                                            </svg>
+                                                            On Dashboard
+                                                        </span>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </a>
+
+                                        <!-- Admin Actions -->
+                                        @if (auth()->user()->isAdmin())
+                                            <div
+                                                class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div class="flex space-x-1">
+                                                    @if (!$link->show_on_dashboard)
+                                                        <form action="{{ route('system-links.update', $link) }}"
+                                                            method="POST" class="inline">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="show_on_dashboard"
+                                                                value="1">
+                                                            <button type="submit"
+                                                                class="p-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                                                                title="Add to Dashboard">
+                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                                    viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                                                </svg>
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                    <a href="{{ route('system-links.edit', $link) }}"
+                                                        class="p-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                                                        title="Edit">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                            </path>
+                                                        </svg>
+                                                    </a>
+                                                    <form action="{{ route('system-links.destroy', $link) }}"
+                                                        method="POST" class="inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                            onclick="return confirm('Delete this link?')"
+                                                            class="p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                                                            title="Delete">
+                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                                </path>
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Pagination -->
-                    <div class="mt-6">
-                        {{ $links->appends(request()->query())->links() }}
-                    </div>
+                    @if ($links->hasPages())
+                        <div class="px-6 py-4 border-t border-gray-100">
+                            {{ $links->appends(request()->query())->links() }}
+                        </div>
+                    @endif
                 @else
-                    <div class="text-center py-12">
-                        <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">No links found</h3>
-                        <p class="text-gray-500 mb-4">No links match your current search criteria.</p>
-                        @if (request()->hasAny(['search', 'category', 'access_level']))
-                            <a href="{{ route('system-links.index') }}"
-                                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                Clear filters
+                    <div class="p-12 text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-2xl flex items-center justify-center">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">No links found</h3>
+                        <p class="text-gray-500 mb-6">No links match your search criteria.</p>
+                        @if (request('search'))
+                            <a href="{{ route('system-links.index', ['view' => request('view', 'grid')]) }}"
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 transition-colors">
+                                Clear search
                             </a>
-                        @else
+                        @elseif(auth()->user()->isAdmin())
                             <a href="{{ route('system-links.create') }}"
-                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                                class="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors">
                                 Add first link
                             </a>
                         @endif
@@ -202,88 +447,15 @@
 
     @push('scripts')
         <script>
-            // View switching functionality
-            function setView(viewType) {
-                const gridView = document.getElementById('grid-view');
-                const listView = document.getElementById('list-view');
-                const gridBtn = document.getElementById('grid-view-btn');
-                const listBtn = document.getElementById('list-view-btn');
-
-                if (viewType === 'grid') {
-                    gridView.classList.remove('hidden');
-                    listView.classList.add('hidden');
-                    gridBtn.classList.add('bg-blue-600', 'text-white');
-                    gridBtn.classList.remove('bg-white', 'text-gray-700');
-                    listBtn.classList.add('bg-white', 'text-gray-700');
-                    listBtn.classList.remove('bg-blue-600', 'text-white');
-                    localStorage.setItem('linksView', 'grid');
-                } else {
-                    gridView.classList.add('hidden');
-                    listView.classList.remove('hidden');
-                    listBtn.classList.add('bg-blue-600', 'text-white');
-                    listBtn.classList.remove('bg-white', 'text-gray-700');
-                    gridBtn.classList.add('bg-white', 'text-gray-700');
-                    gridBtn.classList.remove('bg-blue-600', 'text-white');
-                    localStorage.setItem('linksView', 'list');
-                }
-            }
-
-            // Load saved view preference on page load (defaults to list view)
-            document.addEventListener('DOMContentLoaded', function() {
-                const savedView = localStorage.getItem('linksView') || 'list';
-                setView(savedView);
-            });
-
-            // Reuse dropdown and link click functions
-            function toggleDropdown(id) {
-                event.stopPropagation();
-                const dropdown = document.getElementById(id);
-                const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
-
-                // Close all other dropdowns
-                allDropdowns.forEach(d => {
-                    if (d.id !== id) {
-                        d.classList.add('hidden');
-                    }
-                });
-
-                // Toggle current dropdown
-                dropdown.classList.toggle('hidden');
-            }
-
-            function handleLinkClick(event, url, linkId, opensNewTab) {
-                // Don't trigger if clicking on dropdown or form elements
-                if (event.target.closest('[onclick*="toggleDropdown"]') ||
-                    event.target.closest('form') ||
-                    event.target.closest('button')) {
-                    return;
-                }
-
-                event.preventDefault();
-
-                // Increment click count
-                fetch(`/system-links/${linkId}/increment-click`, {
+            function trackLinkClick(linkId) {
+                fetch(`/system-links/${linkId}/click`, {
                     method: 'POST',
                     headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                }).catch(error => console.error('Error incrementing click count:', error));
-
-                // Open the link
-                if (opensNewTab) {
-                    window.open(url, '_blank');
-                } else {
-                    window.location.href = url;
-                }
+                    },
+                }).catch(error => console.error('Error tracking click:', error));
             }
-
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function() {
-                const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
-                allDropdowns.forEach(d => d.classList.add('hidden'));
-            });
         </script>
     @endpush
-
 @endsection

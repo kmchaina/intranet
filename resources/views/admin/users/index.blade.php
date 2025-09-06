@@ -164,7 +164,22 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
                                         <img class="h-10 w-10 rounded-full"
-                                            src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=4A90E2&color=fff"
+                                            src="https://ui-avatars.com/api/?name={{ urlencode(
+                                                (function ($user) {
+                                                    $nameParts = explode(' ', $user->name);
+                                                    $titles = ['Dr.', 'Dr', 'Prof.', 'Prof', 'Mr.', 'Mr', 'Mrs.', 'Mrs', 'Ms.', 'Ms', 'Miss'];
+                                            
+                                                    // Remove title if present and get meaningful parts
+                                                    $cleanParts = [];
+                                                    foreach ($nameParts as $part) {
+                                                        if (!in_array($part, $titles)) {
+                                                            $cleanParts[] = $part;
+                                                        }
+                                                    }
+                                            
+                                                    return implode(' ', array_slice($cleanParts, 0, 2)); // First and last name only
+                                                })($user),
+                                            ) }}&background=4A90E2&color=fff"
                                             alt="{{ $user->name }}">
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900 dark:text-white">

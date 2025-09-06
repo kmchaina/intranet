@@ -104,7 +104,7 @@
                                     <div class="flex items-center space-x-3 mb-2">
                                         <h3 class="text-lg font-semibold text-gray-900">
                                             <a href="{{ route('feedback.show', $item) }}" class="hover:text-blue-600">
-                                                {{ $item->title }}
+                                                {{ $item->subject }}
                                             </a>
                                         </h3>
 
@@ -136,7 +136,7 @@
                                         </span>
                                     </div>
 
-                                    <p class="text-gray-600 mb-3 line-clamp-2">{{ Str::limit($item->description, 150) }}
+                                    <p class="text-gray-600 mb-3 line-clamp-2">{{ Str::limit($item->message, 150) }}
                                     </p>
 
                                     <div class="flex items-center text-sm text-gray-500 space-x-4">

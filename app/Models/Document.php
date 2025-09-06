@@ -124,6 +124,14 @@ class Document extends Model
     }
 
     /**
+     * Scope alias for whereCanAccess - documents the user can access
+     */
+    public function scopeWhereCanAccess(Builder $query, User $user): Builder
+    {
+        return $this->scopeForUser($query, $user)->active();
+    }
+
+    /**
      * Get formatted file size
      */
     public function getFormattedSizeAttribute(): string

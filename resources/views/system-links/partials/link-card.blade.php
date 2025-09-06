@@ -10,7 +10,11 @@
             <div class="flex items-center space-x-3">
                 @if ($link->icon)
                     <div class="flex-shrink-0">
-                        <span class="text-2xl">{{ $link->icon }}</span>
+                        @if (str_starts_with($link->icon, 'fa'))
+                            <i class="{{ $link->icon }} text-2xl {{ $colorClasses[1] }}"></i>
+                        @else
+                            <span class="text-2xl">{{ $link->icon }}</span>
+                        @endif
                     </div>
                 @endif
                 <div class="flex-1 min-w-0">

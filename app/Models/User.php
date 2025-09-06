@@ -198,6 +198,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Check if user can manage polls
+     */
+    public function canManagePolls(): bool
+    {
+        return $this->isAdmin(); // All admin levels can manage polls
+    }
+
+    /**
      * Get allowed target scopes for announcements based on user role
      */
     public function getAllowedTargetScopes(): array
@@ -478,38 +486,5 @@ class User extends Authenticatable implements MustVerifyEmail
         return static::whereNotNull('hire_date')
             ->where('show_work_anniversary', true)
             ->whereRaw('DATE_FORMAT(hire_date, "%m-%d") = ?', [now()->format('m-d')]);
-    }
-
-    // FAQ Permission Methods
-    public function canManageFaqs(): bool
-    {
-        return in_array($this->role, ['super_admin', 'admin', 'centre_admin']);
-    }
-
-    public function canCreateFaqs(): bool
-    {
-        return $this->canManageFaqs();
-    }
-
-    public function canEditFaq(Faq $faq): bool
-    {
-        if ($this->role === 'super_admin') {
-            return true;
-        }
-
-        if ($this->role === 'admin') {
-            return true;
-        }
-
-        if ($this->role === 'centre_admin') {
-            return $faq->created_by === $this->id;
-        }
-
-        return false;
-    }
-
-    public function canDeleteFaq(Faq $faq): bool
-    {
-        return $this->canEditFaq($faq);
     }
 }

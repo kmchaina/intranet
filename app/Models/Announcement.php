@@ -55,6 +55,14 @@ class Announcement extends Model
     }
 
     /**
+     * Alias for readers relationship (for cleaner queries)
+     */
+    public function readBy(): BelongsToMany
+    {
+        return $this->readers();
+    }
+
+    /**
      * Attachments for this announcement
      */
     public function attachments(): HasMany
@@ -82,6 +90,14 @@ class Announcement extends Model
     {
         // Simplified: Show all announcements for now
         return $query;
+    }
+
+    /**
+     * Scope to get announcements visible to a specific user
+     */
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        return $query->published()->forUser($user);
     }
 
     /**
