@@ -88,8 +88,75 @@ class Announcement extends Model
      */
     public function scopeForUser(Builder $query, User $user): Builder
     {
-        // Simplified: Show all announcements for now
-        return $query;
+        return $query->where(function ($q) use ($user) {
+            // 1. All NIMR staff announcements
+            $q->where('target_scope', 'all')
+            
+            // 2. Headquarters-only announcements (only if user is at HQ)
+            ->orWhere(function ($subQ) use ($user) {
+                if ($user->headquarters_id && !$user->centre_id && !$user->station_id) {
+                    $subQ->where('target_scope', 'headquarters');
+                }
+            })
+            
+            // 3. Centre-level announcements
+            ->orWhere(function ($subQ) use ($user) {
+                if ($user->centre_id) {
+                    $subQ->where(function ($centreQ) use ($user) {
+                        // My centre announcements from same centre users
+                        $centreQ->where('target_scope', 'my_centre')
+                                ->whereHas('creator', function ($creatorQ) use ($user) {
+                                    $creatorQ->where('centre_id', $user->centre_id);
+                                });
+                    })
+                    ->orWhere(function ($centreStationsQ) use ($user) {
+                        // My centre + stations announcements from same centre users
+                        $centreStationsQ->where('target_scope', 'my_centre_stations')
+                                       ->whereHas('creator', function ($creatorQ) use ($user) {
+                                           $creatorQ->where('centre_id', $user->centre_id);
+                                       });
+                    })
+                    ->orWhere(function ($allCentresQ) {
+                        // All centres announcements (visible to all centre staff)
+                        $allCentresQ->where('target_scope', 'all_centres');
+                    })
+                    ->orWhere(function ($specificQ) use ($user) {
+                        // Specific targeting that includes this user's centre
+                        $specificQ->where('target_scope', 'specific')
+                                 ->whereJsonContains('target_centres', $user->centre_id);
+                    });
+                }
+            })
+            
+            // 4. Station-level announcements
+            ->orWhere(function ($subQ) use ($user) {
+                if ($user->station_id) {
+                    $subQ->where(function ($stationQ) use ($user) {
+                        // My station announcements from same station users
+                        $stationQ->where('target_scope', 'my_station')
+                                ->whereHas('creator', function ($creatorQ) use ($user) {
+                                    $creatorQ->where('station_id', $user->station_id);
+                                });
+                    })
+                    ->orWhere(function ($allStationsQ) {
+                        // All stations announcements (visible to all station staff)
+                        $allStationsQ->where('target_scope', 'all_stations');
+                    })
+                    ->orWhere(function ($specificStationQ) use ($user) {
+                        // Specific targeting that includes this user's station
+                        $specificStationQ->where('target_scope', 'specific')
+                                        ->whereJsonContains('target_stations', $user->station_id);
+                    })
+                    ->orWhere(function ($centreStationsQ) use ($user) {
+                        // Centre + stations announcements from same centre (station users can see centre announcements)
+                        $centreStationsQ->where('target_scope', 'my_centre_stations')
+                                       ->whereHas('creator', function ($creatorQ) use ($user) {
+                                           $creatorQ->where('centre_id', $user->centre_id);
+                                       });
+                    });
+                }
+            });
+        });
     }
 
     /**

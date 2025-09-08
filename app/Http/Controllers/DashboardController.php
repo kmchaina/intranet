@@ -6,6 +6,7 @@ use App\Models\Announcement;
 use App\Models\Document;
 use App\Models\Poll;
 use App\Models\News;
+use App\Models\Event;
 use App\Models\User;
 use App\Models\SystemLink;
 use Illuminate\Http\Request;
@@ -22,7 +23,29 @@ class DashboardController extends Controller
         // Get dashboard data based on user role and permissions
         $dashboardData = $this->getDashboardData($user);
 
-        return view('dashboard.index', $dashboardData);
+        // Route to role-specific dashboard view
+        return $this->getRoleSpecificView($user, $dashboardData);
+    }
+
+    private function getRoleSpecificView($user, $dashboardData)
+    {
+        switch ($user->role) {
+            case 'super_admin':
+                return view('dashboard.super-admin', $dashboardData);
+            
+            case 'hq_admin':
+                return view('dashboard.hq-admin', $dashboardData);
+            
+            case 'centre_admin':
+                return view('dashboard.centre-admin', $dashboardData);
+            
+            case 'station_admin':
+                return view('dashboard.station-admin', $dashboardData);
+            
+            case 'staff':
+            default:
+                return view('dashboard.staff', $dashboardData);
+        }
     }
 
     private function getDashboardData($user)
@@ -133,8 +156,7 @@ class DashboardController extends Controller
                 })
                 ->count(),
 
-            'activePolls' => Poll::active()
-                ->visibleTo($user)
+            'upcomingEvents' => Event::where('event_date', '>=', now())
                 ->count(),
 
             'totalDocuments' => Document::whereCanAccess($user)->count(),

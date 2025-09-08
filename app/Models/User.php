@@ -223,15 +223,11 @@ class User extends Authenticatable implements MustVerifyEmail
             ],
             'hq_admin' => [
                 'all' => 'All NIMR Staff',
-                'headquarters' => 'Headquarters Only',
-                'all_centres' => 'All Centres',
-                'all_stations' => 'All Stations',
-                'specific' => 'Custom Selection'
+                'headquarters' => 'Headquarters Only'
             ],
             'centre_admin' => [
                 'my_centre' => 'My Centre Only',
-                'my_centre_stations' => 'My Centre + Its Stations',
-                'specific' => 'My Stations Only'
+                'my_centre_stations' => 'My Centre + Its Stations'
             ],
             'station_admin' => [
                 'my_station' => 'My Station Only'

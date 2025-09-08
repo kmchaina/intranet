@@ -5,19 +5,20 @@
 @section('page-title', 'Edit Poll: ' . $poll->title)
 
 @section('content')
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Edit Poll: {{ $poll->title }}</h1>
-        <div class="flex items-center gap-2">
-            <a href="{{ route('polls.show', $poll) }}"
-                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                View Poll
-            </a>
-            <a href="{{ route('polls.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                Back to Polls
-            </a>
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Edit Poll: {{ $poll->title }}</h1>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('polls.show', $poll) }}"
+                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                    View Poll
+                </a>
+                <a href="{{ route('polls.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                    Back to Polls
+                </a>
+            </div>
         </div>
-    </div>
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
         <div class="p-6">
             @if ($poll->responses()->exists())
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
@@ -336,8 +337,6 @@
                 </div>
             </form>
         </div>
-    </div>
-    </div>
     </div>
 
     @push('scripts')

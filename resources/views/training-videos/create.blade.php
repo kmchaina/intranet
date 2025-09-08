@@ -3,7 +3,8 @@
 @section('title', 'Add Training Video')
 
 @section('content')
-    <div class="bg-white shadow rounded-lg">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white shadow rounded-lg">
         <div class="px-6 py-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
@@ -206,6 +207,7 @@
                 </button>
             </div>
         </form>
+    </div>
     </div>
 
     <script>

@@ -48,8 +48,7 @@ class AnnouncementController extends Controller
      */
     public function create(): View
     {
-        // Temporarily bypass authorization - working solution
-        // $this->authorize('create', Announcement::class);
+        $this->authorize('create', Announcement::class);
 
         $centres = Centre::where('is_active', true)->get();
         $stations = Station::where('is_active', true)->with('centre')->get();
@@ -62,8 +61,7 @@ class AnnouncementController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // Temporarily bypass authorization - working solution
-        // $this->authorize('create', Announcement::class);
+        $this->authorize('create', Announcement::class);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',

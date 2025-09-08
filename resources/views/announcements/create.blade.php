@@ -5,7 +5,7 @@
 @section('page-subtitle', 'Share important information with your colleagues')
 
 @section('content')
-    <div class="p-6">
+    <div class="max-w-4xl mx-auto p-6">
         <!-- Header Section -->
         <div class="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg p-6 mb-6">
             <div class="flex items-center mb-4">

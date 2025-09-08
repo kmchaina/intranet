@@ -70,7 +70,24 @@ class DocumentController extends Controller
             ->sort()
             ->values();
 
-        return view('documents.index', compact('documents', 'categories', 'accessLevels', 'allTags'));
+        // Get category counts for department cards
+        $categoryCounts = [
+            'administrative' => Document::active()->forUser($user)->where('category', 'administrative')->count(),
+            'general' => Document::active()->forUser($user)->where('category', 'general')->count(),
+            'research' => Document::active()->forUser($user)->where('category', 'research')->count(),
+            'policy' => Document::active()->forUser($user)->where('category', 'policy')->count(),
+            'training' => Document::active()->forUser($user)->where('category', 'training')->count(),
+        ];
+
+        // Get document statistics
+        $stats = [
+            'total' => Document::active()->forUser($user)->count(),
+            'recent' => Document::active()->forUser($user)->where('created_at', '>=', now()->subWeek())->count(),
+            'popular' => Document::active()->forUser($user)->where('download_count', '>', 0)->orderBy('download_count', 'desc')->take(10)->count(),
+            'myDownloads' => 0, // TODO: Implement user download tracking
+        ];
+
+        return view('documents.index', compact('documents', 'categories', 'accessLevels', 'allTags', 'categoryCounts', 'stats'));
     }
 
     /**

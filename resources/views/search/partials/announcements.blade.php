@@ -1,0 +1,47 @@
+<div class="space-y-4">
+    @foreach($items as $announcement)
+        <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            <a href="{{ route('announcements.show', $announcement) }}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                                {{ $announcement->title }}
+                            </a>
+                        </h3>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            @if($announcement->priority === 'urgent') bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                            @elseif($announcement->priority === 'high') bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200
+                            @elseif($announcement->priority === 'medium') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                            @else bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 @endif">
+                            {{ ucfirst($announcement->priority) }}
+                        </span>
+                    </div>
+                    
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">
+                        {{ Str::limit(strip_tags($announcement->content), 150) }}
+                    </p>
+                    
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 space-x-4">
+                        <span>By {{ $announcement->creator->name }}</span>
+                        <span>{{ $announcement->published_at->format('M j, Y') }}</span>
+                        <span class="inline-flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7H4a2 2 0 00-2 2v8a2 2 0 002 2h5m6 0V9a2 2 0 00-2-2H9m0 0V5a2 2 0 012-2h2.586a1 1 0 01.707.293l2.414 2.414A1 1 0 0117 6.414V9" />
+                            </svg>
+                            {{ ucfirst(str_replace('_', ' ', $announcement->target_scope)) }}
+                        </span>
+                        <span class="inline-flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            {{ $announcement->views_count ?? 0 }} views
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+</div>

@@ -14,6 +14,7 @@ use App\Http\Controllers\PollController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\UserAdminController;
+use App\Http\Controllers\GlobalSearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,8 +40,13 @@ Route::get('/test-routes', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile/show', [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Global Search routes
+    Route::get('/search', [GlobalSearchController::class, 'index'])->name('search');
+    Route::get('/search/suggest', [GlobalSearchController::class, 'suggest'])->name('search.suggest');
 
     // Announcements routes
     Route::resource('announcements', AnnouncementController::class);
@@ -106,13 +112,58 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('news/{news}/like', [NewsController::class, 'toggleLike'])->name('news.like');
     Route::post('news/{news}/comment', [NewsController::class, 'storeComment'])->name('news.comment');
 
-    // Admin routes (Super Admin only)
+    // Admin routes (Role-based access)
     Route::prefix('admin')->name('admin.')->group(function () {
+        // User Management (Super Admin only)
         Route::get('users', [UserAdminController::class, 'index'])->name('users.index');
+        Route::get('users/create', [UserAdminController::class, 'create'])->name('users.create');
+        Route::post('users', [UserAdminController::class, 'store'])->name('users.store');
         Route::get('users/{user}/edit', [UserAdminController::class, 'edit'])->name('users.edit');
         Route::patch('users/{user}', [UserAdminController::class, 'update'])->name('users.update');
+        Route::delete('users/{user}', [UserAdminController::class, 'destroy'])->name('users.destroy');
         Route::patch('users/bulk-update', [UserAdminController::class, 'bulkUpdate'])->name('users.bulk-update');
         Route::get('role-suggestions', [UserAdminController::class, 'getRoleSuggestions'])->name('users.suggestions');
+
+        // Content Management (Super Admin, HQ Admin)
+        Route::get('content', function() { return redirect()->route('announcements.index'); })->name('content.index');
+
+        // System Settings (Super Admin only)
+        Route::get('settings', function() { return view('admin.settings.index'); })->name('settings.index');
+
+        // Reports (All admin levels)
+        Route::get('reports', function() { return view('admin.reports.index'); })->name('reports.index');
+        Route::get('reports/organizational', function() { return view('admin.reports.organizational'); })->name('reports.organizational');
+        Route::get('reports/centre', function() { return view('admin.reports.centre'); })->name('reports.centre');
+
+        // System Management (Super Admin only)
+        Route::get('backup', function() { return view('admin.backup.index'); })->name('backup.index');
+        Route::get('logs', function() { return view('admin.logs.index'); })->name('logs.index');
+
+        // Centre Management (HQ Admin, Centre Admin)
+        Route::get('centres', function() { return view('admin.centres.index'); })->name('centres.index');
+        Route::get('centres/create', function() { return view('admin.centres.create'); })->name('centres.create');
+        Route::post('centres', function() { return redirect()->route('admin.centres.index'); })->name('centres.store');
+
+        // Station Management (Centre Admin, Station Admin)
+        Route::get('stations', function() { return view('admin.stations.index'); })->name('stations.index');
+        Route::get('stations/create', function() { return view('admin.stations.create'); })->name('stations.create');
+        Route::post('stations', function() { return redirect()->route('admin.stations.index'); })->name('stations.store');
+
+        // Policy Management (HQ Admin)
+        Route::get('policies', function() { return view('admin.policies.index'); })->name('policies.index');
+
+        // Training Management (HQ Admin)
+        Route::get('training', function() { return view('admin.training.index'); })->name('training.index');
+
+        // Centre-specific Staff Management
+        Route::get('centre/staff', function() { return view('admin.centre.staff.index'); })->name('centre.staff.index');
+        Route::get('centre/projects', function() { return view('admin.centre.projects.index'); })->name('centre.projects.index');
+
+        // Station-specific Management
+        Route::get('station/staff', function() { return view('admin.station.staff.index'); })->name('station.staff.index');
+        Route::get('station/reports', function() { return view('admin.station.reports.index'); })->name('station.reports.index');
+        Route::get('station/equipment', function() { return view('admin.station.equipment.index'); })->name('station.equipment.index');
+        Route::get('station/projects', function() { return view('admin.station.projects.index'); })->name('station.projects.index');
     });
 });
 
