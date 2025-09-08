@@ -52,14 +52,14 @@ class TodoController extends Controller
         // Get todos based on view
         if ($view === 'board') {
             $todos = [
-                'todo' => $query->clone()->where('status', 'todo')->orderBy('priority_order')->get(),
-                'in_progress' => $query->clone()->where('status', 'in_progress')->orderBy('priority_order')->get(),
-                'review' => $query->clone()->where('status', 'review')->orderBy('priority_order')->get(),
+                'todo' => $query->clone()->where('status', 'todo')->orderBy('sort_order')->get(),
+                'in_progress' => $query->clone()->where('status', 'in_progress')->orderBy('sort_order')->get(),
+                'review' => $query->clone()->where('status', 'review')->orderBy('sort_order')->get(),
                 'done' => $query->clone()->where('status', 'done')->orderBy('completed_at', 'desc')->get(),
             ];
         } else {
             $todos = $query->orderBy('due_date')
-                ->orderBy('priority_order')
+                ->orderBy('sort_order')
                 ->orderBy('created_at', 'desc')
                 ->get();
         }
