@@ -156,7 +156,7 @@ class DashboardController extends Controller
                 })
                 ->count(),
 
-            'upcomingEvents' => Event::where('event_date', '>=', now())
+            'upcomingEvents' => Event::where('start_datetime', '>=', now())
                 ->count(),
 
             'totalDocuments' => Document::whereCanAccess($user)->count(),

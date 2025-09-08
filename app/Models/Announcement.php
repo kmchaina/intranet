@@ -16,6 +16,7 @@ class Announcement extends Model
         'content',
         'category',
         'priority',
+        'status',
         'created_by',
         'target_scope',
         'target_centres',
@@ -75,12 +76,28 @@ class Announcement extends Model
      */
     public function scopePublished(Builder $query): Builder
     {
-        return $query->where('is_published', true)
+        return $query->where('status', 'published')
             ->where('published_at', '<=', now())
             ->where(function ($q) {
                 $q->whereNull('expires_at')
                     ->orWhere('expires_at', '>', now());
             });
+    }
+
+    /**
+     * Scope to get draft announcements
+     */
+    public function scopeDraft(Builder $query): Builder
+    {
+        return $query->where('status', 'draft');
+    }
+
+    /**
+     * Scope to get archived announcements
+     */
+    public function scopeArchived(Builder $query): Builder
+    {
+        return $query->where('status', 'archived');
     }
 
     /**
