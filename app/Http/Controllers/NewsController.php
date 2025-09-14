@@ -44,7 +44,7 @@ class NewsController extends Controller
         }
 
         try {
-            $news = $query->paginate(12);
+            $news = $query->paginate(9);
 
             // Ensure we have a paginated collection
             if (!method_exists($news, 'withQueryString')) {
@@ -52,14 +52,14 @@ class NewsController extends Controller
                 $news = News::with(['author', 'likes'])
                     ->published()
                     ->ordered()
-                    ->paginate(12);
+                    ->paginate(9);
             }
         } catch (\Exception $e) {
             // Ultimate fallback
             $news = News::with(['author', 'likes'])
                 ->published()
                 ->ordered()
-                ->paginate(12);
+                ->paginate(9);
         }
 
         $featuredNews = News::published()->featured()->take(3)->get();

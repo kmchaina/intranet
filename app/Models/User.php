@@ -98,6 +98,15 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * System links favorited by this user
+     */
+    public function favoriteLinks(): BelongsToMany
+    {
+        return $this->belongsToMany(SystemLink::class, 'user_favorite_links')
+            ->withTimestamps();
+    }
+
+    /**
      * Get the user's primary organizational level
      */
     public function getPrimaryLevelAttribute()

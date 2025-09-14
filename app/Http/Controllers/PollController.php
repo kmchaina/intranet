@@ -31,6 +31,11 @@ class PollController extends Controller
             $query->where('type', $request->type);
         }
 
+        // Filter by creator
+        if ($request->filled('created_by')) {
+            $query->where('created_by', $request->created_by);
+        }
+
         // Search
         if ($request->filled('search')) {
             $search = $request->search;
@@ -115,7 +120,7 @@ class PollController extends Controller
         $messages = [
             'options.required_if' => 'You must provide at least 2 options for this poll type.',
             'options.min' => 'You must provide at least 2 options.',
-            'options.*.required' => 'Each option must have text.',
+            'options.*.required_if' => 'Each option must have text.',
             'options.*.string' => 'Each option must be text.',
             'options.*.max' => 'Each option must be no more than 255 characters.',
             'max_rating.required_if' => 'You must select a maximum rating for rating polls.',
@@ -127,8 +132,8 @@ class PollController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'type' => 'required|in:single_choice,multiple_choice,rating,yes_no',
-            'options' => 'required_if:type,single_choice,multiple_choice|array|min:2',
-            'options.*' => 'required|string|max:255',
+            'options' => 'required_if:type,single_choice,multiple_choice,yes_no|array|min:2',
+            'options.*' => 'required_if:type,single_choice,multiple_choice,yes_no|string|max:255',
             'max_rating' => 'required_if:type,rating|integer|min:2|max:10',
             'visibility' => 'required|in:public,department,custom',
             'visible_departments' => 'required_if:visibility,department|array',

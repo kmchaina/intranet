@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class SystemLink extends Model
 {
@@ -39,6 +40,25 @@ class SystemLink extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(\App\Models\User::class, 'added_by');
+    }
+
+    public function favoritedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\User::class, 'user_favorite_links')
+                    ->withTimestamps();
+    }
+
+    public function isFavoritedBy(?User $user = null): bool
+    {
+        if (!$user) {
+            $user = auth()->user();
+        }
+        
+        if (!$user) {
+            return false;
+        }
+
+        return $this->favoritedBy()->where('user_id', $user->id)->exists();
     }
 
     public function incrementClickCount(): void

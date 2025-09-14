@@ -11,8 +11,7 @@ class SystemLinkController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
-        $category = $request->get('category');
-        $accessLevel = $request->get('access_level');
+        $user = Auth::user();
 
         $query = SystemLink::where('is_active', true);
 
@@ -24,43 +23,48 @@ class SystemLinkController extends Controller
             });
         }
 
-        if ($category) {
-            $query->where('category', $category);
-        }
-
-        if ($accessLevel) {
-            $query->where('access_level', $accessLevel);
-        }
-
-        // Get featured links separately
-        $featured = SystemLink::where('is_active', true)
-            ->where('is_featured', true)
+        // Get user's favorite links first
+        $favoriteLinks = $user ? $user->favoriteLinks()
+            ->where('is_active', true)
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($subQ) use ($search) {
+                    $subQ->where('title', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhere('url', 'like', "%{$search}%");
+                });
+            })
             ->orderBy('click_count', 'desc')
             ->orderBy('title')
-            ->take(8)
-            ->get();
+            ->get() : collect();
 
-        // Get regular links (excluding featured from main list if not searching)
-        $linksQuery = clone $query;
-        if (!$search && !$category && !$accessLevel) {
-            $linksQuery->where('is_featured', false);
+        // Get non-favorite links
+        $nonFavoriteQuery = clone $query;
+        if ($user && $favoriteLinks->isNotEmpty()) {
+            $nonFavoriteQuery->whereNotIn('id', $favoriteLinks->pluck('id'));
         }
 
-        $links = $linksQuery->orderBy('click_count', 'desc')
+        $nonFavoriteLinks = $nonFavoriteQuery->orderBy('click_count', 'desc')
             ->orderBy('title')
-            ->paginate(12);
+            ->get(); // Remove pagination - get all links
+
+        // Combine them for display
+        $allLinks = $favoriteLinks->merge($nonFavoriteLinks);
 
         return view('system-links.index', compact(
-            'links',
-            'featured',
-            'search',
-            'category',
-            'accessLevel'
+            'nonFavoriteLinks',
+            'favoriteLinks',
+            'allLinks',
+            'search'
         ));
     }
 
     public function create()
     {
+        // Only admins can create links
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $categories = SystemLink::getCategories();
         $accessLevels = SystemLink::getAccessLevels();
         $colorSchemes = SystemLink::getColorSchemes();
@@ -70,6 +74,11 @@ class SystemLinkController extends Controller
 
     public function store(Request $request)
     {
+        // Only admins can create links
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -114,6 +123,11 @@ class SystemLinkController extends Controller
 
     public function edit(SystemLink $systemLink)
     {
+        // Only admins can edit links
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $categories = SystemLink::getCategories();
         $accessLevels = SystemLink::getAccessLevels();
         $colorSchemes = SystemLink::getColorSchemes();
@@ -123,6 +137,11 @@ class SystemLinkController extends Controller
 
     public function update(Request $request, SystemLink $systemLink)
     {
+        // Only admins can update links
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         // Check if this is a dashboard toggle request
         if ($request->has('show_on_dashboard')) {
             $systemLink->update([
@@ -157,6 +176,11 @@ class SystemLinkController extends Controller
 
     public function destroy(SystemLink $systemLink)
     {
+        // Only admins can delete links
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $systemLink->delete();
 
         return redirect()->route('system-links.index')
@@ -179,5 +203,36 @@ class SystemLinkController extends Controller
 
         // Return success response
         return response()->json(['success' => true]);
+    }
+
+    public function toggleFavorite(SystemLink $systemLink)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $isFavorited = $user->favoriteLinks()->where('system_link_id', $systemLink->id)->exists();
+
+        if ($isFavorited) {
+            $user->favoriteLinks()->detach($systemLink->id);
+            $message = 'Link removed from favorites';
+            $favorited = false;
+        } else {
+            $user->favoriteLinks()->attach($systemLink->id);
+            $message = 'Link added to favorites';
+            $favorited = true;
+        }
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'favorited' => $favorited,
+                'message' => $message
+            ]);
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 }

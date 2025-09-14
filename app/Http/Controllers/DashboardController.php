@@ -16,14 +16,22 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
         // Get dashboard data based on user role and permissions
         $dashboardData = $this->getDashboardData($user);
 
-        // Route to role-specific dashboard view
+        // Check if user is admin and wants to switch view
+        $requestedView = $request->get('view');
+        
+        if ($user->isAdmin() && $requestedView === 'staff') {
+            // Admin viewing as staff
+            return view('dashboard.staff', $dashboardData);
+        }
+
+        // Route to role-specific dashboard view (default admin view for admins)
         return $this->getRoleSpecificView($user, $dashboardData);
     }
 
@@ -56,11 +64,11 @@ class DashboardController extends Controller
             'canManageContent' => $user->isAdmin(),
         ];
 
-        // Recent Announcements (last 5)
+        // Recent Announcements (carousel with 8 items for better rotation)
         $data['recentAnnouncements'] = Announcement::visibleTo($user)
             ->with('creator')
             ->latest()
-            ->take(5)
+            ->take(8)
             ->get();
 
         // Active Polls
@@ -78,11 +86,11 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Recent News (last 3 for sidebar widget)
+        // Recent News (last 4 for sidebar widget)
         $data['recentNews'] = News::published()
             ->with('author')
             ->latest('published_at')
-            ->take(3)
+            ->take(4)
             ->get()
             ->filter(function ($news) {
                 return $news instanceof News;
@@ -94,6 +102,15 @@ class DashboardController extends Controller
             ->orderBy('click_count', 'desc')
             ->orderBy('title')
             ->take(6)
+            ->get();
+
+        // Upcoming Events (for dashboard widget)
+        $data['upcomingEvents'] = Event::forUser($user)
+            ->published()
+            ->upcoming()
+            ->with('creator')
+            ->orderBy('start_datetime')
+            ->take(3)
             ->get();
 
         // Today's Birthdays
@@ -156,7 +173,9 @@ class DashboardController extends Controller
                 })
                 ->count(),
 
-            'upcomingEvents' => Event::where('start_datetime', '>=', now())
+            'upcomingEvents' => Event::forUser($user)
+                ->published()
+                ->upcoming()
                 ->count(),
 
             'totalDocuments' => Document::whereCanAccess($user)->count(),

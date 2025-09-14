@@ -22,3 +22,25 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Development and testing files
+*test*.php
+*check*.php
+*debug*.php
+*backup*
+*_backup*
+*_new*
+*_old*
+*_demo*
+*_enhanced*
+/tests/
+phpunit.xml
+
+# Logs and backups
+/storage/logs/*
+/storage/backups/*
+
+# IDE files
+*.swp
+*.swo
+*~

@@ -321,6 +321,33 @@ class TodoController extends Controller
     }
 
     /**
+     * Toggle task completion status
+     */
+    public function toggle(TodoList $todo)
+    {
+        // Check permissions
+        if (!TodoList::forUser(Auth::user())->where('id', $todo->id)->exists()) {
+            abort(403, 'You do not have permission to update this task.');
+        }
+
+        $isCompleted = $todo->status === 'done';
+
+        $todo->update([
+            'status' => $isCompleted ? 'todo' : 'done',
+            'completed_at' => $isCompleted ? null : now(),
+            'progress_percentage' => $isCompleted ? 0 : 100,
+            'is_completed' => !$isCompleted,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'completed' => !$isCompleted,
+            'status' => $todo->fresh()->status,
+            'completed_at' => $todo->fresh()->completed_at,
+        ]);
+    }
+
+    /**
      * Toggle task completion
      */
     public function toggleComplete(TodoList $todo)

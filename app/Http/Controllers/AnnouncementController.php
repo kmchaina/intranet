@@ -125,10 +125,10 @@ class AnnouncementController extends Controller
     {
         $user = Auth::user();
 
-        // Check if user can see this announcement
-        $userAnnouncements = Announcement::published()->forUser($user)->where('id', $announcement->id);
-
-        if (!$userAnnouncements->exists()) {
+        // Check if announcement is published and not expired
+        if (!$announcement->is_published || 
+            ($announcement->expires_at && $announcement->expires_at->isPast()) ||
+            $announcement->published_at->isFuture()) {
             abort(404);
         }
 

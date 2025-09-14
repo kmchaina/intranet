@@ -13,6 +13,7 @@ use App\Http\Controllers\BirthdayController;
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\GlobalSearchController;
 use Illuminate\Support\Facades\Route;
@@ -90,6 +91,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('system-links.increment-click');
     Route::post('system-links/{link}/click', [SystemLinkController::class, 'incrementClick'])
         ->name('system-links.click');
+    Route::post('system-links/{systemLink}/toggle-favorite', [SystemLinkController::class, 'toggleFavorite'])
+        ->name('system-links.toggle-favorite');
 
     // Feedback routes
     Route::resource('feedback', FeedbackController::class);
@@ -111,6 +114,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('news', NewsController::class);
     Route::post('news/{news}/like', [NewsController::class, 'toggleLike'])->name('news.like');
     Route::post('news/{news}/comment', [NewsController::class, 'storeComment'])->name('news.comment');
+
+    // Staff Directory routes
+    Route::get('staff', [StaffController::class, 'index'])->name('staff.index');
+    Route::get('staff/{staff}', [StaffController::class, 'show'])->name('staff.show');
 
     // Admin routes (Role-based access)
     Route::prefix('admin')->name('admin.')->group(function () {
