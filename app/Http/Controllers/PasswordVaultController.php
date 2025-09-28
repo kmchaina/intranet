@@ -60,7 +60,8 @@ class PasswordVaultController extends Controller
             ->pluck('folder')
             ->sort();
 
-        return view('password-vault.index', compact('passwords', 'categories', 'folders', 'category', 'folder', 'search'));
+    \App\Services\ActivityLogger::log('vault.access');
+    return view('password-vault.index', compact('passwords', 'categories', 'folders', 'category', 'folder', 'search'));
     }
 
     /**
@@ -128,6 +129,9 @@ class PasswordVaultController extends Controller
         }
 
         $passwordVault->recordUsage();
+        \App\Services\ActivityLogger::log('vault.view', 'password_vault', $passwordVault->id, [
+            'category' => $passwordVault->category
+        ]);
 
         return view('password-vault.show', compact('passwordVault'));
     }

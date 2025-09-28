@@ -28,8 +28,9 @@ class RegisteredUserController extends Controller
         $headquarters = Headquarters::where('is_active', true)->first();
         $centres = Centre::where('is_active', true)->get();
         $stations = collect(); // Empty collection, will be populated via AJAX
+        $hqDepartments = Department::where('is_active', true)->where('headquarters_id', optional($headquarters)->id)->orderBy('name')->get();
 
-        return view('auth.register', compact('headquarters', 'centres', 'stations'));
+        return view('auth.register', compact('headquarters', 'centres', 'stations', 'hqDepartments'));
     }
 
     /**
@@ -56,6 +57,7 @@ class RegisteredUserController extends Controller
             'centre_id' => ['nullable', 'exists:centres,id'],
             'work_location' => ['nullable', 'string'],
             'station_id' => ['nullable', 'exists:stations,id'],
+            'department_id' => ['nullable', 'exists:departments,id'],
         ], [
             ...(app()->environment('production') ? ['email.regex' => 'Email address must be from the @nimr.or.tz domain.'] : [])
         ]);
@@ -73,6 +75,7 @@ class RegisteredUserController extends Controller
             'headquarters_id' => $headquarters->id, // Always assign to headquarters
             'centre_id' => $request->centre_id,
             'station_id' => $request->station_id,
+            'department_id' => $request->department_id,
         ]);
 
         event(new Registered($user));

@@ -14,12 +14,15 @@ use Carbon\Carbon;
 class EventController extends Controller
 {
     /**
-     * Display a listing of events with calendar view
+     * Display a listing of events (calendar default, list optional)
      */
     public function index(Request $request)
     {
         $user = Auth::user();
-        $view = $request->get('view', 'calendar'); // calendar, list, agenda
+        $view = $request->get('view', 'calendar'); // calendar, list
+        if (!in_array($view, ['calendar', 'list'], true)) {
+            $view = 'calendar';
+        }
         $date = $request->get('date', now()->toDateString());
         $category = $request->get('category');
 
@@ -38,13 +41,6 @@ class EventController extends Controller
             $events = $query->inDateRange($startOfMonth, $endOfMonth)
                 ->with(['creator', 'rsvps'])
                 ->orderBy('start_datetime')
-                ->get();
-        } elseif ($view === 'agenda') {
-            // Get upcoming events for agenda view
-            $events = $query->upcoming()
-                ->with(['creator', 'rsvps'])
-                ->orderBy('start_datetime')
-                ->limit(50)
                 ->get();
         } else {
             // List view with pagination - sorted by date (ascending)

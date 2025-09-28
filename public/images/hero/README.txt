@@ -1,0 +1,1 @@
+Place your landing hero image here as nimr-hero.jpg (JPEG). Recommended size: 2400x1600 or larger. Keep subject left/middle for right-aligned login panel. Keep file size <400KB if possible.

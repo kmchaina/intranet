@@ -186,6 +186,12 @@ class DocumentController extends Controller
             abort(403, 'You do not have permission to access this document.');
         }
 
+        // Log view event
+        \App\Services\ActivityLogger::log('document.view', 'document', $document->id, [
+            'category' => $document->category,
+            'access_level' => $document->access_level
+        ]);
+
         // Load relationships
         $document->load(['uploader', 'versions' => function ($query) {
             $query->orderBy('version', 'desc');
@@ -216,8 +222,12 @@ class DocumentController extends Controller
             abort(404, 'File not found.');
         }
 
-        // Record the download
+        // Record the download and log event
         $document->recordDownload();
+        \App\Services\ActivityLogger::log('document.download', 'document', $document->id, [
+            'category' => $document->category,
+            'access_level' => $document->access_level
+        ]);
 
         $filePath = Storage::disk('public')->path($document->file_path);
 

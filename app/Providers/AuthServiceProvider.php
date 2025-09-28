@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\Poll;
 use App\Policies\PollPolicy;
+use App\Models\Conversation;
+use App\Policies\ConversationPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -15,6 +17,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Poll::class => PollPolicy::class,
+        Conversation::class => ConversationPolicy::class,
     ];
 
     /**

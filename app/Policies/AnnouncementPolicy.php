@@ -34,6 +34,46 @@ class AnnouncementPolicy
     }
 
     /**
+     * Determine whether a user role can target a given scope.
+     */
+    public function canTargetScope(User $user, string $scope): bool
+    {
+        return match ($user->role) {
+            'super_admin' => true,
+            'hq_admin' => in_array($scope, ['all','headquarters','centres','stations','specific']),
+            'centre_admin' => in_array($scope, ['centres','stations','specific']),
+            'station_admin' => in_array($scope, ['stations','specific']),
+            default => false,
+        };
+    }
+
+    /**
+     * Fine-grained validation for specific targeting arrays
+     */
+    public function validateSpecificTargets(User $user, array $centreIds, array $stationIds): bool
+    {
+        // Super & HQ admins can target any provided ids
+        if (in_array($user->role, ['super_admin','hq_admin'])) {
+            return true;
+        }
+        // Centre admin limited to their centre + its stations
+        if ($user->role === 'centre_admin') {
+            if (empty($centreIds) && empty($stationIds)) return false;
+            // centre ids must be exactly their centre if any present
+            if (!empty($centreIds) && (count($centreIds) !== 1 || (int)$centreIds[0] !== (int)$user->centre_id)) return false;
+            // station ids (if present) must belong to their centre -> checked later in controller filtering
+            return true;
+        }
+        // Station admin: only its own station (no centres array)
+        if ($user->role === 'station_admin') {
+            if (!empty($centreIds)) return false;
+            if (empty($stationIds)) return false; // must specify itself
+            return count($stationIds) === 1 && (int)$stationIds[0] === (int)$user->station_id;
+        }
+        return false;
+    }
+
+    /**
      * Determine whether the user can update the announcement.
      */
     public function update(User $user, Announcement $announcement): bool

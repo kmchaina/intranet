@@ -23,9 +23,13 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
-# Development and testing files
-*test*.php
-*check*.php
+# Development helper patterns (narrowed)
+# NOTE: Tests and phpunit.xml are now tracked for CI. Broad patterns removed.
+# If you need to ignore experimental throwaway scripts, prefix them with scratch_ or WIP_ and add patterns below.
+# Example (currently commented out):
+# scratch_*.php
+
+# Retained (safe) dev scratch patterns (fine-grained). Comment out if needed.
 *debug*.php
 *backup*
 *_backup*
@@ -33,8 +37,6 @@ Thumbs.db
 *_old*
 *_demo*
 *_enhanced*
-/tests/
-phpunit.xml
 
 # Logs and backups
 /storage/logs/*

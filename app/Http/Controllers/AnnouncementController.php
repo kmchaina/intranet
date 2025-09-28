@@ -26,19 +26,51 @@ class AnnouncementController extends Controller
     {
         $user = Auth::user();
 
-        $announcements = Announcement::where('is_published', true)
+        $query = Announcement::query()
+            ->visibleTo($user)
             ->with(['creator', 'attachments'])
-            ->withCount('attachments')
-            ->orderBy('priority', 'desc')
-            ->orderBy('published_at', 'desc')
-            ->paginate(10);
+            ->withCount('attachments');
 
-        // Mark announcements as read when viewed
-        foreach ($announcements as $announcement) {
-            if (!$announcement->isReadBy($user)) {
-                $announcement->markAsReadBy($user);
+        // Search by title/content
+        if ($search = trim((string) $request->query('q'))) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by category
+        if ($category = $request->query('category')) {
+            $allowed = ['general', 'urgent', 'info', 'event'];
+            if (in_array($category, $allowed, true)) {
+                $query->where('category', $category);
             }
         }
+
+        // Filter by priority
+        if ($priority = $request->query('priority')) {
+            $allowed = ['low', 'medium', 'high', 'urgent'];
+            if (in_array($priority, $allowed, true)) {
+                $query->where('priority', $priority);
+            }
+        }
+
+        // Unread only
+        if ($request->boolean('only_unread')) {
+            $query->whereDoesntHave('readBy', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        }
+
+        // Sorting (default: newest first)
+        $sort = $request->query('sort', 'newest');
+        if ($sort === 'oldest') {
+            $query->orderBy('published_at', 'asc');
+        } else {
+            $query->orderBy('published_at', 'desc');
+        }
+
+        $announcements = $query->paginate(10)->withQueryString();
 
         return view('announcements.index', compact('announcements'));
     }
@@ -62,6 +94,7 @@ class AnnouncementController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $this->authorize('create', Announcement::class);
+        $user = Auth::user();
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -79,6 +112,8 @@ class AnnouncementController extends Controller
             'attachments' => 'nullable|array|max:5',
             'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png,gif,zip,rar',
         ]);
+
+        $this->enforceScopeAuthorization($user, $validated);
 
         // Validate specific targeting
         if ($validated['target_scope'] === 'specific') {
@@ -132,8 +167,12 @@ class AnnouncementController extends Controller
             abort(404);
         }
 
-        // Mark as read
+        // Mark as read and log event
         $announcement->markAsReadBy($user);
+        \App\Services\ActivityLogger::log('announcement.read', 'announcement', $announcement->id, [
+            'priority' => $announcement->priority,
+            'category' => $announcement->category
+        ]);
 
         $announcement->load(['creator', 'attachments']);
 
@@ -159,6 +198,7 @@ class AnnouncementController extends Controller
     public function update(Request $request, Announcement $announcement): RedirectResponse
     {
         $this->authorize('update', $announcement);
+        $user = Auth::user();
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -173,6 +213,8 @@ class AnnouncementController extends Controller
             'expires_at' => 'nullable|date|after:now',
             'email_notification' => 'boolean',
         ]);
+
+        $this->enforceScopeAuthorization($user, $validated);
 
         // Validate specific targeting
         if ($validated['target_scope'] === 'specific') {
@@ -228,5 +270,60 @@ class AnnouncementController extends Controller
         $filePath = Storage::disk('public')->path($attachment->file_path);
 
         return response()->download($filePath, $attachment->original_name);
+    }
+
+    /**
+     * Enforce role-based targeting permissions and normalize arrays.
+     */
+    private function enforceScopeAuthorization($user, array &$data): void
+    {
+        $policy = app(\App\Policies\AnnouncementPolicy::class);
+        $scope = $data['target_scope'];
+        if (!$policy->canTargetScope($user, $scope)) {
+            throw ValidationException::withMessages([
+                'target_scope' => 'You are not permitted to publish announcements with the selected scope.'
+            ]);
+        }
+
+        if ($scope === 'headquarters' && !in_array($user->role, ['super_admin','hq_admin'])) {
+            throw ValidationException::withMessages(['target_scope' => 'Only headquarters administrators can target headquarters staff.']);
+        }
+        if ($scope === 'headquarters' && ($user->centre_id || $user->station_id)) {
+            throw ValidationException::withMessages(['target_scope' => 'Only users directly at headquarters can use this scope.']);
+        }
+
+        if ($scope === 'centres' && !in_array($user->role, ['super_admin','hq_admin','centre_admin'])) {
+            throw ValidationException::withMessages(['target_scope' => 'You cannot broadcast to all centres.']);
+        }
+
+        if ($scope === 'specific') {
+            $centreIds = $data['target_centres'] ?? [];
+            $stationIds = $data['target_stations'] ?? [];
+            if (!$policy->validateSpecificTargets($user, $centreIds, $stationIds)) {
+                throw ValidationException::withMessages([
+                    'target_scope' => 'Invalid specific targeting selection for your role.'
+                ]);
+            }
+            if ($user->role === 'centre_admin') {
+                if (!empty($centreIds)) {
+                    $data['target_centres'] = [ (int)$user->centre_id ];
+                }
+                if (!empty($stationIds)) {
+                    $data['target_stations'] = \App\Models\Station::whereIn('id', $stationIds)
+                        ->where('centre_id', $user->centre_id)->pluck('id')->map(fn($id)=>(int)$id)->values()->all();
+                }
+            } elseif ($user->role === 'station_admin') {
+                $data['target_centres'] = [];
+                $data['target_stations'] = [ (int)$user->station_id ];
+            }
+            if (empty($data['target_centres']) && empty($data['target_stations'])) {
+                throw ValidationException::withMessages([
+                    'target_scope' => 'Specific scope requires at least one valid centre or station after validation.'
+                ]);
+            }
+        } else {
+            $data['target_centres'] = $data['target_centres'] ?? [];
+            $data['target_stations'] = $data['target_stations'] ?? [];
+        }
     }
 }

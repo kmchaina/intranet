@@ -23,6 +23,8 @@ class ComprehensiveDataSeeder extends Seeder
 {
     public function run(): void
     {
+    // Ensure canonical headquarters departments are present / updated
+    $this->call(HeadquartersDepartmentSeeder::class);
         // Ensure we have a test user with admin role
         $admin = User::updateOrCreate(
             ['email' => 'admin@nimr.or.tz'],

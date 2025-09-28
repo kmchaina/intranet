@@ -1,1 +1,126 @@
-@extends('layouts.dashboard') @section('title', $document->title) @section('content') <div class="bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-100/40 min-h-screen"> <div class="max-w-6xl mx-auto p-6"> <!-- Breadcrumbs --> <nav class="flex mb-6" aria-label="Breadcrumb"> <ol class="inline-flex items-center space-x-1 md:space-x-3"> <li class="inline-flex items-center"> <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600"> <svg class="w-3 h-3 mr-2.5" fill="currentColor" viewBox="0 0 20 20"> <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/> </svg> Dashboard </a> </li> <li> <div class="flex items-center"> <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path> </svg> <a href="{{ route('documents.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">Documents</a> </div> </li> <li aria-current="page"> <div class="flex items-center"> <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path> </svg> <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ Str::limit($document->title, 30) }}</span> </div> </li> </ol> </nav> <!-- Document Header --> <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6"> <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-t-xl"> <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between"> <div class="flex items-center space-x-4"> @php $extension = strtolower(pathinfo($document->file_path ?? '', PATHINFO_EXTENSION)); $iconColor = match($extension) { 'pdf' => 'text-red-600 bg-red-100', 'doc', 'docx' => 'text-blue-600 bg-blue-100', 'xls', 'xlsx' => 'text-green-600 bg-green-100', 'ppt', 'pptx' => 'text-orange-600 bg-orange-100', 'txt' => 'text-gray-600 bg-gray-100', 'jpg', 'jpeg', 'png', 'gif' => 'text-purple-600 bg-purple-100', default => 'text-gray-600 bg-gray-100' }; @endphp <div class="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"> <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path> </svg> </div> <div> <h1 class="text-2xl font-bold text-white">{{ $document->title }}</h1> <p class="text-blue-100 mt-1">{{ ucfirst($document->category ?? 'general') }} • {{ strtoupper($extension) }} • {{ number_format($document->file_size / 1024, 1) }} KB</p> </div> </div> <div class="mt-4 lg:mt-0 flex space-x-3"> <a href="{{ route('documents.download', $document) }}" class="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium rounded-lg backdrop-blur-sm transition-all duration-200"> <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path> </svg> Download </a> </div> </div> </div> @if($document->description) <div class="p-6 border-b border-gray-200"> <h3 class="text-sm font-medium text-gray-900 mb-2">Description</h3> <p class="text-gray-700 text-sm">{{ $document->description }}</p> </div> @endif </div> <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"> <!-- Main Content Area --> <div class="lg:col-span-2"> <!-- Document Preview --> <div class="bg-white rounded-xl shadow-sm border border-gray-200"> <div class="p-6 border-b border-gray-200"> <h3 class="text-lg font-semibold text-gray-900">Document Preview</h3> </div> <div class="p-6"> @php $fileUrl = Storage::url($document->file_path); @endphp @if ($extension === 'pdf') <!-- PDF Preview --> <div class="w-full" style="height: 600px;"> <iframe src="{{ $fileUrl }}" class="w-full h-full border border-gray-300 rounded-lg" type="application/pdf"> <div class="text-center py-8"> <p class="text-gray-500 mb-4">Your browser doesn't support PDF preview.</p> <a href="{{ route('documents.download', $document) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"> <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path> </svg> Download PDF </a> </div> </iframe> </div> @elseif(in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) <!-- Image Preview --> <div class="text-center"> <img src="{{ $fileUrl }}" alt="{{ $document->title }}" class="max-w-full h-auto rounded-lg shadow-lg mx-auto" style="max-height: 600px;"> </div> @elseif(in_array($extension, ['txt', 'md'])) <!-- Text File Preview --> <div class="bg-gray-50 rounded-lg p-4 overflow-auto" style="max-height: 600px;"> <pre class="text-sm text-gray-700 whitespace-pre-wrap">{{ Storage::get($document->file_path) }}</pre> </div> @else <!-- Other File Types --> <div class="text-center py-12"> <div class="w-20 h-20 mx-auto {{ $iconColor }} rounded-full flex items-center justify-center mb-4"> <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path> </svg> </div> <h4 class="text-lg font-medium text-gray-900 mb-2">{{ strtoupper($extension) }} Document</h4> <p class="text-gray-500 mb-6">This file type cannot be previewed in the browser.</p> <a href="{{ route('documents.download', $document) }}" class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"> <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path> </svg> Download Document </a> </div> @endif </div> </div> </div> <!-- Sidebar --> <div class="space-y-6"> <!-- Document Properties --> <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"> <h3 class="text-lg font-semibold text-gray-900 mb-4">Document Information</h3> <div class="space-y-4"> <div class="flex justify-between"> <span class="text-sm font-medium text-gray-600">Category</span> <span class="text-sm text-gray-900">{{ ucfirst($document->category ?? 'general') }}</span> </div> <div class="flex justify-between"> <span class="text-sm font-medium text-gray-600">File Type</span> <span class="text-sm text-gray-900">{{ strtoupper($extension) }}</span> </div> <div class="flex justify-between"> <span class="text-sm font-medium text-gray-600">File Size</span> <span class="text-sm text-gray-900">{{ number_format($document->file_size / 1024, 1) }} KB</span> </div> <div class="flex justify-between"> <span class="text-sm font-medium text-gray-600">Uploaded</span> <span class="text-sm text-gray-900">{{ $document->created_at->format('M j, Y') }}</span> </div> <div class="flex justify-between"> <span class="text-sm font-medium text-gray-600">Downloads</span> <span class="text-sm text-gray-900">{{ $document->download_count ?? 0 }}</span> </div> </div> </div> <!-- Quick Actions --> <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"> <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3> <div class="space-y-3"> <button onclick="copyShareLink()" class="w-full flex items-center px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"> <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path> </svg> <span class="text-sm font-medium text-gray-900">Copy Share Link</span> </button> </div> </div> </div> </div> </div> </div> @push('scripts') <script> function copyShareLink() { const url = window.location.href; navigator.clipboard.writeText(url).then(function() { alert('Document link copied to clipboard!'); }, function(err) { console.error('Could not copy text: ', err); }); } </script> @endpush @endsection 
+@extends('layouts.dashboard')
+@section('title', 'Document Details')
+@section('content')
+<div class="bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-100/40 min-h-screen">
+  <div class="max-w-7xl mx-auto p-6">
+    <x-breadcrumbs :items="[
+        ['label' => 'Dashboard', 'href' => route('dashboard')],
+        ['label' => 'Documents', 'href' => route('documents.index')],
+        ['label' => Str::limit($document->title ?? 'Untitled Document', 50)],
+    ]" />
+    <x-page.header :title="$document->title ?? 'Untitled Document'">
+      <x-slot:icon>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </x-slot:icon>
+      <x-slot:meta>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a1.994 1.994 0 01-1.414.586H7a4 4 0 01-4-4V7a4 4 0 014-4z"/></svg>{{ ucfirst($document->category ?? 'general') }}</span>
+          <span class="inline-flex items-center"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>{{ $document->created_at->format('M j, Y') }}</span>
+          @if($document->file_size ?? false)
+            <span class="inline-flex items-center"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>{{ number_format($document->file_size / 1024, 1) }} KB</span>
+          @endif
+        </div>
+      </x-slot:meta>
+      <x-slot:actions>
+        <a href="{{ route('documents.download', $document) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200">
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Download
+        </a>
+        @can('update', $document)
+        <a href="{{ route('documents.edit', $document) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200">
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit
+        </a>
+        @endcan
+      </x-slot:actions>
+    </x-page.header>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Preview -->
+      <div class="lg:col-span-8">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-900">Preview</h2>
+            @php $ext = strtolower(pathinfo($document->file_path ?? '', PATHINFO_EXTENSION)); @endphp
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ strtoupper($ext) }}</span>
+          </div>
+          <div class="p-6">
+            @php $publicUrl = isset($document->file_path) ? asset('storage/' . $document->file_path) : null; @endphp
+            @if(isset($document->file_path) && $ext === 'pdf')
+              <iframe src="{{ $publicUrl }}" class="w-full h-[70vh] rounded-lg border"></iframe>
+            @elseif(isset($document->file_path) && in_array($ext, ['jpg','jpeg','png','gif','webp']))
+              <img src="{{ $publicUrl }}" alt="{{ $document->title }}" class="w-full rounded-lg border" />
+            @elseif(isset($document->file_path) && in_array($ext, ['txt','md']))
+              <div class="prose max-w-none">
+                <pre class="whitespace-pre-wrap">{{ file_get_contents(storage_path('app/public/' . $document->file_path)) }}</pre>
+              </div>
+            @else
+              <div class="text-center py-16">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <p class="text-gray-600">No inline preview available. Use the Download button to view this document.</p>
+              </div>
+            @endif
+          </div>
+        </div>
+      </div>
+      <!-- Sidebar Info -->
+      <div class="lg:col-span-4">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Document Info</h2>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <h4 class="text-sm font-medium text-gray-900">Description</h4>
+              <p class="text-sm text-gray-600 mt-1">{{ $document->description ?? 'No description provided.' }}</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-gray-500">Uploaded</span>
+                <div class="text-gray-900">{{ $document->created_at->format('M j, Y') }}</div>
+              </div>
+              <div>
+                <span class="text-gray-500">Updated</span>
+                <div class="text-gray-900">{{ $document->updated_at->format('M j, Y') }}</div>
+              </div>
+              <div>
+                <span class="text-gray-500">Category</span>
+                <div class="text-gray-900">{{ ucfirst($document->category ?? 'general') }}</div>
+              </div>
+              <div>
+                <span class="text-gray-500">Access</span>
+                <div class="text-gray-900">{{ ucfirst($document->access_level ?? 'public') }}</div>
+              </div>
+            </div>
+            @if(!empty($document->tags))
+              <div>
+                <h4 class="text-sm font-medium text-gray-900 mb-1">Tags</h4>
+                <div class="flex flex-wrap gap-2">
+                  @foreach((array)$document->tags as $tag)
+                    <span class="px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">{{ $tag }}</span>
+                  @endforeach
+                </div>
+              </div>
+            @endif
+            <div class="pt-2 flex items-center gap-2">
+              <a href="{{ route('documents.download', $document) }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Download
+              </a>
+              @can('update', $document)
+              <a href="{{ route('documents.edit', $document) }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </a>
+              @endcan
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+@endsection

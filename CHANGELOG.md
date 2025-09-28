@@ -8,6 +8,36 @@ Planned / Proposed:
 - Refactor station selection to direct `station_id` dropdown when station users are supported explicitly.
 - Config-driven allowed registration email domains (multi-domain support).
 - Backend Form Request classes for auth validation (testable encapsulation).
+ 
+Enhancements (Pending Release):
+// (none – all recent messaging enhancements released in 2025-09-29 section below)
+
+### [2025-09-28] Messaging Module Phase 1.1 (Admin & Hardening)
+Added
+- Messaging: participant user search endpoint & UI (live search up to 10 results, excludes existing & self).
+- Messaging: toast notifications (add/remove participants, rename, delete feedback).
+- Messaging: super admin unconditional delete override (policy + UI exposure) for audit / moderation.
+- Throttling: rate limit (30 req/min) applied to participant user-search endpoint to mitigate brute-force enumeration.
+- Tests: Feature test suite now tracked in VCS (removed broad ignore patterns), enabling CI integration.
+
+Changed
+- Message deletion response now returns HTTP 204 (no content) for successful deletes (REST semantics).
+- Front-end delete button logic extended: super admins always see delete control (server policy authoritative).
+- .gitignore narrowed (removed blanket *test*.php and /tests/ exclusions) to prevent accidental omission of critical coverage.
+
+Fixed
+- Deletion timing enforcement: policy now respects 5‑minute window by honoring model-supplied timestamps; message model allows mass-assignment of timestamps for deterministic test coverage.
+
+Security / Operational
+- Rate limiting foundational layer for future sensitive endpoints (consider per-IP + user composite strategy later).
+- Super admin delete actions still logged via existing ActivityLogger event `message.delete`.
+
+Developer Notes
+- Added fillable `created_at`/`updated_at` on `Message` solely to support deterministic test scenarios; production usage should avoid arbitrary timestamp mutation.
+- Consider future refactor to soft-delete with tombstone audit trail instead of hard delete for long-lived compliance requirements.
+
+Backward Compatibility
+- No schema changes. Policy signature for `deleteMessage` now includes conversation parameter (aligns with authorize call pattern) – update any custom Gate calls accordingly if they existed.
 
 ### [2025-09-28] Messaging Module Phase 1 (Foundations + Enhancements)
 Added

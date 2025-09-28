@@ -42,9 +42,13 @@ class ConversationPolicy
         return $user->id === $conversation->created_by || $user->isSuperAdmin();
     }
 
-    public function deleteMessage(User $user, Message $message): bool
+    public function deleteMessage(User $user, Conversation $conversation, Message $message): bool
     {
+        // Super admin override
         if ($user->isSuperAdmin()) return true;
-        return $message->user_id === $user->id && $message->created_at->gt(now()->subMinutes(5));
+        // Author within 5-minute window
+        if ($message->user_id !== $user->id) return false;
+        if (!$message->created_at) return false;
+        return $message->created_at->diffInMinutes(now()) < 5;
     }
 }

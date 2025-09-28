@@ -13,7 +13,7 @@ class SystemLinkController extends Controller
         $search = $request->get('search');
         $user = Auth::user();
 
-        $query = SystemLink::where('is_active', true);
+    $query = SystemLink::where('is_active', true)->forUser($user);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -26,6 +26,7 @@ class SystemLinkController extends Controller
         // Get user's favorite links first
         $favoriteLinks = $user ? $user->favoriteLinks()
             ->where('is_active', true)
+            ->forUser($user)
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($subQ) use ($search) {
                     $subQ->where('title', 'like', "%{$search}%")
@@ -103,7 +104,14 @@ class SystemLinkController extends Controller
     public function show(SystemLink $systemLink)
     {
         // Load related links
+        // Enforce visibility for the current user
+        $user = Auth::user();
+        if (!SystemLink::where('id', $systemLink->id)->forUser($user)->exists()) {
+            abort(403, 'Unauthorized');
+        }
+
         $relatedLinks = SystemLink::where('category', $systemLink->category)
+            ->forUser($user)
             ->where('id', '!=', $systemLink->id)
             ->limit(6)
             ->get();

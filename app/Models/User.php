@@ -214,36 +214,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->isAdmin(); // All admin levels can manage polls
     }
 
-    /**
-     * Get allowed target scopes for announcements based on user role
-     */
-    public function getAllowedTargetScopes(): array
-    {
-        return match ($this->role) {
-            'super_admin' => [
-                'all' => 'All NIMR Staff',
-                'headquarters' => 'Headquarters Only',
-                'my_centre' => 'My Centre Only',
-                'my_centre_stations' => 'My Centre + Its Stations',
-                'my_station' => 'My Station Only',
-                'all_centres' => 'All Centres',
-                'all_stations' => 'All Stations',
-                'specific' => 'Custom Selection'
-            ],
-            'hq_admin' => [
-                'all' => 'All NIMR Staff',
-                'headquarters' => 'Headquarters Only'
-            ],
-            'centre_admin' => [
-                'my_centre' => 'My Centre Only',
-                'my_centre_stations' => 'My Centre + Its Stations'
-            ],
-            'station_admin' => [
-                'my_station' => 'My Station Only'
-            ],
-            default => []
-        };
-    }
+    
 
     /**
      * Check if user can update a document

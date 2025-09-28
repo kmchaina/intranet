@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             HierarchySeeder::class,
             UserSeeder::class,
             SearchTestDataSeeder::class,
+            BadgeSeeder::class,
         ]);
     }
 }

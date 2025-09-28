@@ -62,7 +62,7 @@ class NewsController extends Controller
                 ->paginate(9);
         }
 
-        $featuredNews = News::published()->featured()->take(3)->get();
+    $featuredNews = News::published()->featured()->take(3)->get();
 
         // Get unique locations for filter
         $locations = News::published()

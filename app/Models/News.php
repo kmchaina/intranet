@@ -97,6 +97,8 @@ class News extends Model
             ->where('published_at', '<=', now());
     }
 
+    
+
     /**
      * Scope a query to only include featured news.
      */

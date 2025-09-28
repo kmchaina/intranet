@@ -66,6 +66,10 @@ class PollController extends Controller
         }
 
         $poll->load(['creator', 'responses.user']);
+        \App\Services\ActivityLogger::log('poll.view', 'poll', $poll->id, [
+            'type' => $poll->type,
+            'status' => $poll->status
+        ]);
 
         $hasVoted = $poll->hasUserVoted($user);
         $canVote = $poll->canVote($user);
@@ -346,6 +350,11 @@ class PollController extends Controller
         }
 
         PollResponse::create($data);
+
+        \App\Services\ActivityLogger::log('poll.respond', 'poll', $poll->id, [
+            'type' => $poll->type,
+            'anonymous' => $poll->anonymous
+        ]);
 
         return redirect()->route('polls.show', $poll)
             ->with('success', 'Your vote has been recorded!');

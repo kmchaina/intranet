@@ -139,6 +139,45 @@ class DashboardController extends Controller
             $data['stationData'] = $this->getStationAdminData($user);
         }
 
+        // --------------------------------------------------
+        // Enriched cross-role metrics (Step 1 implementation)
+        // --------------------------------------------------
+        $data['recentStats'] = $this->buildRecentStats($user);
+
+        if ($user->isCentreAdmin() && $user->centre) {
+            $data['stationStats'] = $user->centre->stations()
+                ->withCount('users')
+                ->get()
+                ->map(function ($s) {
+                    return [
+                        'id' => $s->id,
+                        'name' => $s->name,
+                        'users_count' => $s->users_count,
+                    ];
+                });
+            if (!isset($data['adminStats']['centreStations'])) {
+                $data['adminStats']['centreStations'] = $user->centre->stations()->count();
+            }
+        }
+
+        $data['birthdaysToday'] = $data['todayBirthdays']->count();
+        $data['birthdays'] = $data['todayBirthdays'];
+        $data['birthdaysTodayCount'] = $data['birthdaysToday'];
+
+        $data['myTodos'] = collect();
+        try {
+            if (class_exists(\App\Models\TodoList::class)) {
+                $data['myTodos'] = \App\Models\TodoList::where('user_id', $user->id)
+                    ->latest()
+                    ->take(10)
+                    ->get();
+            }
+        } catch (\Throwable $e) {
+            // ignore if table not available
+        }
+
+        return $data;
+
         return $data;
     }
 
@@ -198,16 +237,14 @@ class DashboardController extends Controller
         $stats = [];
 
         if ($user->isSuperAdmin() || $user->isHqAdmin()) {
-            // System-wide stats for HQ admins
             $stats = [
                 'totalUsers' => User::count(),
                 'totalAnnouncements' => Announcement::count(),
                 'totalPolls' => Poll::count(),
                 'totalDocuments' => Document::count(),
-                'activeUsers' => User::where('email_verified_at', '!=', null)->count(),
+                'activeUsers' => User::whereNotNull('email_verified_at')->count(),
             ];
         } elseif ($user->isCentreAdmin()) {
-            // Centre-specific stats
             $stats = [
                 'centreUsers' => User::where('centre_id', $user->centre_id)->count(),
                 'centreAnnouncements' => Announcement::whereHas('creator', function ($query) use ($user) {
@@ -221,7 +258,6 @@ class DashboardController extends Controller
                 })->count(),
             ];
         } elseif ($user->isStationAdmin()) {
-            // Station-specific stats
             $stats = [
                 'stationUsers' => User::where('station_id', $user->station_id)->count(),
                 'stationAnnouncements' => Announcement::whereHas('creator', function ($query) use ($user) {
@@ -237,6 +273,53 @@ class DashboardController extends Controller
         }
 
         return $stats;
+    }
+
+    private function buildRecentStats($user): array
+    {
+        $now = now();
+        $monthWindowStart = $now->copy()->subDays(30);
+        $weekStart = $now->copy()->startOfWeek();
+
+        // Base queries adjusted by scope
+        if ($user->isSuperAdmin() || $user->isHqAdmin()) {
+            $announcementsMonth = Announcement::where('created_at', '>=', $monthWindowStart)->count();
+            $documentsWeek = Document::where('created_at', '>=', $weekStart)->count();
+        } elseif ($user->isCentreAdmin() && $user->centre_id) {
+            $announcementsMonth = Announcement::whereHas('creator', function ($q) use ($user) {
+                    $q->where('centre_id', $user->centre_id);
+                })
+                ->where('created_at', '>=', $monthWindowStart)
+                ->count();
+            $documentsWeek = Document::whereHas('uploader', function ($q) use ($user) {
+                    $q->where('centre_id', $user->centre_id);
+                })
+                ->where('created_at', '>=', $weekStart)
+                ->count();
+        } elseif ($user->isStationAdmin() && $user->station_id) {
+            $announcementsMonth = Announcement::whereHas('creator', function ($q) use ($user) {
+                    $q->where('station_id', $user->station_id);
+                })
+                ->where('created_at', '>=', $monthWindowStart)
+                ->count();
+            $documentsWeek = Document::whereHas('uploader', function ($q) use ($user) {
+                    $q->where('station_id', $user->station_id);
+                })
+                ->where('created_at', '>=', $weekStart)
+                ->count();
+        } else { // Staff scope (personal / visible)
+            $announcementsMonth = Announcement::visibleTo($user)
+                ->where('created_at', '>=', $monthWindowStart)
+                ->count();
+            $documentsWeek = Document::whereCanAccess($user)
+                ->where('created_at', '>=', $weekStart)
+                ->count();
+        }
+
+        return [
+            'announcements_this_month' => $announcementsMonth,
+            'documents_this_week' => $documentsWeek,
+        ];
     }
 
     private function getPendingItems($user)

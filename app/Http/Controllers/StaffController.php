@@ -15,15 +15,12 @@ class StaffController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = User::with(['centre', 'station', 'headquarters']);
+    $query = User::with(['centre', 'station', 'headquarters', 'department']);
         
-        // Search functionality
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            });
+        // Search by name only
+        if ($request->filled('search')) {
+            $search = trim((string) $request->string('search'));
+            $query->where('name', 'like', "%{$search}%");
         }
 
         // Filter by centre
@@ -31,15 +28,9 @@ class StaffController extends Controller
             $query->where('centre_id', $request->centre);
         }
 
-        // Filter by station
-        if ($request->has('station') && $request->station) {
-            $query->where('station_id', $request->station);
-        }
+        // Station filter removed by request; station admin scoping remains below
 
-        // Filter by role
-        if ($request->has('role') && $request->role) {
-            $query->where('role', $request->role);
-        }
+        // Role filter removed (keeping only name and centre per request)
 
         // Filter based on user's access level
         $user = auth()->user();
@@ -49,14 +40,20 @@ class StaffController extends Controller
             $query->where('station_id', $user->station_id);
         }
 
-        $staff = $query->orderBy('name')->paginate(20);
-        
-        // Get filter options
-        $centres = Centre::orderBy('name')->get();
-        $stations = Station::orderBy('name')->get();
-        $roles = User::distinct()->whereNotNull('role')->pluck('role')->sort();
+    // Sorting and pagination
+    $allowedSorts = ['name'];
+    $sort = in_array($request->query('sort'), $allowedSorts, true) ? $request->query('sort') : 'name';
+    $direction = 'asc';
+    $perPage = (int) $request->query('per_page', 20);
+    if ($perPage < 5) { $perPage = 5; }
+    if ($perPage > 100) { $perPage = 100; }
 
-        return view('staff.index', compact('staff', 'centres', 'stations', 'roles'));
+    $staff = $query->orderBy($sort, $direction)->paginate($perPage);
+        
+    // Get filter options
+    $centres = Centre::orderBy('name')->get();
+
+    return view('staff.index', compact('staff', 'centres'));
     }
 
     /**

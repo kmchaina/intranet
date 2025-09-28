@@ -19,8 +19,10 @@ Route::middleware('guest')->group(function () {
 
     Route::get('get-stations', [RegisteredUserController::class, 'getStations'])->name('get.stations');
 
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
-        ->name('login');
+    // Show landing instead of the old login page
+    Route::get('login', function () {
+        return redirect('/');
+    })->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 

@@ -76,8 +76,10 @@ class Announcement extends Model
      */
     public function scopePublished(Builder $query): Builder
     {
-        return $query->where('status', 'published')
-            ->where('published_at', '<=', now())
+        return $query->where('is_published', true)
+            ->where(function ($q) {
+                $q->whereNull('published_at')->orWhere('published_at', '<=', now());
+            })
             ->where(function ($q) {
                 $q->whereNull('expires_at')
                     ->orWhere('expires_at', '>', now());
@@ -106,73 +108,31 @@ class Announcement extends Model
     public function scopeForUser(Builder $query, User $user): Builder
     {
         return $query->where(function ($q) use ($user) {
-            // 1. All NIMR staff announcements
-            $q->where('target_scope', 'all')
-            
-            // 2. Headquarters-only announcements (only if user is at HQ)
-            ->orWhere(function ($subQ) use ($user) {
-                if ($user->headquarters_id && !$user->centre_id && !$user->station_id) {
-                    $subQ->where('target_scope', 'headquarters');
-                }
-            })
-            
-            // 3. Centre-level announcements
-            ->orWhere(function ($subQ) use ($user) {
-                if ($user->centre_id) {
-                    $subQ->where(function ($centreQ) use ($user) {
-                        // My centre announcements from same centre users
-                        $centreQ->where('target_scope', 'my_centre')
-                                ->whereHas('creator', function ($creatorQ) use ($user) {
-                                    $creatorQ->where('centre_id', $user->centre_id);
-                                });
-                    })
-                    ->orWhere(function ($centreStationsQ) use ($user) {
-                        // My centre + stations announcements from same centre users
-                        $centreStationsQ->where('target_scope', 'my_centre_stations')
-                                       ->whereHas('creator', function ($creatorQ) use ($user) {
-                                           $creatorQ->where('centre_id', $user->centre_id);
-                                       });
-                    })
-                    ->orWhere(function ($allCentresQ) {
-                        // All centres announcements (visible to all centre staff)
-                        $allCentresQ->where('target_scope', 'all_centres');
-                    })
-                    ->orWhere(function ($specificQ) use ($user) {
-                        // Specific targeting that includes this user's centre
-                        $specificQ->where('target_scope', 'specific')
-                                 ->whereJsonContains('target_centres', $user->centre_id);
-                    });
-                }
-            })
-            
-            // 4. Station-level announcements
-            ->orWhere(function ($subQ) use ($user) {
-                if ($user->station_id) {
-                    $subQ->where(function ($stationQ) use ($user) {
-                        // My station announcements from same station users
-                        $stationQ->where('target_scope', 'my_station')
-                                ->whereHas('creator', function ($creatorQ) use ($user) {
-                                    $creatorQ->where('station_id', $user->station_id);
-                                });
-                    })
-                    ->orWhere(function ($allStationsQ) {
-                        // All stations announcements (visible to all station staff)
-                        $allStationsQ->where('target_scope', 'all_stations');
-                    })
-                    ->orWhere(function ($specificStationQ) use ($user) {
-                        // Specific targeting that includes this user's station
-                        $specificStationQ->where('target_scope', 'specific')
-                                        ->whereJsonContains('target_stations', $user->station_id);
-                    })
-                    ->orWhere(function ($centreStationsQ) use ($user) {
-                        // Centre + stations announcements from same centre (station users can see centre announcements)
-                        $centreStationsQ->where('target_scope', 'my_centre_stations')
-                                       ->whereHas('creator', function ($creatorQ) use ($user) {
-                                           $creatorQ->where('centre_id', $user->centre_id);
-                                       });
-                    });
-                }
-            });
+            // Visible to everyone
+            $q->where('target_scope', 'all');
+
+            // Headquarters-only (user is strictly at HQ level)
+            if ($user->headquarters_id && !$user->centre_id && !$user->station_id) {
+                $q->orWhere('target_scope', 'headquarters');
+            }
+
+            // Centre-level announcements (centre staff and station staff with a centre_id)
+            if ($user->centre_id) {
+                $q->orWhere('target_scope', 'centres')
+                  ->orWhere(function ($specificQ) use ($user) {
+                      $specificQ->where('target_scope', 'specific')
+                               ->whereJsonContains('target_centres', $user->centre_id);
+                  });
+            }
+
+            // Station-level announcements
+            if ($user->station_id) {
+                $q->orWhere('target_scope', 'stations')
+                  ->orWhere(function ($specificStationQ) use ($user) {
+                      $specificStationQ->where('target_scope', 'specific')
+                                       ->whereJsonContains('target_stations', $user->station_id);
+                  });
+            }
         });
     }
 

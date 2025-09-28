@@ -139,7 +139,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('messages/conversations/{conversation}/items/{message}', [MessageController::class, 'destroy'])->name('messages.items.destroy');
     Route::post('messages/conversations/{conversation}/attachments', [MessageController::class, 'uploadAttachments'])->name('messages.attachments.upload');
     Route::patch('messages/conversations/{conversation}/title', [ConversationController::class, 'updateTitle'])->name('messages.update-title');
-    Route::get('messages/conversations/{conversation}/user-search', [ConversationController::class, 'userSearch'])->name('messages.user-search');
+    Route::get('messages/conversations/{conversation}/user-search', [ConversationController::class, 'userSearch'])
+        ->middleware('throttle:30,1') // limit to 30 searches per minute per user
+        ->name('messages.user-search');
     // Participant management
     Route::get('messages/conversations/{conversation}/participants', [ConversationController::class, 'participantsIndex'])->name('messages.participants.index');
     Route::post('messages/conversations/{conversation}/participants', [ConversationController::class, 'addParticipants'])->name('messages.participants.add');

@@ -105,6 +105,39 @@ class SystemLink extends Model
         ];
     }
 
+    // Scope: limit links visible to a given user based on access_level
+    public function scopeForUser($query, ?User $user)
+    {
+        if (!$user) {
+            return $query->where('access_level', 'all');
+        }
+
+        return $query->where(function ($q) use ($user) {
+            $q->where('access_level', 'all')
+              ->orWhere(function ($hqQ) use ($user) {
+                  if ($user->headquarters_id && !$user->centre_id && !$user->station_id) {
+                      $hqQ->where('access_level', 'hq');
+                  }
+              })
+              ->orWhere(function ($centreQ) use ($user) {
+                  // Centre-level links visible to centre staff and station staff belonging to a centre
+                  if ($user->centre_id || $user->station_id) {
+                      $centreQ->where('access_level', 'centre');
+                  }
+              })
+              ->orWhere(function ($stationQ) use ($user) {
+                  if ($user->station_id) {
+                      $stationQ->where('access_level', 'station');
+                  }
+              })
+              ->orWhere(function ($adminQ) use ($user) {
+                  if ($user->isAdmin()) {
+                      $adminQ->where('access_level', 'admin');
+                  }
+              });
+        });
+    }
+
     public static function getColorSchemes(): array
     {
         return [

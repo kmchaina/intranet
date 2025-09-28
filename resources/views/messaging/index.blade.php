@@ -191,6 +191,7 @@
 function messagingApp() {
     return {
         userId: {{ auth()->id() }},
+        isSuperAdmin: {{ auth()->user()->isSuperAdmin() ? 'true' : 'false' }},
         conversations: @json($initialConversations ?? []),
         messages: [],
         current: null,
@@ -424,9 +425,9 @@ function messagingApp() {
             .finally(()=> this.renameSaving=false);
         }
         ,canDelete(m){
+            if(this.isSuperAdmin) return true; // UI override; server policy still authoritative
             if(m.user.id !== this.userId) return false;
-            // 5 minute window check
-            const five = 5*60*1000;
+            const five = 5*60*1000; // 5 minute window
             return (Date.now() - new Date(m.at).getTime()) < five;
         }
         ,deleteMessage(m){
