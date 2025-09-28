@@ -52,8 +52,8 @@
                 </div>
                 <div class="flex-1 overflow-y-auto p-3 space-y-3" x-ref="messageList">
                     <template x-for="m in messages" :key="m.id">
-                        <div class="text-sm" :class="{'text-right': m.user.id === userId}">
-                            <div class="inline-block max-w-xs px-3 py-2 rounded-lg" :class="m.user.id===userId ? 'bg-indigo-500 text-white' : 'bg-gray-100'">
+                        <div class="text-sm group relative" :class="{'text-right': m.user.id === userId}">
+                            <div class="inline-block max-w-xs px-3 py-2 rounded-lg relative" :class="m.user.id===userId ? 'bg-indigo-500 text-white' : 'bg-gray-100'">
                                 <div class="text-[10px] opacity-70 mb-0.5" x-text="m.user.name"></div>
                                 <div x-text="m.body"></div>
                                 <template x-if="m.attachments && m.attachments.length">
@@ -64,6 +64,8 @@
                                     </ul>
                                 </template>
                                 <div class="text-[10px] opacity-50 mt-1" x-text="formatTime(m.at)"></div>
+                                <!-- Delete button (visible if own & within window) -->
+                                <button x-show="canDelete(m)" @click="deleteMessage(m)" class="hidden group-hover:inline-block absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 text-[10px] leading-5 text-center">×</button>
                             </div>
                         </div>
                     </template>
@@ -397,6 +399,25 @@ function messagingApp() {
             })
             .catch(e=> this.renameError = e.message || 'Rename failed')
             .finally(()=> this.renameSaving=false);
+        }
+        ,canDelete(m){
+            if(m.user.id !== this.userId) return false;
+            // 5 minute window check
+            const five = 5*60*1000;
+            return (Date.now() - new Date(m.at).getTime()) < five;
+        }
+        ,deleteMessage(m){
+            fetch(`/messages/conversations/${this.current.id}/items/${m.id}`, {
+                method:'DELETE', headers:{'X-CSRF-TOKEN': this.csrf()}
+            }).then(r=> {
+                if(r.ok){
+                    const idx = this.messages.findIndex(x=>x.id===m.id);
+                    if(idx>-1) this.messages.splice(idx,1);
+                } else {
+                    // Optional small failure notice
+                    console.log('Delete failed');
+                }
+            });
         }
     }
 }
