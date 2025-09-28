@@ -159,10 +159,26 @@
             </template>
             <template x-if="current && current.type==='group'">
                 <div class="space-y-2">
-                    <div class="text-xs font-semibold">Add Participants (IDs)</div>
-                    <div class="flex gap-2">
-                        <input x-model="addPartIds" placeholder="e.g. 12,18" class="flex-1 border rounded px-2 py-1 text-xs" />
-                        <button @click="addParticipants" class="text-xs px-3 py-1 bg-indigo-600 text-white rounded">Add</button>
+                    <div class="text-xs font-semibold">Add Participants</div>
+                    <div class="space-y-2">
+                        <input x-model="searchTerm" @input="searchUsers" placeholder="Search name or email" class="w-full border rounded px-2 py-1 text-xs" />
+                        <div class="border rounded max-h-40 overflow-y-auto" x-show="searchResults.length">
+                            <template x-for="u in searchResults" :key="u.id">
+                                <div @click="toggleSelectUser(u)" class="px-2 py-1 text-xs cursor-pointer hover:bg-indigo-50 flex justify-between" :class="{'bg-indigo-100': selectedAdd.find(x=>x.id===u.id)}">
+                                    <span x-text="u.name + ' (' + u.email + ')'" class="truncate"></span>
+                                    <span x-show="selectedAdd.find(x=>x.id===u.id)" class="text-indigo-600">✔</span>
+                                </div>
+                            </template>
+                            <div x-show="searchLoading" class="px-2 py-1 text-[10px] text-gray-500">Searching...</div>
+                        </div>
+                        <div class="flex flex-wrap gap-1" x-show="selectedAdd.length">
+                            <template x-for="u in selectedAdd" :key="u.id">
+                                <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded"> <span x-text="u.name"></span> <button @click.stop="toggleSelectUser(u)" class="ml-1">×</button></span>
+                            </template>
+                        </div>
+                        <div class="flex justify-end">
+                            <button @click="addSelectedUsers" class="text-xs px-3 py-1 bg-indigo-600 text-white rounded" :disabled="!selectedAdd.length">Add Selected</button>
+                        </div>
                     </div>
                     <button @click="leaveConversation" class="text-xs text-red-600 underline" x-show="current && current.type==='group'">Leave Conversation</button>
                 </div>
@@ -202,6 +218,13 @@ function messagingApp() {
             // Auto-select first conversation if exists
             if (this.conversations.length) this.selectConversation(this.conversations[0]);
             this.schedulePoll();
+        },
+        // Toasts
+        toasts: [],
+        pushToast(msg, type='info'){
+            const id = Date.now()+Math.random();
+            this.toasts.push({id,msg,type});
+            setTimeout(()=>{ this.toasts = this.toasts.filter(t=>t.id!==id); }, 4000);
         },
         schedulePoll() {
             if (this.pollTimer) clearTimeout(this.pollTimer);
@@ -413,13 +436,52 @@ function messagingApp() {
                 if(r.ok){
                     const idx = this.messages.findIndex(x=>x.id===m.id);
                     if(idx>-1) this.messages.splice(idx,1);
+                    this.pushToast('Message deleted','success');
                 } else {
-                    // Optional small failure notice
-                    console.log('Delete failed');
+                    this.pushToast('Delete failed','error');
                 }
             });
+        }
+        // User search for adding participants
+        ,searchTerm:'', searchResults:[], selectedAdd:[], searchLoading:false, searchTimer:null
+        ,searchUsers(){
+            if(this.searchTimer) clearTimeout(this.searchTimer);
+            if(!this.searchTerm.trim()){ this.searchResults=[]; return; }
+            this.searchTimer=setTimeout(()=>{
+                this.searchLoading=true;
+                fetch(`/messages/conversations/${this.current.id}/user-search?q=${encodeURIComponent(this.searchTerm.trim())}`)
+                  .then(r=> r.ok? r.json(): r.json().then(e=>Promise.reject(e)))
+                  .then(d=> { this.searchResults = d.users || []; })
+                  .catch(()=> this.searchResults=[])
+                  .finally(()=> this.searchLoading=false);
+            }, 300);
+        }
+        ,toggleSelectUser(u){
+            if(this.selectedAdd.find(x=>x.id===u.id)){
+                this.selectedAdd = this.selectedAdd.filter(x=>x.id!==u.id);
+            } else {
+                this.selectedAdd.push(u);
+            }
+        }
+        ,addSelectedUsers(){
+            if(!this.selectedAdd.length) return;
+            const ids = this.selectedAdd.map(u=>u.id);
+            fetch(`/messages/conversations/${this.current.id}/participants`, {
+                method:'POST', headers:{'Content-Type':'application/json','X-CSRF-TOKEN': this.csrf()},
+                body: JSON.stringify({user_ids: ids})
+            }).then(r=> r.ok ? r.json() : r.json().then(e=>Promise.reject(e)))
+            .then(d=> { this.participants = d.participants; this.selectedAdd=[]; this.searchResults=[]; this.searchTerm=''; this.pushToast('Participants added','success'); this.refreshConversationUnreadCounts(); })
+            .catch(e=> this.partError = e.message || 'Add failed');
         }
     }
 }
 </script>
+
+<!-- Toast Container -->
+<div class="fixed top-4 right-4 space-y-2 pointer-events-none" x-cloak>
+    <template x-for="t in toasts" :key="t.id">
+        <div class="px-3 py-2 rounded shadow text-xs text-white pointer-events-auto"
+             :class="{'bg-indigo-600': t.type==='info', 'bg-green-600': t.type==='success', 'bg-red-600': t.type==='error'}" x-text="t.msg"></div>
+    </template>
+</div>
 @endsection

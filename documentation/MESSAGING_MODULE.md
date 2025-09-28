@@ -106,9 +106,10 @@ POST /messages/conversations/{id}/leave
 
 ### UI Behavior
 - "Manage" link opens a modal (Alpine.js) loading participants via GET endpoint.
-- Adding participants: comma-separated user IDs (placeholder until user search implemented) -> POST -> refresh list & conversation roster in sidebar.
+- Adding participants: live search (name/email) fetches up to 10 non-member users; user selects one or more, then clicks Add Selected.
 - Removing participant triggers DELETE; user is optimistically removed from modal list.
 - Leave option appears only for non-creator participants.
+- Toast notifications provide lightweight feedback (add/remove/rename/delete, etc.).
 
 ### Activity Logging
 Each participant lifecycle action logs an ActivityEvent (see Activity Logging section) enabling analytics and potential badge triggers.
@@ -128,10 +129,28 @@ Each participant lifecycle action logs an ActivityEvent (see Activity Logging se
 - Creator leave attempt rejected.
 
 ### Future Improvements (Participants)
-- Replace manual ID entry with searchable multi-select (AJAX user lookup / typeahead).
 - Allow ownership transfer so creator can leave after delegating.
 - Participant roles (moderator) for finer-grained permissions.
 - Notification (email/in-app) on being added to a conversation.
+ - Ownership transfer so creator can leave after delegating.
+ - Participant roles (moderator) for finer-grained permissions.
+ - Notification (email/in-app) on being added to a conversation.
+ - Pagination / infinite scroll in search results if needed.
+
+### User Search Endpoint (Implemented)
+GET /messages/conversations/{id}/user-search?q=term
+- Authorization: must be able to view conversation (participant).
+- Returns up to 10 users not already participants and not the current user.
+- Filters by name OR email LIKE %term%.
+- Direct conversations short-circuit with empty list (no expansion allowed).
+
+Response Shape:
+{ users: [ { id, name, email } ... ] }
+
+Client Behavior:
+- Debounced (300ms) search call while typing.
+- Selected chip list accumulates before single POST add.
+- Clears selection & search state on successful addition; shows success toast.
 
 ## Rename Group Conversation (Implemented)
 PATCH /messages/conversations/{id}/title { title }

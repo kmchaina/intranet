@@ -267,6 +267,29 @@ class ConversationController extends Controller
         return response()->json(['id' => $conversation->id, 'title' => $conversation->title]);
     }
 
+    public function userSearch(Request $request, Conversation $conversation)
+    {
+        // Must be able to view conversation to search for adding participants
+        $this->authorize('view', $conversation);
+        if ($conversation->isDirect()) {
+            return response()->json(['users' => []]);
+        }
+        $term = trim($request->get('q', ''));
+        if ($term === '') return response()->json(['users' => []]);
+        $existing = $conversation->participants()->pluck('user_id')->all();
+        $existing[] = $request->user()->id;
+        $query = \App\Models\User::query()
+            ->whereNotIn('id', $existing)
+            ->where(function($q) use ($term){
+                $q->where('name','like',"%{$term}%")
+                  ->orWhere('email','like',"%{$term}%");
+            })
+            ->orderBy('name')
+            ->limit(10)
+            ->get(['id','name','email']);
+        return response()->json(['users' => $query]);
+    }
+
     private function directTitleFor(Conversation $conversation, int $viewerId): string
     {
         $other = $conversation->participants

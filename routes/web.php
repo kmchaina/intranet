@@ -14,12 +14,18 @@ use App\Http\Controllers\PollController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\BadgeController;
+use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\GlobalSearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return view('landing');
 });
 
 // Temporary route to check users
@@ -118,6 +124,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Staff Directory routes
     Route::get('staff', [StaffController::class, 'index'])->name('staff.index');
     Route::get('staff/{staff}', [StaffController::class, 'show'])->name('staff.show');
+
+    // Badges
+    Route::get('badges', [BadgeController::class, 'index'])->name('badges.index');
+
+    // Messaging routes (Conversations & Messages)
+    Route::get('messages', [ConversationController::class, 'index'])->name('messages.index');
+    Route::get('messages/conversations/{conversation}', [ConversationController::class, 'show'])->name('messages.show');
+    Route::post('messages/direct', [ConversationController::class, 'direct'])->name('messages.direct');
+    Route::post('messages/group', [ConversationController::class, 'store'])->name('messages.group');
+    Route::post('messages/conversations/{conversation}/mark-read', [ConversationController::class, 'markRead'])->name('messages.mark-read');
+    Route::get('messages/conversations/{conversation}/items', [MessageController::class, 'index'])->name('messages.items');
+    Route::post('messages/conversations/{conversation}/items', [MessageController::class, 'store'])->name('messages.items.store');
+    Route::delete('messages/conversations/{conversation}/items/{message}', [MessageController::class, 'destroy'])->name('messages.items.destroy');
+    Route::post('messages/conversations/{conversation}/attachments', [MessageController::class, 'uploadAttachments'])->name('messages.attachments.upload');
+    Route::patch('messages/conversations/{conversation}/title', [ConversationController::class, 'updateTitle'])->name('messages.update-title');
+    Route::get('messages/conversations/{conversation}/user-search', [ConversationController::class, 'userSearch'])->name('messages.user-search');
+    // Participant management
+    Route::get('messages/conversations/{conversation}/participants', [ConversationController::class, 'participantsIndex'])->name('messages.participants.index');
+    Route::post('messages/conversations/{conversation}/participants', [ConversationController::class, 'addParticipants'])->name('messages.participants.add');
+    Route::delete('messages/conversations/{conversation}/participants/{user}', [ConversationController::class, 'removeParticipant'])->name('messages.participants.remove');
+    Route::post('messages/conversations/{conversation}/leave', [ConversationController::class, 'leave'])->name('messages.participants.leave');
 
     // Admin routes (Role-based access)
     Route::prefix('admin')->name('admin.')->group(function () {
