@@ -1,119 +1,98 @@
-# CHANGELOG
+## Changelog
 
-## [2.1.0] - 2025-09-08
+This changelog documents meaningful functional, architectural, UI/UX, and data-model changes from the point the project design was consolidated (2025-09) onward. Historical placeholder content was superseded for clarity.
 
-### 🚀 Major Improvements
+### [Unreleased]
+Planned / Proposed:
+- Introduce explicit `affiliation_type` (headquarters|centre|station) replacing dual `organizational_level + work_location` pattern.
+- Refactor station selection to direct `station_id` dropdown when station users are supported explicitly.
+- Config-driven allowed registration email domains (multi-domain support).
+- Backend Form Request classes for auth validation (testable encapsulation).
 
-#### Database Migration & Performance
-- **BREAKING**: Migrated from SQLite to MySQL/MariaDB for production scalability
-- **Added**: Database performance indexes for 3-5x query speed improvement
-- **Added**: Migration command `php artisan migrate:from-sqlite` with backup and verification
-- **Added**: Database optimization command `php artisan db:add-indexes`
+### [2025-09-28] Messaging Module Phase 1 (Foundations + Enhancements)
+Added
+- Core messaging module (direct & group conversations, messages CRUD-lite, unread tracking via participant last_read_message_id).
+- Attachments support with upload endpoint, hashed storage under public disk, per-message limits (count & size) and MIME allowlist.
+- Participant management: list, add (idempotent), remove (creator-protected), leave (non-creator) for group conversations.
+- Group conversation rename endpoint + inline UI control (policy enforced: creator or super admin; groups only).
+- Activity logging events for conversation create, participant add/remove/leave, conversation rename.
+- Feature tests: core messaging flows, attachments (valid, invalid MIME, oversize, unauthorized), participant management (add/remove/leave restrictions), rename, unread count behavior.
 
-#### Security Enhancements
-- **Added**: Rate limiting middleware for API and form protection
-- **Added**: Enhanced file upload validation and security
-- **Improved**: CSRF protection across all routes
-- **Added**: Secure password policies and validation
+Changed
+- Messaging Blade UI: polling refinements, participants modal, inline rename, basic attachment display list.
+- Documentation (`documentation/MESSAGING_MODULE.md`) expanded with Attachments, Participant Management, Rename sections.
 
-#### API & Architecture  
-- **Added**: Versioned REST API (v1) with proper resource transformation
-- **Added**: DocumentService for centralized business logic
-- **Added**: Comprehensive API documentation and resources
-- **Added**: Error handling and response standardization
+Technical Notes
+- Polling remains (4s) — sockets intentionally deferred to keep scope lean.
+- Authorization centralized in `ConversationPolicy` including new `rename` ability mirroring participant admin rules.
+- Tests avoid GD dependency by using `UploadedFile::fake()->create` instead of `image()` for portability.
 
-#### Testing & Quality
-- **Added**: Comprehensive test suite for document management
-- **Added**: Feature tests with authentication, authorization, and file handling
-- **Added**: API endpoint testing with rate limiting validation
-- **Improved**: Code organization with service layer pattern
+Backward Compatibility
+- No existing tables altered outside new messaging tables (introduced in earlier migration set — ensure migrations run).
+- No config breaking changes; `config/messaging.php` can be tuned without affecting unrelated modules.
 
-#### Documentation
-- **Updated**: Complete system documentation reflecting MySQL migration
-- **Added**: Database migration guide with step-by-step instructions
-- **Added**: Performance optimization recommendations
-- **Updated**: README with enhanced setup instructions and architecture details
+Operational Guidance
+- After deploy: run migrations, clear config & route cache, ensure public storage symlink present (`php artisan storage:link`).
+- Monitor disk usage under `storage/app/public/chat/*` for attachment growth.
 
-### 🗄️ Database Changes
-- Migrated all existing data from SQLite to MySQL
-- Added performance indexes on:
-  - `users(role, email, hierarchy fields)`
-  - `announcements(published_at, category)`
-  - `centres(is_active)`
-  - `departments(centre_id, is_active)`
-  - `news(created_at)`
+Security Considerations
+- MIME allowlist enforced; recommend future AV scanning hook before expanding allowed types.
+- Creator cannot be removed or leave a group, preserving ownership accountability.
 
-### 📁 Files Added
-- `app/Http/Middleware/RateLimitMiddleware.php` - API rate limiting
-- `app/Services/DocumentService.php` - Document business logic
-- `app/Http/Controllers/Api/V1/DocumentController.php` - Versioned API
-- `app/Http/Resources/DocumentResource.php` - API resource transformation
-- `app/Console/Commands/MigrateFromSQLite.php` - Database migration
-- `app/Console/Commands/AddDatabaseIndexes.php` - Performance optimization
-- `tests/Feature/DocumentManagementTest.php` - Comprehensive test suite
-- `DATABASE_MIGRATION_GUIDE.md` - Migration documentation
-- `ENHANCEMENT_RECOMMENDATIONS.md` - Technical recommendations
+### [2025-09-24] Registration Hierarchy Enhancements
+Added
+- Headquarters Department selection (`department_id`) surfaced during registration when user chooses Headquarters.
+- Active HQ departments list (Research, Ethics, Internal Auditor, Legal, ICT, Procurement, Public Relations, Finance, Planning, Human Resource) injected into registration view.
+- Validation rule for optional `department_id` (exists constraint) and persisted link on user creation.
+- Design notes document: `documentation/REGISTRATION_DESIGN_NOTES.md` capturing hierarchy model, risks, and refactor roadmap.
+ - Canonical HQ department taxonomy seeder (`HeadquartersDepartmentSeeder`) ensuring normalized names, codes, and descriptions.
+ - Department normalization command `departments:normalize` (dry-run, reassign, deactivate legacy) for ongoing data hygiene.
 
-### 📁 Files Modified
-- `.env` - Updated database configuration to MySQL
-- `database/migrations/2025_09_01_171335_update_announcement_target_scope_enum.php` - MySQL compatibility
-- `README.md` - Enhanced documentation with new features
+Changed
+- Registration UI now conditionally renders HQ department select alongside existing centre/station logic.
+- `RegisteredUserController@create` now supplies `$hqDepartments` collection.
 
-### 📁 Files Removed
-- `test_users.php` - Temporary testing file
-- `test_hierarchy.php` - Temporary testing file  
-- `create_database.sql` - Temporary SQL script
-- `add_indexes.php` - Temporary index script
+Technical Rationale
+- Lays groundwork for finer-grained HQ user segmentation without overhauling existing centre/station flow.
+- Keeps current simplified model while documenting migration path to clearer `affiliation_type`.
 
-### 🔧 Configuration Changes
-- **Database**: Changed from SQLite to MySQL (`intranet` database)
-- **Caching**: Configured file-based caching with Redis readiness
-- **Security**: Enhanced middleware stack with rate limiting
+### [2025-09-23] Auth UI Modernization
+Added
+- Glassmorphism utilities (`glass-card`, `glass-card-xl`, `glass-accent-edge`, `glass-input`) consolidated in custom stylesheet.
+- Password visibility toggle modularized into `resources/js/auth.js`.
 
-### 📊 Performance Improvements
-- **Query Speed**: 3-5x faster database queries with optimized indexes
-- **Concurrent Users**: Now supports 200+ concurrent users
-- **Response Times**: Significantly reduced page load times
-- **Scalability**: Production-ready architecture with MySQL backend
+Changed
+- Login (landing) and registration pages restyled: unified translucent panels, radial gradient background, professional typography (Plus Jakarta Sans).
+- Consistent white text across form labels, helper text, and interactive elements for maximal contrast on glass background.
+- Footer repositioned to global page context.
 
-### 🔒 Security Improvements
-- Rate limiting on API endpoints (60 requests/minute)
-- Enhanced file upload validation with security scanning
-- Improved authentication flows and session management
-- CSRF protection on all form submissions
+Accessibility / UX
+- Focus styles retained with visible rings.
+- Placeholder contrast tuned; semantic headings introduced (`Create your account`).
 
-### 🧪 Testing Coverage
-- Comprehensive feature tests for document management
-- Authentication and authorization testing
-- File upload security testing
-- API endpoint and rate limiting testing
+### [2025-09-22] Component & Structure Refinements
+Added
+- Input component variant handling for glass styling.
 
----
+Changed
+- Removed inline per-field styling in favor of reusable utilities.
+- Extracted password toggle script from inline Blade to ES module pipeline (Vite).
 
-## [2.0.0] - 2025-09-01
+### [2025-09-21] Initial Design System Alignment
+Added
+- Base set of design tokens & utility classes for emerging intranet design system.
 
-### Initial Release
-- Complete intranet system with user hierarchy management
-- Announcements, documents, events, polls, and news features
-- Role-based access control (5 levels)
-- Responsive design with Tailwind CSS + Alpine.js
-- SQLite database (migrated to MySQL in v2.1.0)
+Changed
+- Standardized panel spacing, rounded corners, and subtle border hairlines across guest layout.
+
+### Conventions Going Forward
+- Date format: YYYY-MM-DD.
+- Group entries by deployment / merge date; combine small incremental commits into a cohesive narrative section.
+- Use Added / Changed / Removed / Fixed / Security headings as needed.
+- Avoid logging trivial text copy edits unless user-facing meaning changes.
+
+### Deprecated / Legacy Notes
+Previous placeholder change log content (database migration narrative) archived offline; real production DB migration steps will be re-documented when actual engine transition is scheduled.
 
 ---
-
-### Migration Notes
-
-**From SQLite to MySQL (v2.1.0):**
-1. All existing data preserved during migration
-2. Performance indexes automatically added
-3. Backup created in `storage/backups/` 
-4. Zero data loss with verification process
-
-**Upgrading:**
-1. Update `.env` database configuration
-2. Run `php artisan migrate:from-sqlite --backup --verify`
-3. Run `php artisan db:add-indexes`
-4. Clear configuration cache: `php artisan config:clear`
-
-### Support
-For migration assistance or issues, contact the development team.
+Last updated: 2025-09-24
