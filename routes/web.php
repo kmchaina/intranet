@@ -131,6 +131,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Messaging routes (Conversations & Messages)
     Route::get('messages', [ConversationController::class, 'index'])->name('messages.index');
     Route::get('messages/conversations/{conversation}', [ConversationController::class, 'show'])->name('messages.show');
+    // Global user search for starting new group (no conversation context yet)
+    Route::get('messages/user-search', [ConversationController::class, 'globalUserSearch'])
+        ->middleware('throttle:30,1')
+        ->name('messages.global-user-search');
     Route::post('messages/direct', [ConversationController::class, 'direct'])->name('messages.direct');
     Route::post('messages/group', [ConversationController::class, 'store'])->name('messages.group');
     Route::post('messages/conversations/{conversation}/mark-read', [ConversationController::class, 'markRead'])->name('messages.mark-read');

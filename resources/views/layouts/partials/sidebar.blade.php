@@ -26,41 +26,85 @@
             </div>
         @endif
 
-        @foreach($menuSections as $sectionName => $items)
-            @php $isAdminSection = in_array($sectionName,['Content Creation','System Administration']); $slug = \Illuminate\Support\Str::slug($sectionName); @endphp
-            <div x-data="{ open: JSON.parse(localStorage.getItem('section-{{ $slug }}') ?? 'true'), isAdminSection: {{ $isAdminSection ? 'true':'false' }} }"
-                 @if(auth()->check() && auth()->user()->isSuperAdmin())
-                    x-show="(isAdminSection && !staffView) || (!isAdminSection && staffView)"
-                 @else
-                    x-show="isAdminSection ? !staffView : true"
-                 @endif
-                 x-transition>
-                <div class="mb-2">
-                    <button x-show="sidebarOpen" @click="open=!open; localStorage.setItem('section-{{ $slug }}', open)" class="w-full flex items-center justify-between px-3 py-2 text-[0.7rem] font-bold text-gray-500 uppercase tracking-wider hover:text-gray-700">
-                        <span>{{ $sectionName }}</span>
-                        <svg class="w-3 h-3 text-gray-400 transform transition-transform" :class="open ? 'rotate-0' : '-rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                    </button>
-                    <div x-show="!sidebarOpen" class="flex justify-center py-1"><div class="w-2 h-2 bg-gray-300 rounded-full"></div></div>
-                </div>
-                <div class="space-y-1 mb-4" x-show="open" x-transition>
-                    @foreach($items as $item)
-                        @php $iconPath = config('icons.' . ($item['icon'] ?? '')); @endphp
-                        <a href="{{ route($item['route']) }}" class="nav-link {{ (request()->routeIs($item['route']) || request()->routeIs($item['route'].'*')) ? 'nav-link-active' : '' }}" x-bind:title="!sidebarOpen ? '{{ $item['label'] }}' : null">
-                            <div class="flex items-center w-full">
-                                <div class="nav-link-icon">
-                                    @if($iconPath)
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $iconPath }}" /></svg>
-                                    @endif
-                                </div>
-                                <span x-show="sidebarOpen" x-transition class="ml-3 text-sm font-medium leading-5 flex-1">{{ $item['label'] }}</span>
-                                @if(!empty($item['badge']))
-                                    <span x-show="sidebarOpen" x-transition class="ml-2 min-w-[1.25rem] h-5 inline-flex items-center justify-center bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full">{{ $item['badge'] }}</span>
-                                @endif
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-        @endforeach
+        @php
+            // Build flat items and deduplicate by route.
+            // We also support a role switching view (staffView flag) where
+            // we only show items belonging to either staff (base) or admin sections
+            // without repeating overlaps across the two modes. Assumptions:
+            // - Base staff items are those coming from config('navigation.sections')
+            // - Admin items come from config('navigation.admin_sections') and may overlap by route name
+            // - If an item exists in both, we treat the 'admin' version as admin-only and hide it from staff view to avoid duplication.
+
+            $staffSections = config('navigation.sections', []);
+            $adminSections = config('navigation.admin_sections', []);
+
+            // Collect routes present in both to avoid duplication across modes.
+            $overlapRoutes = [];
+            foreach ($adminSections as $sec => $items) {
+                foreach ($items as $it) {
+                    $r = $it['route'] ?? null;
+                    if (!$r) continue;
+                    // mark admin route
+                    foreach ($staffSections as $ssec => $sitems) {
+                        foreach ($sitems as $sit) {
+                            if (($sit['route'] ?? null) === $r) { $overlapRoutes[$r] = true; break 2; }
+                        }
+                    }
+                }
+            }
+
+            // Determine active mode based on Alpine staffView variable (we replicate logic server-side as fallback)
+            $requestView = request()->query('view');
+            $isStaffView = ($requestView === 'staff') || (!$requestView && (session('staffView') === true));
+
+            $flatItems = [];
+            if ($isStaffView) {
+                // Staff view: include only staff routes; if overlap exists, show only staff version.
+                foreach ($staffSections as $sectionName => $items) {
+                    foreach ($items as $it) {
+                        $route = $it['route'] ?? null;
+                        if (!$route) continue;
+                        $flatItems[$route] = $it; // staff precedence in staff mode
+                    }
+                }
+            } else {
+                // Admin view: start with staff items then merge in admin-only or overridden admin variants.
+                foreach ($staffSections as $sectionName => $items) {
+                    foreach ($items as $it) {
+                        $route = $it['route'] ?? null; if(!$route) continue; $flatItems[$route] = $it; }
+                }
+                foreach ($adminSections as $sectionName => $items) {
+                    foreach ($items as $it) {
+                        $route = $it['route'] ?? null; if(!$route) continue; $flatItems[$route] = $it; // admin overrides staff if same route
+                    }
+                }
+            }
+
+            // Convert to list
+            $flatItems = array_values($flatItems);
+
+            // Optional: sort alphabetically by label for consistency
+            usort($flatItems, function ($a, $b) {
+                return strcasecmp($a['label'] ?? '', $b['label'] ?? '');
+            });
+        @endphp
+        <div class="space-y-1">
+            @foreach($flatItems as $item)
+                @php $iconPath = config('icons.' . ($item['icon'] ?? '')); @endphp
+                <a href="{{ route($item['route']) }}" class="nav-link {{ (request()->routeIs($item['route']) || request()->routeIs($item['route'].'*')) ? 'nav-link-active' : '' }}" x-bind:title="!sidebarOpen ? '{{ $item['label'] }}' : null">
+                    <div class="flex items-center w-full">
+                        <div class="nav-link-icon">
+                            @if($iconPath)
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $iconPath }}" /></svg>
+                            @endif
+                        </div>
+                        <span x-show="sidebarOpen" x-transition class="ml-3 text-sm font-medium leading-5 flex-1">{{ $item['label'] }}</span>
+                        @if(!empty($item['badge']))
+                            <span x-show="sidebarOpen" x-transition class="ml-2 min-w-[1.25rem] h-5 inline-flex items-center justify-center bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full">{{ $item['badge'] }}</span>
+                        @endif
+                    </div>
+                </a>
+            @endforeach
+        </div>
     </nav>
 </aside>

@@ -30,6 +30,18 @@ class ViewServiceProvider extends ServiceProvider
 
             if ($user) {
                 $data = Cache::remember("sidebar_counts_user_{$user->id}", now()->addSeconds(90), function () use ($user) {
+                    // Early exit if required tables not migrated yet (first boot on fresh DB)
+                    $needed = ['announcements','polls','events','conversation_participants','messages','conversations'];
+                    foreach ($needed as $tbl) {
+                        if (!\Schema::hasTable($tbl)) {
+                            return [
+                                'unread' => 0,
+                                'polls' => 0,
+                                'events' => 0,
+                                'conv_unread' => 0,
+                            ];
+                        }
+                    }
                     $unreadAnnouncements = Announcement::visibleTo($user)
                         ->whereDoesntHave('readBy', function ($q) use ($user) {
                             $q->where('user_id', $user->id);

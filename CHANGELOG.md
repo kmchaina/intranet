@@ -10,7 +10,17 @@ Planned / Proposed:
 - Backend Form Request classes for auth validation (testable encapsulation).
  
 Enhancements (Pending Release):
-// (none – all recent messaging enhancements released in 2025-09-29 section below)
+Added
+- Floating messaging widget (global) with toggle button, unread aggregate badge, compact conversation list, inline message view.
+- New group creation modal (any user): title input + live user search (global, debounced) + chip selection.
+- Global user search endpoint (`/messages/user-search`) supporting pre-conversation participant lookup (throttled 30/min).
+
+Changed
+- Reused existing JSON `/messages` index response to power lightweight widget refresh (no duplicate endpoint added).
+
+Notes
+- Widget is polling-based (5s) consistent with page implementation; websockets deferred.
+- Access limited to authenticated users; respects existing conversation/message policies.
 
 ### [2025-09-28] Messaging Module Phase 1.1 (Admin & Hardening)
 Added

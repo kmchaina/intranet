@@ -95,6 +95,7 @@
         if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);} else {init();}
     })();
 </script>
+@include('messaging.widget')
 </body>
 </html>
 

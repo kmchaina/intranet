@@ -296,4 +296,20 @@ class ConversationController extends Controller
             ->firstWhere('user_id','!=',$viewerId)?->user;
         return $other?->name ?? 'Direct';
     }
+
+    // Global user search used when creating a brand new group (no conversation yet)
+    public function globalUserSearch(Request $request)
+    {
+        $term = trim($request->get('q',''));
+        $userId = $request->user()->id;
+        $builder = User::query()->where('id','<>',$userId);
+        if ($term !== '') {
+            $builder->where(function($q) use ($term){
+                $q->where('name','like',"%{$term}%")
+                  ->orWhere('email','like',"%{$term}%");
+            });
+        }
+        $query = $builder->orderBy('name')->limit(10)->get(['id','name','email']);
+        return response()->json(['users' => $query]);
+    }
 }
