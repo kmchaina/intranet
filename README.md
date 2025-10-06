@@ -1,158 +1,247 @@
 # NIMR Intranet System
 
-**National Institute for Medical Research - Internal Communication Platform**
+A comprehensive Laravel-based intranet system for the National Institute for Medical Research (NIMR) with role-based access control, messaging, announcements, and social features.
 
-## 🎯 System Overview
+## 🚀 Features
 
-A modern, high-performance intranet system built with Laravel 12.x and MySQL, designed to handle 200+ concurrent users with enterprise-grade security and scalability.
+### Core Features
+- **Role-based Authentication** - Super Admin, HQ Admin, Centre Admin, Station Admin, Staff
+- **Dashboard System** - Customized dashboards for each role
+- **User Management** - Hierarchical user management with proper permissions
+- **Email Verification** - Secure email verification system
+- **East African Time** - All timestamps use EAT timezone
 
-### ✨ Key Features
-- **📢 Announcements & News Management** - Multi-level organizational communication
-- **📁 Document Management** - Secure file storage with role-based access
-- **📅 Event Management** - Schedule and track organizational events  
-- **🗳️ Polls & Feedback** - Gather organizational insights
-- **� User Hierarchy Management** - Support for HQ → Centres → Stations → Departments
-- **🔐 Advanced Security** - Role-based permissions with 5 access levels
-- **⚡ High Performance** - MySQL database with optimized indexes
-- **📱 Responsive Design** - Mobile-friendly interface
+### Communication Features
+- **Messaging System** - Direct messages and group conversations
+- **Announcements** - Targeted announcements with file attachments
+- **Birthday Wishes** - Social birthday celebration system with emojis and replies
+- **News & Events** - Organization-wide news and event management
 
-## 🏗️ Architecture
+### Administrative Features
+- **User Management** - Create, edit, and manage users by role
+- **Organizational Structure** - Manage headquarters, centres, and stations
+- **Reports & Analytics** - Comprehensive reporting system
+- **Activity Logging** - Track user activities and system events
+- **Policy Management** - Manage system policies and permissions
 
-- **Backend**: Laravel 12.x (PHP 8.2+)
-- **Database**: MySQL/MariaDB with performance optimizations
-- **Frontend**: Tailwind CSS + Alpine.js
-- **Caching**: File-based caching (Redis-ready)
-- **Security**: Multi-layer authentication & authorization
+### UI/UX Features
+- **Modern Design** - Clean, professional interface with Tailwind CSS
+- **Role-based Themes** - Different color schemes for each role
+- **Responsive Design** - Works on desktop, tablet, and mobile
+- **Interactive Elements** - Alpine.js for dynamic interactions
 
-## �📚 Documentation
-
-All project documentation is located in the [`documentation/`](documentation/) folder.
-
-**Quick Links:**
-- 📋 [Complete Documentation Index](documentation/INDEX.md)
-- 🚀 [Developer Setup Guide](documentation/README.md)
-- 👤 [User Guide](documentation/USER_GUIDE.md)
-- ⚙️ [Administrator Manual](documentation/ADMINISTRATOR_MANUAL.md)
-- 🔧 [Enhancement Recommendations](ENHANCEMENT_RECOMMENDATIONS.md)
-- 🗄️ [Database Migration Guide](DATABASE_MIGRATION_GUIDE.md)
-
-## 🚀 Quick Start
+## 🛠️ Installation
 
 ### Prerequisites
-- PHP 8.2+
-- MySQL 8.0+ or MariaDB 10.4+
+- PHP 8.1+
 - Composer
 - Node.js & NPM
+- MySQL/PostgreSQL
+- Laravel 10+
 
-### Installation
+### Setup Instructions
 
-```bash
-# 1. Clone the repository
-git clone <repository-url>
-cd intranet
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd intranet
+   ```
 
-# 2. Install dependencies
-composer install
-npm install
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
 
-# 3. Environment setup
-cp .env.example .env
-php artisan key:generate
+3. **Install Node.js dependencies**
+   ```bash
+   npm install
+   ```
 
-# 4. Database setup
-# Update .env with your database credentials:
-# DB_CONNECTION=mysql
-# DB_DATABASE=intranet
-# DB_USERNAME=your_username
-# DB_PASSWORD=your_password
+4. **Environment setup**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-# 5. Run migrations
-php artisan migrate --seed
+5. **Database setup**
+   ```bash
+   php artisan migrate:fresh --seed
+   ```
 
-# 6. Build assets
-npm run build
+6. **Create super admin user**
+   ```bash
+   php artisan db:seed --class=MinimalSeeder
+   ```
 
-# 7. Start the server
-php artisan serve
+7. **Build assets**
+   ```bash
+   npm run build
+   ```
+
+8. **Start the server**
+   ```bash
+   php artisan serve
+   ```
+
+## 👤 Default Login
+
+After running the MinimalSeeder, you can log in with:
+
+- **Email**: `admin@nimr.or.tz`
+- **Password**: `password`
+- **Role**: Super Admin
+
+## 🏗️ System Architecture
+
+### Role Hierarchy
+```
+Super Admin
+├── HQ Admin
+│   ├── Centre Admin
+│   │   ├── Station Admin
+│   │   └── Staff
+│   └── Staff
+└── Staff
 ```
 
-### Production Deployment
+### Key Components
 
-See [Database Migration Guide](DATABASE_MIGRATION_GUIDE.md) for migrating from SQLite to MySQL.
+#### Models
+- `User` - User management with role-based permissions
+- `Announcement` - Announcement system with targeting
+- `Conversation` - Messaging system
+- `BirthdayWish` - Social birthday celebration system
+- `Event` - Event management
+- `News` - News system
+
+#### Controllers
+- `DashboardController` - Role-based dashboard logic
+- `AnnouncementController` - Announcement management
+- `ConversationController` - Messaging system
+- `BirthdayController` - Birthday wishes and celebrations
+- `UserAdminController` - User management
+
+#### Policies
+- `AnnouncementPolicy` - Announcement permissions
+- `ConversationPolicy` - Messaging permissions
+- `PollPolicy` - Poll permissions
+
+## 🎨 Design System
+
+### Color Themes by Role
+- **Staff**: Indigo/Purple gradient
+- **Station Admin**: Cyan/Blue gradient
+- **Centre Admin**: Violet/Magenta gradient
+- **HQ Admin**: Slate/Gray gradient
+- **Super Admin**: Amber/Gold gradient
+
+### Components
+- **Cards**: Premium card design with gradients
+- **Buttons**: Gradient buttons with hover effects
+- **Forms**: Clean, accessible form design
+- **Navigation**: Role-based sidebar navigation
+
+## 📱 Features Overview
+
+### Messaging System
+- Direct messages between users
+- Group conversations
+- File attachments
+- Real-time updates
+- Self-messaging allowed
+
+### Birthday Wishes
+- Emoji reactions (🎉 🎂 ❤️ 🥳 🎁 👏 🔥 💯)
+- Threaded replies
+- Public/private wishes
+- Celebration tracking
+
+### Announcements
+- Role-based targeting
+- File attachments (PDF, DOC, images)
+- Scheduled publishing
+- Read tracking
+- Document preview
+
+### User Management
+- Hierarchical permissions
+- Email verification
+- Role-based access
+- Activity logging
 
 ## 🔧 Configuration
 
-### Database Configuration
-The system is optimized for MySQL/MariaDB with performance indexes. Key configurations:
-
+### Environment Variables
 ```env
+APP_NAME="NIMR Intranet"
+APP_TIMEZONE="Africa/Nairobi"
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=intranet
-DB_USERNAME=root
-DB_PASSWORD=
+MAIL_MAILER=smtp
 ```
 
-### Performance Optimizations
-- Database indexes on frequently queried columns
-- File-based caching for improved response times
-- Optimized Laravel configuration for production
+### Theme Configuration
+Themes are configured in `config/theme.php` with role-specific colors and settings.
 
-## 👥 User Roles & Permissions
+### Navigation Configuration
+Sidebar navigation is configured in `config/navigation.php` with role-based menu items.
 
-1. **Super Admin** - Full system access
-2. **HQ Admin** - Headquarters-level management
-3. **Centre Admin** - Centre-level management  
-4. **Station Admin** - Station-level management
-5. **Staff** - Basic user access
+## 🧪 Testing
 
-## 🛠️ Development
-
-### Running Tests
+Run the test suite:
 ```bash
 php artisan test
 ```
 
-### Database Operations
-```bash
-# Add performance indexes
-php artisan db:add-indexes
+Key test files:
+- `AuthenticationTest.php` - Authentication and authorization
+- `AnnouncementManagementTest.php` - Announcement functionality
+- `SidebarSmokeTest.php` - UI component testing
 
-# Migrate from SQLite to MySQL
-php artisan migrate:from-sqlite --backup --verify
-```
+## 📊 Database Schema
 
-## 📈 Performance Features
+### Key Tables
+- `users` - User accounts with role hierarchy
+- `announcements` - Announcement system
+- `conversations` - Messaging system
+- `birthday_wishes` - Birthday celebration system
+- `events` - Event management
+- `news` - News system
 
-- **MySQL Database** - Enterprise-grade performance and reliability
-- **Optimized Indexes** - Fast queries on user roles, announcements, hierarchical data
-- **Efficient Caching** - Reduced database load with intelligent caching
-- **Query Optimization** - Minimized N+1 queries with eager loading
+### Migrations
+All database changes are tracked in the `database/migrations` directory.
 
-## 🔒 Security Features
+## 🚀 Deployment
 
-- **Role-Based Access Control (RBAC)** - Granular permissions system
-- **CSRF Protection** - All forms protected against cross-site request forgery
-- **Rate Limiting** - API and form submission rate limiting
-- **Secure File Uploads** - File type validation and security scanning
-- **Password Security** - Strong password requirements and hashing
+### Production Setup
+1. Set up production environment variables
+2. Configure database connection
+3. Set up email service
+4. Configure file storage
+5. Run migrations and seeders
+6. Build production assets
 
-## 📞 Support
+### Performance Optimization
+- Database indexes for performance
+- Caching for frequently accessed data
+- Asset optimization
+- Query optimization
 
-- **Help Desk**: helpdesk@nimr.or.tz
-- **IT Support**: itsupport@nimr.or.tz  
-- **Documentation**: See [`documentation/`](documentation/) folder
+## 🤝 Contributing
 
-## 🚀 Recent Improvements
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-### Version 2.1.0 (September 2025)
-- ✅ **Database Migration**: Migrated from SQLite to MySQL for better performance
-- ✅ **Performance Optimization**: Added database indexes for 3-5x query speed improvement
-- ✅ **Enhanced Security**: Implemented rate limiting and improved authentication
-- ✅ **API Enhancement**: Added versioned REST API with proper resource handling
-- ✅ **Code Quality**: Comprehensive test suite and improved error handling
+## 📄 License
+
+This project is proprietary software for the National Institute for Medical Research (NIMR).
+
+## 🆘 Support
+
+For support and questions, contact the development team or create an issue in the repository.
 
 ---
 
-**Version**: 2.1.0 | **Laravel**: 12.x | **Database**: MySQL | **Status**: Production Ready ✅
+**Built with ❤️ for NIMR**
