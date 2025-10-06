@@ -107,7 +107,10 @@ class Announcement extends Model
      */
     public function scopeForUser(Builder $query, User $user): Builder
     {
-        return $query->where(function ($q) use ($user) {
+        // Determine the viewer's effective centre (direct centre or via station's centre)
+        $viewerCentreId = $user->centre_id ?: ($user->station ? $user->station->centre_id : null);
+
+        return $query->where(function ($q) use ($user, $viewerCentreId) {
             // Visible to everyone
             $q->where('target_scope', 'all');
 
@@ -116,22 +119,59 @@ class Announcement extends Model
                 $q->orWhere('target_scope', 'headquarters');
             }
 
-            // Centre-level announcements (centre staff and station staff with a centre_id)
-            if ($user->centre_id) {
-                $q->orWhere('target_scope', 'centres')
-                  ->orWhere(function ($specificQ) use ($user) {
-                      $specificQ->where('target_scope', 'specific')
-                               ->whereJsonContains('target_centres', $user->centre_id);
-                  });
+            // All centres announcements (visible to anyone associated with a centre, including via station)
+            if ($viewerCentreId) {
+                $q->orWhere('target_scope', 'all_centres');
             }
 
-            // Station-level announcements
+            // All stations announcements
             if ($user->station_id) {
-                $q->orWhere('target_scope', 'stations')
-                  ->orWhere(function ($specificStationQ) use ($user) {
-                      $specificStationQ->where('target_scope', 'specific')
-                                       ->whereJsonContains('target_stations', $user->station_id);
-                  });
+                $q->orWhere('target_scope', 'all_stations');
+            }
+
+            // My centre announcements (for users in the same centre as the creator)
+            if ($viewerCentreId) {
+                $q->orWhere(function ($centreQ) use ($viewerCentreId) {
+                    $centreQ->where('target_scope', 'my_centre')
+                        ->whereHas('creator', function ($creatorQ) use ($viewerCentreId) {
+                            $creatorQ->where('centre_id', $viewerCentreId);
+                        });
+                });
+            }
+
+            // My centre stations announcements (for users in the same centre or its stations)
+            if ($viewerCentreId) {
+                $q->orWhere(function ($centreStationsQ) use ($viewerCentreId) {
+                    $centreStationsQ->where('target_scope', 'my_centre_stations')
+                        ->whereHas('creator', function ($creatorQ) use ($viewerCentreId) {
+                            $creatorQ->where('centre_id', $viewerCentreId);
+                        });
+                });
+            }
+
+            // My station announcements (for users in the same station)
+            if ($user->station_id) {
+                $q->orWhere(function ($stationQ) use ($user) {
+                    $stationQ->where('target_scope', 'my_station')
+                        ->whereHas('creator', function ($creatorQ) use ($user) {
+                            $creatorQ->where('station_id', $user->station_id);
+                        });
+                });
+            }
+
+            // Specific targeting (centres)
+            if ($viewerCentreId) {
+                $q->orWhere(function ($specificQ) use ($viewerCentreId) {
+                    $specificQ->where('target_scope', 'specific')
+                        ->whereJsonContains('target_centres', $viewerCentreId);
+                });
+            }
+
+            if ($user->station_id) {
+                $q->orWhere(function ($specificStationQ) use ($user) {
+                    $specificStationQ->where('target_scope', 'specific')
+                        ->whereJsonContains('target_stations', $user->station_id);
+                });
             }
         });
     }

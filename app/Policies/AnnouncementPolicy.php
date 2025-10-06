@@ -40,9 +40,9 @@ class AnnouncementPolicy
     {
         return match ($user->role) {
             'super_admin' => true,
-            'hq_admin' => in_array($scope, ['all','headquarters','centres','stations','specific']),
-            'centre_admin' => in_array($scope, ['centres','stations','specific']),
-            'station_admin' => in_array($scope, ['stations','specific']),
+            'hq_admin' => in_array($scope, ['all', 'headquarters', 'my_centre', 'my_centre_stations', 'my_station', 'all_centres', 'all_stations', 'specific']),
+            'centre_admin' => in_array($scope, ['my_centre', 'my_centre_stations', 'specific']),
+            'station_admin' => in_array($scope, ['my_station', 'specific']),
             default => false,
         };
     }
@@ -53,7 +53,7 @@ class AnnouncementPolicy
     public function validateSpecificTargets(User $user, array $centreIds, array $stationIds): bool
     {
         // Super & HQ admins can target any provided ids
-        if (in_array($user->role, ['super_admin','hq_admin'])) {
+        if (in_array($user->role, ['super_admin', 'hq_admin'])) {
             return true;
         }
         // Centre admin limited to their centre + its stations

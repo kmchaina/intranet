@@ -1,1 +1,200 @@
-@extends('layouts.dashboard') @section('title', 'Feedback & Suggestions') @section('content') <div class="min-h-screen bg-gray-50"> <div class="max-w-7xl mx-auto p-6"> <x-breadcrumbs :items="[[ 'label' => 'Dashboard', 'href' => route('dashboard') ], [ 'label' => 'Feedback & Suggestions' ]]" /> <!-- Header Section --> <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6"> <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-t-xl"> <div class="flex items-center justify-between"> <div class="flex items-center space-x-4"> <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"> <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.959 8.959 0 01-4.906-1.681L3 21l2.681-5.094A8.959 8.959 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"></path> </svg> </div> <div> <h1 class="text-2xl font-bold text-white">💬 Feedback & Suggestions</h1> <p class="text-blue-100 mt-1"> @if(auth()->user()->isAdmin()) Manage and respond to user feedback @else Track your submitted feedback and suggestions @endif </p> </div> </div> <a href="{{ route('feedback.create') }}" class="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-medium rounded-lg transition-colors duration-200 backdrop-blur-sm"> <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path> </svg> Submit Feedback </a> </div> </div> </div> <!-- Stats Cards --> @php $totalFeedback = $feedback->total(); $pendingCount = App\Models\Feedback::where('status', 'pending')->when(!auth()->user()->isAdmin(), function($q) { return $q->where('submitted_by', auth()->id()); })->count(); $resolvedCount = App\Models\Feedback::where('status', 'resolved')->when(!auth()->user()->isAdmin(), function($q) { return $q->where('submitted_by', auth()->id()); })->count(); $inProgressCount = App\Models\Feedback::where('status', 'in_progress')->when(!auth()->user()->isAdmin(), function($q) { return $q->where('submitted_by', auth()->id()); })->count(); @endphp <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6"> <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4"> <div class="flex items-center"> <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"> <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.959 8.959 0 01-4.906-1.681L3 21l2.681-5.094A8.959 8.959 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"></path> </svg> </div> <div class="ml-3"> <p class="text-sm font-medium text-gray-600">Total Feedback</p> <p class="text-lg font-semibold text-gray-900">{{ $totalFeedback }}</p> </div> </div> </div> <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4"> <div class="flex items-center"> <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center"> <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path> </svg> </div> <div class="ml-3"> <p class="text-sm font-medium text-gray-600">Pending</p> <p class="text-lg font-semibold text-gray-900">{{ $pendingCount }}</p> </div> </div> </div> <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4"> <div class="flex items-center"> <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center"> <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path> </svg> </div> <div class="ml-3"> <p class="text-sm font-medium text-gray-600">In Progress</p> <p class="text-lg font-semibold text-gray-900">{{ $inProgressCount }}</p> </div> </div> </div> <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4"> <div class="flex items-center"> <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"> <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path> </svg> </div> <div class="ml-3"> <p class="text-sm font-medium text-gray-600">Resolved</p> <p class="text-lg font-semibold text-gray-900">{{ $resolvedCount }}</p> </div> </div> </div> </div> <!-- Filters --> <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-6"> <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4"> <div> <input type="text" name="search" value="{{ $search }}" placeholder="🔍 Search feedback..." class="w-full px-4 py-2 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"> </div> <div> <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"> <option value="">All Statuses</option> @foreach($statuses as $key => $label) <option value="{{ $key }}" {{ $status === $key ? 'selected' : '' }}>{{ $label }}</option> @endforeach </select> </div> <div> <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"> <option value="">All Types</option> @foreach($types as $key => $label) <option value="{{ $key }}" {{ $type === $key ? 'selected' : '' }}>{{ $label }}</option> @endforeach </select> </div> <div> <select name="priority" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"> <option value="">All Priorities</option> @foreach($priorities as $key => $label) <option value="{{ $key }}" {{ $priority === $key ? 'selected' : '' }}>{{ $label }}</option> @endforeach </select> </div> <div class="flex gap-2"> <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"> Filter </button> @if($search || $status || $type || $priority) <a href="{{ route('feedback.index') }}" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg font-medium transition-colors"> Clear </a> @endif </div> </form> </div> <!-- Feedback Cards --> @if($feedback->count() > 0) <div class="space-y-4"> @foreach($feedback as $item) <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"> <div class="p-6"> <div class="flex items-start justify-between"> <div class="flex-1"> <div class="flex items-center space-x-3 mb-3"> <span class="text-2xl">{{ $item->type_icon }}</span> <div> <h3 class="text-lg font-semibold text-gray-900">{{ $item->subject }}</h3> <div class="flex items-center space-x-2 mt-1"> <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $item->status_color }}"> {{ $statuses[$item->status] }} </span> <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $item->priority_color }}"> {{ $priorities[$item->priority] }} </span> <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"> {{ $types[$item->type] }} </span> </div> </div> </div> <p class="text-gray-600 mb-4 line-clamp-3">{{ Str::limit($item->message, 200) }}</p> <div class="flex items-center justify-between text-sm text-gray-500"> <div class="flex items-center space-x-4"> @if(!$item->is_anonymous && auth()->user()->isAdmin()) <span>By: {{ $item->submitter ? $item->submitter->name : 'Unknown' }}</span> @elseif($item->is_anonymous) <span>Anonymous submission</span> @endif <span>{{ $item->created_at->format('M j, Y') }}</span> </div> @if($item->admin_response) <span class="text-green-600 font-medium">✓ Responded</span> @endif </div> </div> <div class="flex items-center space-x-2 ml-4"> <a href="{{ route('feedback.show', $item) }}" class="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"> View Details </a> @if(auth()->user()->isAdmin() || $item->submitted_by === auth()->id()) <a href="{{ route('feedback.edit', $item) }}" class="inline-flex items-center px-3 py-1 text-sm font-medium text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"> Edit </a> @endif </div> </div> </div> </div> @endforeach </div> <!-- Pagination --> @if($feedback->hasPages()) <div class="mt-6"> {{ $feedback->appends(request()->query())->links() }} </div> @endif @else <!-- No Feedback Found --> <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center"> <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.959 8.959 0 01-4.906-1.681L3 21l2.681-5.094A8.959 8.959 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"></path> </svg> <h3 class="text-lg font-medium text-gray-900 mb-2">No Feedback Found</h3> <p class="text-gray-500 mb-6"> @if($search || $status || $type || $priority) No feedback matches your search criteria. Try adjusting your filters. @else You haven't submitted any feedback yet. Share your thoughts and help us improve! @endif </p> @if($search || $status || $type || $priority) <a href="{{ route('feedback.index') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"> View All Feedback </a> @else <a href="{{ route('feedback.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"> <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path> </svg> Submit Your First Feedback </a> @endif </div> @endif </div> </div> @if(session('success')) <div class="fixed bottom-4 right-4 bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg z-50"> <div class="flex items-center"> <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path> </svg> {{ session('success') }} </div> </div> @endif @endsection
+@extends('layouts.dashboard')
+@section('title', 'Feedback & Suggestions')
+
+@section('content')
+    <div class="space-y-6">
+        <x-breadcrumbs :items="[['label' => 'Dashboard', 'href' => route('dashboard')], ['label' => 'Feedback & Suggestions']]" />
+
+        <!-- Header Card -->
+        <div class="card-premium overflow-hidden">
+            <div class="bg-gradient-to-r from-yellow-500 to-orange-500 p-8 text-white">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold">Suggestions & Ideas</h1>
+                            <p class="text-white/90 mt-1">Share your ideas to make NIMR better</p>
+                        </div>
+                    </div>
+                    <a href="{{ route('feedback.create') }}" class="btn btn-ghost text-white hover:bg-white/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Share an Idea
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        @php
+            $totalFeedback = $feedback->total();
+            $newIdeasCount = App\Models\Feedback::where('status', 'new')
+                ->when(
+                    !auth()->user()->isAdmin(),
+                    fn($q) => $q->where(function ($q) {
+                        $q->where('submitted_by', auth()->id())->orWhere('is_public', true);
+                    }),
+                )
+                ->count();
+            $reviewedCount = App\Models\Feedback::where('status', 'reviewed')
+                ->when(
+                    !auth()->user()->isAdmin(),
+                    fn($q) => $q->where(function ($q) {
+                        $q->where('submitted_by', auth()->id())->orWhere('is_public', true);
+                    }),
+                )
+                ->count();
+            $implementedCount = App\Models\Feedback::where('status', 'implemented')
+                ->when(
+                    !auth()->user()->isAdmin(),
+                    fn($q) => $q->where(function ($q) {
+                        $q->where('submitted_by', auth()->id())->orWhere('is_public', true);
+                    }),
+                )
+                ->count();
+        @endphp
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="stat-card">
+                <div class="stat-card-icon bg-yellow-100 text-yellow-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                </div>
+                <div class="stat-card-value">{{ $totalFeedback }}</div>
+                <div class="stat-card-label">Total Ideas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon bg-blue-100 text-blue-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="stat-card-value">{{ $newIdeasCount }}</div>
+                <div class="stat-card-label">New Ideas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon bg-purple-100 text-purple-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </div>
+                <div class="stat-card-value">{{ $reviewedCount }}</div>
+                <div class="stat-card-label">Under Review</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon bg-green-100 text-green-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div class="stat-card-value">{{ $implementedCount }}</div>
+                <div class="stat-card-label">Implemented</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card-premium p-6">
+            <form method="GET" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Search feedback..."
+                        class="input">
+                    <select name="status" class="input">
+                        <option value="">All Statuses</option>
+                        @foreach ($statuses as $key => $label)
+                            <option value="{{ $key }}" {{ $status === $key ? 'selected' : '' }}>{{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <select name="type" class="input">
+                        <option value="">All Types</option>
+                        @foreach ($types as $key => $label)
+                            <option value="{{ $key }}" {{ $type === $key ? 'selected' : '' }}>{{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    @if ($search || $status || $type)
+                        <a href="{{ route('feedback.index') }}" class="btn btn-outline">Clear Filters</a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
+        @if ($feedback->count() > 0)
+            <div class="space-y-4">
+                @foreach ($feedback as $item)
+                    <div class="card-premium p-6 hover:shadow-lg transition-shadow">
+                        <div class="flex gap-4">
+                            <div class="text-4xl">{{ $item->type_icon }}</div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-nimr-neutral-900 mb-2">{{ $item->subject }}</h3>
+                                <div class="flex gap-2 mb-3">
+                                    <span
+                                        class="badge {{ $item->status_color }}">{{ $statuses[$item->status] ?? ucfirst($item->status) }}</span>
+                                    <span
+                                        class="badge badge-info">{{ $types[$item->type] ?? ucfirst($item->type) }}</span>
+                                    @if ($item->upvotes_count > 0)
+                                        <span class="badge bg-yellow-100 text-yellow-800">👍
+                                            {{ $item->upvotes_count }}</span>
+                                    @endif
+                                </div>
+                                <p class="text-nimr-neutral-700 mb-4 line-clamp-3">{{ Str::limit($item->message, 200) }}
+                                </p>
+                                <div class="flex justify-between items-center text-sm">
+                                    <div class="flex gap-4 text-nimr-neutral-500">
+                                        <span>{{ $item->created_at->format('M j, Y') }}</span>
+                                        @if ($item->admin_response_text)
+                                            <span class="text-green-600 font-semibold">✓ Admin Response</span>
+                                        @endif
+                                        @if ($item->is_public)
+                                            <span class="text-nimr-primary-600 font-semibold">🌐 Public</span>
+                                        @endif
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <a href="{{ route('feedback.show', $item) }}"
+                                            class="btn btn-sm btn-primary">View</a>
+                                        @if (auth()->user()->isAdmin() || $item->submitted_by === auth()->id())
+                                            <a href="{{ route('feedback.edit', $item) }}"
+                                                class="btn btn-sm btn-outline">Edit</a>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            @if ($feedback->hasPages())
+                <div class="card-premium p-6">{{ $feedback->appends(request()->query())->links() }}</div>
+            @endif
+        @else
+            <div class="card-premium p-12">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.959 8.959 0 01-4.906-1.681L3 21l2.681-5.094A8.959 8.959 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z" />
+                        </svg>
+                    </div>
+                    <p class="empty-state-title">No Feedback Found</p>
+                    <p class="empty-state-description">Share your thoughts and help us improve!</p>
+                    <a href="{{ route('feedback.create') }}" class="btn btn-primary mt-4">Submit Feedback</a>
+                </div>
+            </div>
+        @endif
+    </div>
+@endsection

@@ -13,7 +13,7 @@ class SystemLinkController extends Controller
         $search = $request->get('search');
         $user = Auth::user();
 
-    $query = SystemLink::where('is_active', true)->forUser($user);
+        $query = SystemLink::where('is_active', true)->forUser($user);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -61,11 +61,11 @@ class SystemLinkController extends Controller
 
     public function create()
     {
-        // Only admins can create links
-        if (!Auth::user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
+        // Only super admins can create links
+        if (!Auth::user()->isSuperAdmin()) {
+            abort(403, 'Only Super Admins can manage system links.');
         }
-        
+
         $categories = SystemLink::getCategories();
         $accessLevels = SystemLink::getAccessLevels();
         $colorSchemes = SystemLink::getColorSchemes();
@@ -75,11 +75,11 @@ class SystemLinkController extends Controller
 
     public function store(Request $request)
     {
-        // Only admins can create links
-        if (!Auth::user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
+        // Only super admins can create links
+        if (!Auth::user()->isSuperAdmin()) {
+            abort(403, 'Only Super Admins can manage system links.');
         }
-        
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -131,11 +131,11 @@ class SystemLinkController extends Controller
 
     public function edit(SystemLink $systemLink)
     {
-        // Only admins can edit links
-        if (!Auth::user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
+        // Only super admins can edit links
+        if (!Auth::user()->isSuperAdmin()) {
+            abort(403, 'Only Super Admins can manage system links.');
         }
-        
+
         $categories = SystemLink::getCategories();
         $accessLevels = SystemLink::getAccessLevels();
         $colorSchemes = SystemLink::getColorSchemes();
@@ -145,11 +145,11 @@ class SystemLinkController extends Controller
 
     public function update(Request $request, SystemLink $systemLink)
     {
-        // Only admins can update links
-        if (!Auth::user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
+        // Only super admins can update links
+        if (!Auth::user()->isSuperAdmin()) {
+            abort(403, 'Only Super Admins can manage system links.');
         }
-        
+
         // Check if this is a dashboard toggle request
         if ($request->has('show_on_dashboard')) {
             $systemLink->update([
@@ -184,11 +184,11 @@ class SystemLinkController extends Controller
 
     public function destroy(SystemLink $systemLink)
     {
-        // Only admins can delete links
-        if (!Auth::user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
+        // Only super admins can delete links
+        if (!Auth::user()->isSuperAdmin()) {
+            abort(403, 'Only Super Admins can manage system links.');
         }
-        
+
         $systemLink->delete();
 
         return redirect()->route('system-links.index')
@@ -216,7 +216,7 @@ class SystemLinkController extends Controller
     public function toggleFavorite(SystemLink $systemLink)
     {
         $user = Auth::user();
-        
+
         if (!$user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }

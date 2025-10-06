@@ -27,7 +27,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'headquarters_id',
         'centre_id',
         'station_id',
+        'department_id',
         'role',
+        'phone',
+        'employee_id',
         'birth_date',
         'birthday_visibility',
         'hire_date',
@@ -168,6 +171,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Check if user is admin at any level
+     * @return bool
      */
     public function isAdmin(): bool
     {
@@ -214,7 +218,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->isAdmin(); // All admin levels can manage polls
     }
 
-    
+
 
     /**
      * Check if user can update a document
@@ -435,24 +439,69 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->station_id === $user->station_id;
     }
 
+    /**
+     * Birthday wishes this user has received
+     */
+    public function receivedWishes()
+    {
+        return $this->hasMany(BirthdayWish::class, 'recipient_id');
+    }
+
+    /**
+     * Birthday wishes this user has sent
+     */
+    public function sentWishes()
+    {
+        return $this->hasMany(BirthdayWish::class, 'sender_id');
+    }
+
+    /**
+     * Get wishes for today's celebration
+     */
+    public function getTodayCelebrationWishes()
+    {
+        $type = null;
+
+        if ($this->isBirthdayToday()) {
+            $type = 'birthday';
+        } elseif ($this->isWorkAnniversaryToday()) {
+            $type = 'work_anniversary';
+        }
+
+        if (!$type) {
+            return collect();
+        }
+
+        return $this->receivedWishes()
+            ->where('celebration_type', $type)
+            ->whereDate('created_at', today())
+            ->with('sender')
+            ->latest()
+            ->get();
+    }
+
     // Static methods for queries
     public static function birthdaysToday()
     {
         return static::whereNotNull('birth_date')
             ->whereIn('birthday_visibility', ['public', 'team'])
-            ->whereRaw('DATE_FORMAT(birth_date, "%m-%d") = ?', [now()->format('m-d')]);
+            ->whereMonth('birth_date', now()->month)
+            ->whereDay('birth_date', now()->day);
     }
 
     public static function birthdaysThisWeek()
     {
-        $today = now();
-        $nextWeek = $today->copy()->addWeek();
+        $tomorrow = now()->addDay()->startOfDay(); // Start from TOMORROW, not today
+        $nextWeek = now()->addWeek()->endOfDay();
 
         return static::whereNotNull('birth_date')
             ->whereIn('birthday_visibility', ['public', 'team'])
-            ->where(function ($query) use ($today, $nextWeek) {
-                for ($date = $today->copy(); $date <= $nextWeek; $date->addDay()) {
-                    $query->orWhereRaw('DATE_FORMAT(birth_date, "%m-%d") = ?', [$date->format('m-d')]);
+            ->where(function ($query) use ($tomorrow, $nextWeek) {
+                for ($date = $tomorrow->copy(); $date <= $nextWeek; $date->addDay()) {
+                    $query->orWhere(function ($q) use ($date) {
+                        $q->whereMonth('birth_date', $date->month)
+                            ->whereDay('birth_date', $date->day);
+                    });
                 }
             });
     }
@@ -461,6 +510,31 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return static::whereNotNull('hire_date')
             ->where('show_work_anniversary', true)
-            ->whereRaw('DATE_FORMAT(hire_date, "%m-%d") = ?', [now()->format('m-d')]);
+            ->whereMonth('hire_date', now()->month)
+            ->whereDay('hire_date', now()->day);
+    }
+
+    /**
+     * Check if user can access a specific station
+     */
+    public function canAccessStation($station)
+    {
+        // Super Admin and HQ Admin can access all stations
+        if ($this->isSuperAdmin() || $this->isHqAdmin()) {
+            return true;
+        }
+
+        // Centre Admin can access stations in their centre
+        if ($this->isCentreAdmin()) {
+            return $station->centre_id == $this->centre_id;
+        }
+
+        // Station Admin can only access their own station
+        if ($this->isStationAdmin()) {
+            return $station->id == $this->station_id;
+        }
+
+        // Staff can only access their own station
+        return $station->id == $this->station_id;
     }
 }

@@ -15,11 +15,11 @@ class TodoListSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get Emmanuel Kaindoa user
-        $user = User::where('email', 'emmanuel.kaindoa@nimr.or.tz')->first();
+        // Use seeded staff account
+        $user = User::where('role', 'staff')->whereNotNull('centre_id')->first();
 
         if (!$user) {
-            $this->command->info('Emmanuel Kaindoa user not found. Please ensure the user exists.');
+            $this->command->info('No centre staff user found. Skipping todo list seeding.');
             return;
         }
 
@@ -259,6 +259,6 @@ class TodoListSeeder extends Seeder
             $todo->save();
         }
 
-        $this->command->info('Created ' . count($todoEntries) . ' sample todo entries for Emmanuel Kaindoa successfully!');
+        $this->command->info('Created ' . count($todoEntries) . ' sample todo entries for ' . $user->email . ' successfully!');
     }
 }

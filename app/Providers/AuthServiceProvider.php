@@ -6,7 +6,9 @@ use App\Models\Poll;
 use App\Policies\PollPolicy;
 use App\Models\Conversation;
 use App\Policies\ConversationPolicy;
+use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,8 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::define('isHqAdmin', fn(User $user) => $user->isHqAdmin());
+        Gate::define('isCentreAdmin', fn(User $user) => $user->isCentreAdmin());
+        Gate::define('isStationAdmin', fn(User $user) => $user->isStationAdmin());
     }
 }

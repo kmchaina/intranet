@@ -18,15 +18,22 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        /** @var User $user */
         $user = Auth::user();
 
-        // Get dashboard data based on user role and permissions
-        $dashboardData = $this->getDashboardData($user);
+        // Ensure user is authenticated
+        if (!$user instanceof User) {
+            abort(401);
+        }
 
         // Check if user is admin and wants to switch view
         $requestedView = $request->get('view');
-        
-        if ($user->isAdmin() && $requestedView === 'staff') {
+        $asStaffView = $user->isAdmin() && $requestedView === 'staff';
+
+        // Get dashboard data based on user role and permissions
+        $dashboardData = $this->getDashboardData($user, $asStaffView);
+
+        if ($asStaffView) {
             // Admin viewing as staff
             return view('dashboard.staff', $dashboardData);
         }
@@ -40,28 +47,35 @@ class DashboardController extends Controller
         switch ($user->role) {
             case 'super_admin':
                 return view('dashboard.super-admin', $dashboardData);
-            
+
             case 'hq_admin':
                 return view('dashboard.hq-admin', $dashboardData);
-            
+
             case 'centre_admin':
                 return view('dashboard.centre-admin', $dashboardData);
-            
+
             case 'station_admin':
                 return view('dashboard.station-admin', $dashboardData);
-            
+
             case 'staff':
             default:
                 return view('dashboard.staff', $dashboardData);
         }
     }
 
-    private function getDashboardData($user)
+    private function getDashboardData($user, bool $asStaffView = false)
     {
+        $canManageContent = !$asStaffView && $user->isAdmin();
+
+        // Get theme colors for current role
+        $effectiveRole = $asStaffView ? 'staff' : $user->role;
+        $themeColors = config("theme.roles.{$effectiveRole}", config('theme.roles.staff'));
+
         $data = [
             'user' => $user,
             'userRole' => $this->getUserRoleDisplay($user),
-            'canManageContent' => $user->isAdmin(),
+            'canManageContent' => $canManageContent,
+            'themeColors' => $themeColors,
         ];
 
         // Recent Announcements (carousel with 8 items for better rotation)
@@ -96,12 +110,21 @@ class DashboardController extends Controller
                 return $news instanceof News;
             });
 
-        // Quick Access Links (for dashboard sidebar)
+        // Quick Access Links (for dashboard widget - show top 5)
         $data['quickAccessLinks'] = SystemLink::where('is_active', true)
-            ->where('show_on_dashboard', true)
+            ->forUser($user)
             ->orderBy('click_count', 'desc')
             ->orderBy('title')
-            ->take(6)
+            ->take(5)
+            ->get();
+
+        // Online Users (active in last 5 minutes) - for sidebar (limit to 3)
+        $fiveMinutesAgo = now()->subMinutes(5)->timestamp;
+        $data['onlineUsers'] = User::where('last_activity', '>=', $fiveMinutesAgo)
+            ->where('id', '!=', $user->id) // Exclude current user
+            ->select('id', 'name', 'email', 'role', 'last_activity')
+            ->orderBy('last_activity', 'desc')
+            ->take(3)
             ->get();
 
         // Upcoming Events (for dashboard widget)
@@ -113,38 +136,52 @@ class DashboardController extends Controller
             ->take(3)
             ->get();
 
-        // Today's Birthdays
-        $data['todayBirthdays'] = User::whereMonth('birth_date', Carbon::today()->month)
-            ->whereDay('birth_date', Carbon::today()->day)
-            ->where('birthday_visibility', '!=', 'private')
-            ->where('id', '!=', $user->id)
-            ->get();
+        // Today's Birthdays and Work Anniversaries
+        $data['todaysBirthdays'] = User::birthdaysToday()
+            ->with(['headquarters', 'centre', 'station'])
+            ->get()
+            ->filter(function ($birthdayUser) use ($user) {
+                return $birthdayUser->canViewBirthday($user);
+            });
+
+        $data['todaysAnniversaries'] = User::workAnniversariesToday()
+            ->with(['headquarters', 'centre', 'station'])
+            ->get()
+            ->filter(function ($anniversaryUser) use ($user) {
+                return $anniversaryUser->id !== $user->id;
+            });
 
         // Quick Stats
         $data['stats'] = $this->getQuickStats($user);
 
         // Admin-specific data
-        if ($user->isAdmin()) {
+        if ($canManageContent) {
             $data['adminStats'] = $this->getAdminStats($user);
             $data['pendingItems'] = $this->getPendingItems($user);
+        } else {
+            $data['adminStats'] = collect();
+            $data['pendingItems'] = collect();
         }
 
         // Centre Admin specific data
-        if ($user->isCentreAdmin()) {
-            $data['centreData'] = $this->getCentreAdminData($user);
+        if (!$asStaffView && $user->isCentreAdmin()) {
+            $centreData = $this->getCentreAdminData($user);
+            $data = array_merge($data, $centreData);
         }
 
         // Station Admin specific data
-        if ($user->isStationAdmin()) {
-            $data['stationData'] = $this->getStationAdminData($user);
+        if (!$asStaffView && $user->isStationAdmin()) {
+            $stationData = $this->getStationAdminData($user);
+            $data = array_merge($data, $stationData);
         }
 
         // --------------------------------------------------
         // Enriched cross-role metrics (Step 1 implementation)
         // --------------------------------------------------
         $data['recentStats'] = $this->buildRecentStats($user);
+        $data['stationHighlights'] = $this->buildStationHighlights($user);
 
-        if ($user->isCentreAdmin() && $user->centre) {
+        if (!$asStaffView && $user->isCentreAdmin() && $user->centre) {
             $data['stationStats'] = $user->centre->stations()
                 ->withCount('users')
                 ->get()
@@ -155,13 +192,13 @@ class DashboardController extends Controller
                         'users_count' => $s->users_count,
                     ];
                 });
-            if (!isset($data['adminStats']['centreStations'])) {
+            if ($canManageContent && !isset($data['adminStats']['centreStations'])) {
                 $data['adminStats']['centreStations'] = $user->centre->stations()->count();
             }
         }
 
-        $data['birthdaysToday'] = $data['todayBirthdays']->count();
-        $data['birthdays'] = $data['todayBirthdays'];
+        $data['birthdaysToday'] = $data['todaysBirthdays']->count();
+        $data['birthdays'] = $data['todaysBirthdays'];
         $data['birthdaysTodayCount'] = $data['birthdaysToday'];
 
         $data['myTodos'] = collect();
@@ -177,8 +214,33 @@ class DashboardController extends Controller
         }
 
         return $data;
+    }
 
-        return $data;
+    private function buildStationHighlights($user): array
+    {
+        if (!$user->isStationAdmin()) {
+            return [];
+        }
+
+        $announcement = Announcement::visibleTo($user)
+            ->latest()
+            ->first();
+
+        $document = Document::whereCanAccess($user)
+            ->latest()
+            ->first();
+
+        $event = Event::forUser($user)
+            ->published()
+            ->upcoming()
+            ->orderBy('start_datetime')
+            ->first();
+
+        return [
+            'latest_announcement' => $announcement,
+            'latest_document' => $document,
+            'next_event' => $event,
+        ];
     }
 
     private function getUserRoleDisplay($user)
@@ -287,24 +349,24 @@ class DashboardController extends Controller
             $documentsWeek = Document::where('created_at', '>=', $weekStart)->count();
         } elseif ($user->isCentreAdmin() && $user->centre_id) {
             $announcementsMonth = Announcement::whereHas('creator', function ($q) use ($user) {
-                    $q->where('centre_id', $user->centre_id);
-                })
+                $q->where('centre_id', $user->centre_id);
+            })
                 ->where('created_at', '>=', $monthWindowStart)
                 ->count();
             $documentsWeek = Document::whereHas('uploader', function ($q) use ($user) {
-                    $q->where('centre_id', $user->centre_id);
-                })
+                $q->where('centre_id', $user->centre_id);
+            })
                 ->where('created_at', '>=', $weekStart)
                 ->count();
         } elseif ($user->isStationAdmin() && $user->station_id) {
             $announcementsMonth = Announcement::whereHas('creator', function ($q) use ($user) {
-                    $q->where('station_id', $user->station_id);
-                })
+                $q->where('station_id', $user->station_id);
+            })
                 ->where('created_at', '>=', $monthWindowStart)
                 ->count();
             $documentsWeek = Document::whereHas('uploader', function ($q) use ($user) {
-                    $q->where('station_id', $user->station_id);
-                })
+                $q->where('station_id', $user->station_id);
+            })
                 ->where('created_at', '>=', $weekStart)
                 ->count();
         } else { // Staff scope (personal / visible)
@@ -351,11 +413,16 @@ class DashboardController extends Controller
         return [
             'centreName' => $user->centre->name,
             'centreStations' => $user->centre->stations()->count(),
-            'centreUsers' => User::where('centre_id', $user->centre_id)->get(),
+            'centreUsers' => User::where('centre_id', $user->centre_id)
+                ->with(['centre', 'station', 'department'])
+                ->get(),
+            'centreDocuments' => Document::whereHas('uploader', function ($query) use ($user) {
+                $query->where('centre_id', $user->centre_id);
+            })->count(),
             'recentCentreActivity' => $this->getRecentCentreActivity($user),
             'centreAnnouncements' => Announcement::whereHas('creator', function ($query) use ($user) {
                 $query->where('centre_id', $user->centre_id);
-            })->latest()->take(3)->get(),
+            })->with('creator')->latest()->take(3)->get(),
         ];
     }
 
@@ -368,11 +435,13 @@ class DashboardController extends Controller
         return [
             'stationName' => $user->station->name,
             'stationCentre' => $user->station->centre->name ?? 'N/A',
-            'stationUsers' => User::where('station_id', $user->station_id)->get(),
+            'stationUsers' => User::where('station_id', $user->station_id)
+                ->with(['centre', 'station', 'department'])
+                ->get(),
             'recentStationActivity' => $this->getRecentStationActivity($user),
             'stationAnnouncements' => Announcement::whereHas('creator', function ($query) use ($user) {
                 $query->where('station_id', $user->station_id);
-            })->latest()->take(3)->get(),
+            })->with('creator')->latest()->take(3)->get(),
         ];
     }
 
@@ -384,7 +453,7 @@ class DashboardController extends Controller
         // Recent announcements from centre
         $announcements = Announcement::whereHas('creator', function ($query) use ($user) {
             $query->where('centre_id', $user->centre_id);
-        })->latest()->take(5)->get()->map(function ($item) {
+        })->with('creator')->latest()->take(5)->get()->map(function ($item) {
             return [
                 'type' => 'announcement',
                 'title' => $item->title,
@@ -397,7 +466,7 @@ class DashboardController extends Controller
         // Recent polls from centre
         $polls = Poll::whereHas('creator', function ($query) use ($user) {
             $query->where('centre_id', $user->centre_id);
-        })->latest()->take(5)->get()->map(function ($item) {
+        })->with('creator')->latest()->take(5)->get()->map(function ($item) {
             return [
                 'type' => 'poll',
                 'title' => $item->title,
@@ -410,7 +479,7 @@ class DashboardController extends Controller
         // Recent documents from centre
         $documents = Document::whereHas('uploader', function ($query) use ($user) {
             $query->where('centre_id', $user->centre_id);
-        })->latest()->take(5)->get()->map(function ($item) {
+        })->with('uploader')->latest()->take(5)->get()->map(function ($item) {
             return [
                 'type' => 'document',
                 'title' => $item->title,
@@ -435,7 +504,7 @@ class DashboardController extends Controller
 
         $announcements = Announcement::whereHas('creator', function ($query) use ($user) {
             $query->where('station_id', $user->station_id);
-        })->latest()->take(5)->get()->map(function ($item) {
+        })->with('creator')->latest()->take(5)->get()->map(function ($item) {
             return [
                 'type' => 'announcement',
                 'title' => $item->title,
@@ -447,7 +516,7 @@ class DashboardController extends Controller
 
         $polls = Poll::whereHas('creator', function ($query) use ($user) {
             $query->where('station_id', $user->station_id);
-        })->latest()->take(5)->get()->map(function ($item) {
+        })->with('creator')->latest()->take(5)->get()->map(function ($item) {
             return [
                 'type' => 'poll',
                 'title' => $item->title,
@@ -459,7 +528,7 @@ class DashboardController extends Controller
 
         $documents = Document::whereHas('uploader', function ($query) use ($user) {
             $query->where('station_id', $user->station_id);
-        })->latest()->take(5)->get()->map(function ($item) {
+        })->with('uploader')->latest()->take(5)->get()->map(function ($item) {
             return [
                 'type' => 'document',
                 'title' => $item->title,

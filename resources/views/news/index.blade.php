@@ -1,1 +1,134 @@
-@extends('layouts.dashboard') @section('title', 'News Feed') @section('content') <div class="bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-100/40 min-h-screen"> <div class="max-w-7xl mx-auto p-6"> <x-breadcrumbs :items="[[ 'label' => 'Dashboard', 'href' => route('dashboard') ], [ 'label' => 'News Feed' ]]" /> <!-- Header Section --> <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6"> <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-t-xl"> <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between"> <div class="flex items-center space-x-4"> <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"> <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /> </svg> </div> <div> <h1 class="text-2xl font-bold text-white">News Feed</h1> <p class="text-blue-100 mt-1">Stay updated with the latest news from all NIMR locations</p> </div> </div> @can('create', App\Models\News::class) <div class="mt-4 lg:mt-0"> <a href="{{ route('news.create') }}" class="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium rounded-lg backdrop-blur-sm transition-all duration-200"> <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /> </svg> Create News </a> </div> @endcan </div> </div> </div> <!-- Latest News Section --> @if ($news->isNotEmpty()) <div class="mb-8"> <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"> <div class="p-6 border-b border-gray-200"> <h2 class="text-lg font-semibold text-gray-900 flex items-center"> <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3"> <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /> </svg> </div> Latest News </h2> </div> <div class="p-4"> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> @foreach($news as $article) <article class="group bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200"> @if($article && $article->featured_image) <div class="relative overflow-hidden"> <img src="{{ asset('storage/' . $article->featured_image) }}" alt="{{ $article->title }}" class="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"> <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div> </div> @else <div class="w-full h-32 bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center"> <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /> </svg> </div> @endif <div class="p-4"> <div class="flex items-center mb-2"> <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"> <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 616 0z" /> </svg> {{ $article->location ?? 'Unknown Location' }} </span> </div> <h3 class="text-sm font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200"> <a href="{{ route('news.show', $article) }}" class="block"> {{ $article->title }} </a> </h3> <p class="text-gray-600 text-xs mb-2 line-clamp-2 leading-relaxed"> {{ $article->excerpt ?? 'No excerpt available' }} </p> <div class="flex items-center justify-end text-xs text-gray-500"> <span>{{ $article->published_at ? $article->published_at->diffForHumans() : 'Unknown Date' }}</span> </div> </div> </article> @endforeach </div> </div> <!-- Pagination --> @if($news->hasPages()) <div class="px-6 py-4 border-t border-gray-200"> {{ $news->links() }} </div> @endif </div> </div> @else <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center"> <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"> <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /> </svg> </div> <h3 class="text-lg font-medium text-gray-900 mb-2">No news articles found</h3> <p class="text-gray-500 mb-4">There are currently no published news articles to display.</p> @can('create', App\Models\News::class) <a href="{{ route('news.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"> <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /> </svg> Create First News Article </a> @endcan </div> @endif </div> </div> @endsection
+@extends('layouts.dashboard')
+@section('title', 'News Feed')
+
+@section('content')
+    <div class="space-y-6">
+        <x-breadcrumbs :items="[['label' => 'Dashboard', 'href' => route('dashboard')], ['label' => 'News Feed']]" />
+
+        <!-- Header Card -->
+        <div class="card-premium overflow-hidden">
+            <div class="bg-gradient-to-r from-nimr-primary-500 to-indigo-600 p-8 text-white">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold">News Feed</h1>
+                            <p class="text-white/90 mt-1">Stay updated with the latest news from NIMR</p>
+                        </div>
+                    </div>
+                    @can('create', App\Models\News::class)
+                        <a href="{{ route('news.create') }}" class="btn btn-ghost text-white hover:bg-white/20">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Create News
+                        </a>
+                    @endcan
+                </div>
+            </div>
+        </div>
+
+        <!-- News Grid -->
+        @if ($news->isNotEmpty())
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach ($news as $article)
+                    <article
+                        class="card-premium overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <!-- Featured Image -->
+                        @if ($article && $article->featured_image)
+                            <div class="relative overflow-hidden h-48">
+                                <img src="{{ asset('storage/' . $article->featured_image) }}" alt="{{ $article->title }}"
+                                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
+                                </div>
+                                <div class="absolute bottom-3 left-3">
+                                    <span
+                                        class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold bg-white/90 text-nimr-primary-700 backdrop-blur-sm">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        </svg>
+                                        {{ $article->location ?? 'NIMR' }}
+                                    </span>
+                                </div>
+                            </div>
+                        @else
+                            <div
+                                class="h-48 bg-gradient-to-br from-nimr-primary-100 via-purple-100 to-indigo-100 flex items-center justify-center">
+                                <svg class="w-16 h-16 text-nimr-primary-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                </svg>
+                            </div>
+                        @endif
+
+                        <!-- Card Content -->
+                        <div class="p-6">
+                            <h3
+                                class="text-lg font-bold text-nimr-neutral-900 mb-3 line-clamp-2 group-hover:text-nimr-primary-600 transition-colors">
+                                <a href="{{ route('news.show', $article) }}">{{ $article->title }}</a>
+                            </h3>
+
+                            <p class="text-sm text-nimr-neutral-600 mb-4 line-clamp-3 leading-relaxed">
+                                {{ $article->excerpt ?? Str::limit(strip_tags($article->content ?? ''), 150) }}
+                            </p>
+
+                            <div class="flex items-center justify-between pt-4 border-t border-nimr-neutral-100">
+                                <div class="flex items-center gap-2 text-xs text-nimr-neutral-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>{{ $article->published_at ? $article->published_at->diffForHumans() : $article->created_at->diffForHumans() }}</span>
+                                </div>
+                                <a href="{{ route('news.show', $article) }}"
+                                    class="text-sm font-semibold text-nimr-primary-600 hover:text-nimr-primary-700 flex items-center gap-1">
+                                    Read more
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+
+            <!-- Pagination -->
+            @if ($news->hasPages())
+                <div class="card-premium p-6">
+                    {{ $news->links() }}
+                </div>
+            @endif
+        @else
+            <!-- Empty State -->
+            <div class="card-premium p-12">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                        </svg>
+                    </div>
+                    <p class="empty-state-title">No news articles found</p>
+                    <p class="empty-state-description">There are currently no published news articles to display.</p>
+                    @can('create', App\Models\News::class)
+                        <a href="{{ route('news.create') }}" class="btn btn-primary mt-4">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Create First Article
+                        </a>
+                    @endcan
+                </div>
+            </div>
+        @endif
+    </div>
+@endsection

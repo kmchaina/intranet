@@ -1,268 +1,598 @@
 @extends('layouts.dashboard')
-@section('title')
+@section('title', 'Dashboard')
+
+@section('page-title')
+    <div class="flex items-center justify-between animate-fade-in">
+        <div>
+            <p class="text-lg text-nimr-neutral-700 font-medium">{{ now()->format('l, F j, Y') }} •
+                {{ now()->format('g:i A') }}</p>
+        </div>
+
+        @if (($todaysBirthdays->count() ?? 0) > 0 || ($todaysAnniversaries->count() ?? 0) > 0)
+            <a href="{{ route('birthdays.index') }}"
+                class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl px-4 py-3 hover:shadow-lg transition-all duration-200 group">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl group-hover:scale-110 transition-transform">🎂</span>
+                    <div>
+                        <p class="text-sm font-semibold text-indigo-700">
+                            @if ($todaysBirthdays->count() > 0 && $todaysAnniversaries->count() > 0)
+                                {{ $todaysBirthdays->count() + $todaysAnniversaries->count() }} Celebrations Today!
+                            @elseif($todaysBirthdays->count() > 0)
+                                {{ $todaysBirthdays->count() }} Birthday{{ $todaysBirthdays->count() > 1 ? 's' : '' }}
+                                Today!
+                            @else
+                                {{ $todaysAnniversaries->count() }} Work Anniversary Today!
+                            @endif
+                        </p>
+                        <p class="text-xs text-indigo-600">Click to send your wishes →</p>
+                    </div>
+                </div>
+            </a>
+        @endif
+    </div>
 @endsection
-@extends('layouts.dashboard')
-@section('title', 'Staff Dashboard')
 
 @section('content')
-<div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-    <!-- Main (3/4) -->
-    <div class="lg:col-span-3 space-y-8">
-        <!-- Quick Actions -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900">Quick Actions</h2>
-                    <p class="text-sm text-gray-600">Common tasks you may need</p>
-                </div>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-                    <a href="{{ route('documents.index') }}" class="group flex flex-col items-center p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
-                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        </div>
-                        <span class="text-sm font-medium text-gray-800">Documents</span>
-                    </a>
-                    <a href="{{ route('announcements.index') }}" class="group flex flex-col items-center p-4 rounded-lg border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors">
-                        <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center mb-2">
-                            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
-                        </div>
-                        <span class="text-sm font-medium text-gray-800">Announcements</span>
-                    </a>
-                    <a href="{{ route('news.index') }}" class="group flex flex-col items-center p-4 rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors">
-                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
-                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7"/></svg>
-                        </div>
-                        <span class="text-sm font-medium text-gray-800">News</span>
-                    </a>
-                    <a href="{{ route('events.index') }}" class="group flex flex-col items-center p-4 rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 transition-colors">
-                        <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center mb-2">
-                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7"/></svg>
-                        </div>
-                        <span class="text-sm font-medium text-gray-800">Events</span>
-                    </a>
-                    <a href="{{ route('polls.index') }}" class="group flex flex-col items-center p-4 rounded-lg border border-gray-200 hover:border-amber-300 hover:bg-amber-50 transition-colors">
-                        <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center mb-2">
-                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5v8m8 0V9a2 2 0 012-2h2v12M5 21h14"/></svg>
-                        </div>
-                        <span class="text-sm font-medium text-gray-800">Polls</span>
-                    </a>
-                    <a href="{{ route('password-vault.index') }}" class="group flex flex-col items-center p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors">
-                        <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mb-2">
-                            <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        </div>
-                        <span class="text-sm font-medium text-gray-800">Password Vault</span>
-                    </a>
-                </div>
-            </div>
-        </div>
+    <div class="flex flex-col lg:flex-row gap-6 w-full">
+        {{-- Main Content Area --}}
+        <div class="flex-1 space-y-8 min-w-0">
 
-        <!-- Announcements and Events -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <!-- Latest Announcements -->
-            <div class="nimr-card">
-                <div class="nimr-card-header">
-                    <div class="flex items-center space-x-3">
-                        <div class="nimr-icon-primary">
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14"/></svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900">Latest Announcements</h3>
+            {{-- Top Row: Welcome Card + Quick Links + Birthdays --}}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {{-- Welcome Card --}}
+                <div
+                    class="card-premium overflow-hidden relative bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 min-h-[280px]">
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+                        <img src="{{ asset('images/svg/people.svg') }}" alt="Welcome" class="w-full h-full object-cover">
                     </div>
-                    <a href="{{ route('announcements.index') }}" class="nimr-link">View all</a>
+                    <div class="relative z-10 p-6 h-full flex items-start justify-end">
+                        @php
+                            $firstName = explode(' ', auth()->user()->name)[0];
+                        @endphp
+                        <div class="text-right">
+                            <h2
+                                class="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 leading-tight">
+                                Welcome<br>{{ $firstName }} 👋
+                            </h2>
+                        </div>
+                    </div>
                 </div>
-                <div class="nimr-card-body">
-                    @if(isset($recentAnnouncements) && $recentAnnouncements->count())
-                        <div class="space-y-4">
-                            @foreach($recentAnnouncements->take(4) as $a)
-                                <a href="{{ route('announcements.show', $a) }}" class="block p-4 rounded-xl border border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-colors">
-                                    <p class="font-semibold text-gray-900 line-clamp-2">{{ $a->title }}</p>
-                                    <div class="flex items-center mt-2 text-xs text-gray-500">
-                                        <span>{{ $a->creator->name }}</span>
-                                        <span class="mx-2">•</span>
-                                        <span>{{ $a->created_at->diffForHumans() }}</span>
+
+                {{-- Quick Links Card (Actual Links) --}}
+                <div class="card-premium overflow-hidden h-full">
+                    <div class="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-nimr-neutral-900">Quick Links</h3>
+                                    <p class="text-xs text-nimr-neutral-600">Fast access</p>
+                                </div>
+                            </div>
+                            <a href="{{ route('system-links.index') }}"
+                                class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+                                View all
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="p-4">
+                        @if (isset($quickAccessLinks) && $quickAccessLinks->count())
+                            <div class="space-y-2">
+                                @foreach ($quickAccessLinks->take(4) as $link)
+                                    @php $colorClasses = $link->getColorClasses(); @endphp
+                                    <a href="{{ $link->url }}" target="{{ $link->opens_new_tab ? '_blank' : '_self' }}"
+                                        onclick="trackLinkClick({{ $link->id }})"
+                                        class="flex items-center gap-3 p-3 rounded-lg border border-nimr-neutral-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 group">
+                                        <div
+                                            class="w-10 h-10 {{ $colorClasses[0] }} rounded-lg flex items-center justify-center flex-shrink-0">
+                                            @if ($link->icon)
+                                                @if (str_starts_with($link->icon, 'fa'))
+                                                    <i class="{{ $link->icon }} {{ $colorClasses[1] }} text-sm"></i>
+                                                @else
+                                                    <span class="text-lg">{{ $link->icon }}</span>
+                                                @endif
+                                            @else
+                                                <svg class="w-5 h-5 text-nimr-neutral-400" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                </svg>
+                                            @endif
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p
+                                                class="font-semibold text-nimr-neutral-900 group-hover:text-indigo-700 truncate text-sm">
+                                                {{ $link->title }}
+                                            </p>
+                                        </div>
+                                        @if ($link->opens_new_tab)
+                                            <svg class="w-4 h-4 text-nimr-neutral-400 flex-shrink-0" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                            </svg>
+                                        @endif
+                                    </a>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-8">
+                                <p class="text-sm text-nimr-neutral-500">No quick links available</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Today's Birthdays Card --}}
+                <div class="card-premium overflow-hidden h-full">
+                    <div class="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-nimr-neutral-900">🎂 Birthdays</h3>
+                                    <p class="text-xs text-nimr-neutral-600">Today's celebrations</p>
+                                </div>
+                            </div>
+                            <a href="{{ route('birthdays.index') }}"
+                                class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+                                View all
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="p-4">
+                        @if (($todaysBirthdays->count() ?? 0) > 0)
+                            <div class="space-y-2">
+                                @foreach ($todaysBirthdays->take(4) as $user)
+                                    <a href="{{ route('birthdays.wishes', $user) }}"
+                                        class="flex items-center gap-3 p-3 rounded-lg border border-nimr-neutral-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 group">
+                                        <div
+                                            class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 group-hover:scale-110 transition-transform shadow-md">
+                                            {{ substr($user->name, 0, 1) }}
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p
+                                                class="font-semibold text-nimr-neutral-900 group-hover:text-indigo-700 truncate text-sm">
+                                                {{ $user->name }}
+                                            </p>
+                                            <p class="text-xs text-nimr-neutral-600">
+                                                Happy Birthday! 🎉
+                                            </p>
+                                        </div>
+                                        <svg class="w-4 h-4 text-indigo-400 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-8">
+                                <p class="text-4xl mb-2">🎂</p>
+                                <p class="text-sm text-nimr-neutral-500 mb-2">No birthdays today</p>
+                                @if (!auth()->user()->birth_date)
+                                    <div
+                                        class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg p-4 mb-4">
+                                        <p class="text-sm text-indigo-700 font-medium mb-2">🎉 Want us to celebrate your
+                                            birthday?</p>
+                                        <p class="text-xs text-indigo-600 mb-3">Add your birth date so we can celebrate
+                                            with you!</p>
+                                        <a href="{{ route('birthdays.index') }}"
+                                            class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-medium rounded-md transition-all duration-200">
+                                            Add My Birthday
+                                        </a>
                                     </div>
+                                @endif
+                                <a href="{{ route('birthdays.index') }}"
+                                    class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg transition-all duration-200">
+                                    View All Birthdays
+                                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
                                 </a>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-sm text-gray-500 text-center py-6">No announcements yet</p>
-                    @endif
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
 
-            <!-- Upcoming Events -->
-            <div class="nimr-card">
-                <div class="nimr-card-header">
-                    <div class="flex items-center space-x-3">
-                        <div class="nimr-icon-secondary">
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7"/></svg>
+            <script>
+                function trackLinkClick(linkId) {
+                    fetch(`/system-links/${linkId}/increment-click`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Content-Type': 'application/json'
+                        }
+                    }).catch(console.error);
+                }
+            </script>
+
+            {{-- Content Grid --}}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                {{-- Latest Announcements --}}
+                <div class="card-premium overflow-hidden">
+                    <div class="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-nimr-neutral-900">Latest Announcements</h3>
+                                    <p class="text-xs text-nimr-neutral-600">Stay updated with news</p>
+                                </div>
+                            </div>
+                            <a href="{{ route('announcements.index') }}"
+                                class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+                                View all
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900">Upcoming Events</h3>
                     </div>
-                    <a href="{{ route('events.index') }}" class="nimr-link">View all</a>
+
+                    <div class="p-6">
+                        @if (isset($recentAnnouncements) && $recentAnnouncements->count())
+                            <div class="space-y-4">
+                                @foreach ($recentAnnouncements->take(4) as $announcement)
+                                    <a href="{{ route('announcements.show', $announcement) }}"
+                                        class="block p-4 rounded-xl border border-nimr-neutral-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 hover:shadow-md group">
+                                        <div class="flex items-start gap-3">
+                                            <div
+                                                class="w-2 h-2 bg-indigo-600 rounded-full mt-2 group-hover:scale-125 transition-transform">
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p
+                                                    class="font-semibold text-nimr-neutral-900 group-hover:text-indigo-700 line-clamp-2">
+                                                    {{ $announcement->title }}</p>
+                                                <div class="flex items-center gap-2 mt-2 text-xs text-nimr-neutral-500">
+                                                    <span class="inline-flex items-center gap-1">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                        </svg>
+                                                        {{ $announcement->creator->name ?? 'Unknown' }}
+                                                    </span>
+                                                    <span class="text-nimr-neutral-300">•</span>
+                                                    <span class="inline-flex items-center gap-1">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        {{ $announcement->created_at->diffForHumans() }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="empty-state py-8">
+                                <div class="empty-state-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                    </svg>
+                                </div>
+                                <p class="empty-state-title">No announcements yet</p>
+                                <p class="empty-state-description">Check back later for important updates and news</p>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-                <div class="nimr-card-body divide-y divide-gray-100">
-                    @if(isset($upcomingEvents) && $upcomingEvents->count())
-                        @foreach($upcomingEvents->take(4) as $event)
-                            <div class="py-3 flex items-start space-x-3">
-                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex flex-col items-center justify-center">
-                                    <span class="text-xs font-medium text-gray-600">{{ $event->start_datetime->format('M') }}</span>
-                                    <span class="text-sm font-bold text-gray-900">{{ $event->start_datetime->format('d') }}</span>
+
+                {{-- Upcoming Events --}}
+                <div class="card-premium overflow-hidden">
+                    <div class="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 012-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-nimr-neutral-900">Upcoming Events</h3>
+                                    <p class="text-xs text-nimr-neutral-600">Don't miss what's happening</p>
+                                </div>
+                            </div>
+                            <a href="{{ route('events.index') }}"
+                                class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+                                View all
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="p-6">
+                        @if (isset($upcomingEvents) && $upcomingEvents->count())
+                            <div class="space-y-4">
+                                @foreach ($upcomingEvents->take(5) as $event)
+                                    <div
+                                        class="flex items-start gap-4 p-4 rounded-xl border border-nimr-neutral-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 hover:shadow-md group">
+                                        <div
+                                            class="w-14 h-14 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl flex flex-col items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                                            <span
+                                                class="text-xs font-semibold text-indigo-700 uppercase">{{ $event->start_datetime->format('M') }}</span>
+                                            <span
+                                                class="text-lg font-bold text-indigo-900">{{ $event->start_datetime->format('d') }}</span>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p
+                                                class="font-semibold text-nimr-neutral-900 group-hover:text-indigo-700 truncate">
+                                                {{ $event->title }}</p>
+                                            <div class="flex items-center gap-2 mt-1 text-xs text-nimr-neutral-600">
+                                                <span class="inline-flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    {{ $event->start_datetime->format('g:i A') }}
+                                                </span>
+                                                @if ($event->location)
+                                                    <span class="text-nimr-neutral-300">•</span>
+                                                    <span class="inline-flex items-center gap-1 truncate">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        </svg>
+                                                        {{ $event->location }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <a href="{{ route('events.show', $event) }}"
+                                            class="btn btn-sm btn-outline flex-shrink-0">
+                                            View
+                                        </a>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="empty-state py-8">
+                                <div class="empty-state-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 012-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <p class="empty-state-title">No upcoming events</p>
+                                <p class="empty-state-description">We'll notify you when new events are scheduled</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        {{-- End Main Content Area --}}
+
+        {{-- Static Quick Access Side Panel --}}
+        <aside class="w-64 flex-shrink-0 hidden lg:block">
+            <div class="space-y-3">
+                {{-- Panel Header --}}
+                <div class="bg-gradient-to-br from-indigo-600 to-purple-600 text-white p-4 rounded-xl shadow-lg">
+                    <h3 class="text-sm font-bold">⚡ Quick Access</h3>
+                    <p class="text-xs text-white/80 mt-1">Your shortcuts</p>
+                </div>
+
+                {{-- Panel Links --}}
+                <div class="space-y-1.5">
+                    {{-- Documents --}}
+                    <a href="{{ route('documents.index') }}"
+                        class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 group">
+                        <div
+                            class="w-8 h-8 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-xs font-semibold text-nimr-neutral-900 group-hover:text-indigo-700">Documents</span>
+                    </a>
+
+                    {{-- Announcements --}}
+                    <a href="{{ route('announcements.index') }}"
+                        class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-purple-400 hover:bg-purple-50 transition-all duration-200 group">
+                        <div
+                            class="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-xs font-semibold text-nimr-neutral-900 group-hover:text-purple-700">Announcements</span>
+                    </a>
+
+                    {{-- News --}}
+                    <a href="{{ route('news.index') }}"
+                        class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-pink-400 hover:bg-pink-50 transition-all duration-200 group">
+                        <div
+                            class="w-8 h-8 bg-gradient-to-br from-pink-400 to-pink-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-nimr-neutral-900 group-hover:text-pink-700">News</span>
+                    </a>
+
+                    {{-- Events --}}
+                    <a href="{{ route('events.index') }}"
+                        class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-green-400 hover:bg-green-50 transition-all duration-200 group">
+                        <div
+                            class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 012-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-nimr-neutral-900 group-hover:text-green-700">Events</span>
+                    </a>
+
+                    {{-- Polls --}}
+                    <a href="{{ route('polls.index') }}"
+                        class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 group">
+                        <div
+                            class="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-nimr-neutral-900 group-hover:text-yellow-700">Polls</span>
+                    </a>
+
+                    {{-- Messages --}}
+                    <a href="{{ route('messages.index') }}"
+                        class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 group">
+                        <div
+                            class="w-8 h-8 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-xs font-semibold text-nimr-neutral-900 group-hover:text-indigo-700">Messages</span>
+                    </a>
+
+                    {{-- Feedback --}}
+                    <a href="{{ route('feedback.index') }}"
+                        class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 group">
+                        <div
+                            class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-nimr-neutral-900 group-hover:text-blue-700">Feedback</span>
+                    </a>
+
+                    {{-- System Links --}}
+                    <a href="{{ route('system-links.index') }}"
+                        class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-teal-400 hover:bg-teal-50 transition-all duration-200 group">
+                        <div
+                            class="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-nimr-neutral-900 group-hover:text-teal-700">System
+                            Links</span>
+                    </a>
+                </div>
+
+                {{-- Online People Section --}}
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 p-4 rounded-xl mt-3">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <h3 class="text-xs font-bold text-nimr-neutral-900">Online Now</h3>
+                    </div>
+
+                    <div class="space-y-2">
+                        @forelse($onlineUsers as $onlineUser)
+                            <div class="flex items-center gap-2 p-2 rounded-lg hover:bg-white/50 transition-colors">
+                                <div class="relative flex-shrink-0">
+                                    <div
+                                        class="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                                        {{ substr($onlineUser->name, 0, 1) }}
+                                    </div>
+                                    <div
+                                        class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full">
+                                    </div>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 truncate">{{ $event->title }}</p>
-                                    <p class="text-xs text-gray-600">{{ $event->location ?? 'Location TBD' }} • {{ $event->start_datetime->format('g:i A') }}</p>
+                                    <p class="text-xs font-semibold text-nimr-neutral-900 truncate">
+                                        {{ $onlineUser->name }}</p>
+                                    <p class="text-[10px] text-nimr-neutral-500 truncate">
+                                        {{ ucfirst(str_replace('_', ' ', $onlineUser->role)) }}
+                                    </p>
                                 </div>
-                                <a href="{{ route('events.show', $event) }}" class="text-xs text-blue-600 hover:text-blue-700">View</a>
                             </div>
-                        @endforeach
-                    @else
-                        <p class="text-sm text-gray-500 text-center py-6">No upcoming events</p>
-                    @endif
+                        @empty
+                            <div class="text-center py-4">
+                                <svg class="w-8 h-8 text-nimr-neutral-300 mx-auto mb-2" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                <p class="text-xs text-nimr-neutral-500">No one else online</p>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
-        </div>
+        </aside>
+        {{-- End Static Quick Access Side Panel --}}
+
     </div>
 
-    <!-- Sidebar (1/4) -->
-    <div class="space-y-6">
-        <!-- My Tasks -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 class="text-sm font-semibold text-gray-900">My Tasks</h3>
-                <a href="{{ route('todos.index') }}" class="text-xs text-blue-600 hover:text-blue-700">Open</a>
-            </div>
-            <div class="p-4">
-                @if(isset($myTodos) && \Illuminate\Support\Arr::accessible($myTodos) && count($myTodos))
-                    <ul class="space-y-2">
-                        @foreach($myTodos->take(5) as $todo)
-                            <li class="flex items-start justify-between p-2 rounded-lg border border-gray-200 hover:bg-gray-50">
-                                <div class="flex items-start space-x-2">
-                                    @if(\Illuminate\Support\Facades\Route::has('todos.update'))
-                                        <form method="POST" action="{{ route('todos.update', $todo) }}">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="completed" value="{{ $todo->completed ? 0 : 1 }}">
-                                            <button type="submit" class="mt-0.5 w-4 h-4 rounded border {{ $todo->completed ? 'bg-green-500 border-green-500' : 'border-gray-300' }} flex items-center justify-center">
-                                                @if($todo->completed)
-                                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                                                @endif
-                                            </button>
-                                        </form>
-                                    @else
-                                        <div class="mt-0.5 w-4 h-4 rounded border {{ $todo->completed ? 'bg-green-500 border-green-500' : 'border-gray-300' }}"></div>
-                                    @endif
-                                    <div>
-                                        <p class="text-sm {{ $todo->completed ? 'line-through text-gray-400' : 'text-gray-800' }}">{{ $todo->title }}</p>
-                                        @if(!empty($todo->due_date))
-                                            <p class="text-[11px] text-gray-500 mt-0.5">Due {{ \Carbon\Carbon::parse($todo->due_date)->diffForHumans() }}</p>
-                                        @endif
-                                    </div>
-                                </div>
-                                @if(\Illuminate\Support\Facades\Route::has('todos.destroy'))
-                                    <form method="POST" action="{{ route('todos.destroy', $todo) }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-gray-400 hover:text-red-600" title="Delete">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0V6a2 2 0 012-2h2a2 2 0 012 2v1"/></svg>
-                                        </button>
-                                    </form>
-                                @endif
-                            </li>
-                        @endforeach
-                    </ul>
-                @else
-                    <p class="text-sm text-gray-500 text-center">No tasks yet</p>
-                @endif
-
-                @if(\Illuminate\Support\Facades\Route::has('todos.store'))
-                    <form method="POST" action="{{ route('todos.store') }}" class="mt-3 flex items-center space-x-2">
-                        @csrf
-                        <input name="title" type="text" required class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Add a new task...">
-                        <button type="submit" class="px-3 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700">Add</button>
-                    </form>
-                @endif
-            </div>
-        </div>
-        <!-- Active Polls -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 class="text-sm font-semibold text-gray-900">Active Polls</h3>
-                <a href="{{ route('polls.index') }}" class="text-xs text-blue-600 hover:text-blue-700">View all</a>
-            </div>
-            <div class="p-4">
-                @if(isset($activePolls) && $activePolls->count())
-                    <div class="space-y-3">
-                        @foreach($activePolls->take(3) as $poll)
-                            <div class="p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                                <p class="text-sm font-medium text-gray-900 line-clamp-2">{{ $poll->title }}</p>
-                                @php $hasVoted = $poll->responses()->where('user_id', auth()->id())->exists(); @endphp
-                                @if(!$hasVoted)
-                                    @if($poll->type === 'yes_no')
-                                        <div class="flex space-x-2 mt-2">
-                                            <form method="POST" action="{{ route('polls.vote', $poll) }}" class="flex-1">
-                                                @csrf
-                                                <input type="hidden" name="response" value="Yes">
-                                                <button type="submit" class="w-full px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600">Yes</button>
-                                            </form>
-                                            <form method="POST" action="{{ route('polls.vote', $poll) }}" class="flex-1">
-                                                @csrf
-                                                <input type="hidden" name="response" value="No">
-                                                <button type="submit" class="w-full px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600">No</button>
-                                            </form>
-                                        </div>
-                                    @else
-                                        <a href="{{ route('polls.show', $poll) }}" class="inline-flex items-center text-xs text-blue-600 hover:text-blue-700 mt-2">Vote now →</a>
-                                    @endif
-                                @else
-                                    <p class="text-xs text-gray-500 mt-1">You voted</p>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <p class="text-sm text-gray-500 text-center">No active polls</p>
-                @endif
-            </div>
-        </div>
-
-        <!-- Quick Links (Systems) -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 class="text-sm font-semibold text-gray-900">Quick Links</h3>
-                <a href="{{ url('/system-links') }}" class="text-xs text-blue-600 hover:text-blue-700">All</a>
-            </div>
-            <div class="p-4">
-                @if(isset($quickAccessLinks) && $quickAccessLinks->count())
-                    <div class="space-y-2">
-                        @foreach($quickAccessLinks->take(5) as $link)
-                            <a href="{{ $link->url }}" target="{{ $link->opens_new_tab ? '_blank' : '_self' }}" class="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                                <span class="text-sm font-medium text-gray-800 truncate">{{ $link->title }}</span>
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                            </a>
-                        @endforeach
-                    </div>
-                @else
-                    <p class="text-sm text-gray-500 text-center">No quick links</p>
-                @endif
-            </div>
-        </div>
-
-        <!-- Birthdays Today (lightweight) -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="p-4 border-b border-gray-100">
-                <h3 class="text-sm font-semibold text-gray-900">Birthdays Today</h3>
-            </div>
-            <div class="p-4">
-                @php($bCount = $birthdaysTodayCount ?? ($birthdaysToday ?? (isset($birthdays)? count($birthdays):0)))
-                @if($bCount > 0)
-                    <p class="text-sm text-gray-700">🎉 {{ $bCount }} colleague{{ $bCount > 1 ? 's' : '' }} celebrating today</p>
-                @else
-                    <p class="text-sm text-gray-500 text-center">No birthdays today</p>
-                @endif
-            </div>
-        </div>
-    </div>
-</div>
+    @push('scripts')
+        <script>
+            function trackLinkClick(linkId) {
+                fetch(`/system-links/${linkId}/increment-click`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                    },
+                }).catch(error => console.error('Error tracking click:', error));
+            }
+        </script>
+    @endpush
 @endsection

@@ -1,0 +1,238 @@
+/**
+ * NIMR Intranet - Design Tokens
+ * Premium UI/UX Design System
+ * 
+ * This file defines the core visual language of the application.
+ * Brand Color: #00aced (NIMR Cyan)
+ */
+
+:root {
+    /* ========================================
+       BRAND COLORS - NIMR Cyan
+       ======================================== */
+    --color-primary-50: #e6f9ff;
+    --color-primary-100: #ccf3ff;
+    --color-primary-200: #99e7ff;
+    --color-primary-300: #66dbff;
+    --color-primary-400: #33ceff;
+    --color-primary-500: #00aced; /* NIMR Brand */
+    --color-primary-600: #0099d4;
+    --color-primary-700: #0086bb;
+    --color-primary-800: #0073a2;
+    --color-primary-900: #006089;
+
+    /* ========================================
+       SEMANTIC COLORS
+       ======================================== */
+    --color-success: #22c55e;
+    --color-success-light: #bbf7d0;
+    --color-success-dark: #15803d;
+
+    --color-warning: #f59e0b;
+    --color-warning-light: #fde68a;
+    --color-warning-dark: #b45309;
+
+    --color-error: #ef4444;
+    --color-error-light: #fecaca;
+    --color-error-dark: #b91c1c;
+
+    --color-info: #00aced; /* Use brand color for info */
+    --color-info-light: #ccf3ff;
+    --color-info-dark: #0086bb;
+
+    /* ========================================
+       NEUTRAL COLORS (Grays)
+       ======================================== */
+    --color-gray-50: #f8fafc;
+    --color-gray-100: #f1f5f9;
+    --color-gray-200: #e2e8f0;
+    --color-gray-300: #cbd5e1;
+    --color-gray-400: #94a3b8;
+    --color-gray-500: #64748b;
+    --color-gray-600: #475569;
+    --color-gray-700: #334155;
+    --color-gray-800: #1e293b;
+    --color-gray-900: #0f172a;
+
+    /* ========================================
+       TYPOGRAPHY
+       ======================================== */
+    --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system,
+        sans-serif;
+
+    /* Font Sizes */
+    --text-xs: 0.75rem; /* 12px */
+    --text-sm: 0.875rem; /* 14px */
+    --text-base: 1rem; /* 16px */
+    --text-lg: 1.125rem; /* 18px */
+    --text-xl: 1.25rem; /* 20px */
+    --text-2xl: 1.5rem; /* 24px */
+    --text-3xl: 1.875rem; /* 30px */
+    --text-4xl: 2.25rem; /* 36px */
+    --text-5xl: 3rem; /* 48px */
+
+    /* Font Weights */
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    --font-extrabold: 800;
+
+    /* Line Heights */
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.625;
+    --leading-loose: 2;
+
+    /* ========================================
+       SPACING SCALE
+       ======================================== */
+    --space-0: 0;
+    --space-1: 0.25rem; /* 4px */
+    --space-2: 0.5rem; /* 8px */
+    --space-3: 0.75rem; /* 12px */
+    --space-4: 1rem; /* 16px */
+    --space-5: 1.25rem; /* 20px */
+    --space-6: 1.5rem; /* 24px */
+    --space-8: 2rem; /* 32px */
+    --space-10: 2.5rem; /* 40px */
+    --space-12: 3rem; /* 48px */
+    --space-16: 4rem; /* 64px */
+    --space-20: 5rem; /* 80px */
+    --space-24: 6rem; /* 96px */
+
+    /* ========================================
+       BORDER RADIUS
+       ======================================== */
+    --radius-none: 0;
+    --radius-sm: 0.25rem; /* 4px */
+    --radius-md: 0.375rem; /* 6px */
+    --radius-lg: 0.5rem; /* 8px */
+    --radius-xl: 0.75rem; /* 12px */
+    --radius-2xl: 1rem; /* 16px */
+    --radius-3xl: 1.5rem; /* 24px */
+    --radius-full: 9999px;
+
+    /* ========================================
+       SHADOWS
+       ======================================== */
+    --shadow-sm: 0 2px 4px rgba(0, 172, 237, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 172, 237, 0.12);
+    --shadow-lg: 0 8px 16px rgba(0, 172, 237, 0.15);
+    --shadow-xl: 0 12px 24px rgba(0, 172, 237, 0.18);
+    --shadow-2xl: 0 16px 32px rgba(0, 172, 237, 0.2);
+
+    /* Special Effects */
+    --shadow-glow: 0 0 20px rgba(0, 172, 237, 0.3);
+    --shadow-glow-lg: 0 0 40px rgba(0, 172, 237, 0.4);
+    --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+
+    /* ========================================
+       TRANSITIONS
+       ======================================== */
+    --transition-fastest: 100ms;
+    --transition-fast: 150ms;
+    --transition-normal: 200ms;
+    --transition-medium: 300ms;
+    --transition-slow: 500ms;
+
+    /* Easing Functions */
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* ========================================
+       Z-INDEX SCALE
+       ======================================== */
+    --z-base: 0;
+    --z-dropdown: 1000;
+    --z-sticky: 1100;
+    --z-fixed: 1200;
+    --z-modal-backdrop: 1300;
+    --z-modal: 1400;
+    --z-popover: 1500;
+    --z-tooltip: 1600;
+    --z-notification: 1700;
+
+    /* ========================================
+       LAYOUT
+       ======================================== */
+    --container-sm: 640px;
+    --container-md: 768px;
+    --container-lg: 1024px;
+    --container-xl: 1280px;
+    --container-2xl: 1536px;
+
+    --sidebar-width: 16rem; /* 256px */
+    --sidebar-collapsed: 4rem; /* 64px */
+    --header-height: 4rem; /* 64px */
+
+    /* ========================================
+       OPACITY SCALE
+       ======================================== */
+    --opacity-0: 0;
+    --opacity-10: 0.1;
+    --opacity-20: 0.2;
+    --opacity-30: 0.3;
+    --opacity-40: 0.4;
+    --opacity-50: 0.5;
+    --opacity-60: 0.6;
+    --opacity-70: 0.7;
+    --opacity-80: 0.8;
+    --opacity-90: 0.9;
+    --opacity-100: 1;
+}
+
+/* ========================================
+   DARK MODE OVERRIDES (Future Enhancement)
+   ======================================== */
+.dark {
+    --color-gray-50: #0f172a;
+    --color-gray-100: #1e293b;
+    --color-gray-200: #334155;
+    --color-gray-800: #e2e8f0;
+    --color-gray-900: #f1f5f9;
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Focus Visible (for accessibility) */
+*:focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+    border-radius: var(--radius-md);
+}
+
+/* Selection Color */
+::selection {
+    background-color: var(--color-primary-200);
+    color: var(--color-primary-900);
+}
+
+/* Scrollbar Styling (Webkit browsers) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-gray-300);
+    border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary-400);
+}

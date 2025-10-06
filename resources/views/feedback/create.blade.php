@@ -1,1 +1,149 @@
-@extends('layouts.dashboard') @section('title', 'Submit Feedback') @section('content') <div class="bg-white shadow rounded-lg"> <div class="px-6 py-4 border-b border-gray-200"> <div class="flex items-center justify-between"> <div class="flex items-center space-x-4"> <a href="{{ route('feedback.index') }}" class="text-gray-500 hover:text-gray-700 transition-colors"> <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /> </svg> </a> <div> <h1 class="text-3xl font-semibold text-gray-900">Submit Feedback</h1> <p class="text-lg text-gray-600 mt-1">Help us improve by sharing your thoughts</p> </div> </div> </div> </div> <!-- Success/Error Messages --> @if (session('success')) <div class="mx-6 mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert"> <strong class="font-bold">Success!</strong> <span class="block sm:inline">{{ session('success') }}</span> </div> @endif @if ($errors->any()) <div class="mx-6 mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert"> <strong class="font-bold">Please fix the following errors:</strong> <ul class="mt-2 list-disc list-inside"> @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach </ul> </div> @endif <form action="{{ route('feedback.store') }}" method="POST" enctype="multipart/form-data" class="p-6"> @csrf <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"> <!-- Left Column --> <div class="space-y-6"> <!-- Subject --> <div> <label for="subject" class="block text-sm font-medium text-gray-700 mb-2"> Subject <span class="text-red-500">*</span> </label> <input type="text" id="subject" name="subject" value="{{ old('subject') }}" required placeholder="Brief summary of your feedback..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 @error('subject') border-red-500 @enderror"> @error('subject') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror </div> <!-- Type --> <div> <label for="type" class="block text-sm font-medium text-gray-700 mb-2"> Type <span class="text-red-500">*</span> </label> <select id="type" name="type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 @error('type') border-red-500 @enderror"> <option value="">Select feedback type</option> @foreach ($types as $key => $label) <option value="{{ $key }}" {{ old('type') === $key ? 'selected' : '' }}> {{ $label }} </option> @endforeach </select> @error('type') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror <p class="mt-1 text-sm text-gray-500"> Help us categorize your feedback appropriately </p> </div> <!-- Category --> <div> <label for="category" class="block text-sm font-medium text-gray-700 mb-2"> Category <span class="text-red-500">*</span> </label> <select id="category" name="category" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 @error('category') border-red-500 @enderror"> <option value="">Select category</option> @foreach ($categories as $key => $label) <option value="{{ $key }}" {{ old('category') === $key ? 'selected' : '' }}> {{ $label }} </option> @endforeach </select> @error('category') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror <p class="mt-1 text-sm text-gray-500"> Which area does your feedback relate to? </p> </div> <!-- Priority --> <div> <label for="priority" class="block text-sm font-medium text-gray-700 mb-2"> Priority <span class="text-red-500">*</span> </label> <select id="priority" name="priority" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 @error('priority') border-red-500 @enderror"> <option value="">Select priority level</option> @foreach ($priorities as $key => $label) <option value="{{ $key }}" {{ old('priority', 'medium') === $key ? 'selected' : '' }}> {{ $label }} </option> @endforeach </select> @error('priority') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror <div class="mt-1 text-sm text-gray-500"> <strong>Urgent:</strong> Critical issues affecting work<br> <strong>High:</strong> Important improvements needed<br> <strong>Medium:</strong> General suggestions<br> <strong>Low:</strong> Nice-to-have features </div> </div> </div> <!-- Right Column --> <div class="space-y-6"> <!-- Message --> <div> <label for="message" class="block text-sm font-medium text-gray-700 mb-2"> Message <span class="text-red-500">*</span> </label> <textarea id="message" name="message" rows="8" required placeholder="Provide detailed information about your feedback, suggestion, or issue..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 @error('message') border-red-500 @enderror">{{ old('message') }}</textarea> @error('message') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror <p class="mt-1 text-sm text-gray-500"> Be as specific as possible to help us understand and address your feedback </p> </div> <!-- File Attachment --> <div> <label for="attachment_path" class="block text-sm font-medium text-gray-700 mb-2"> Attachment (Optional) </label> <input type="file" id="attachment_path" name="attachment_path" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 @error('attachment_path') border-red-500 @enderror"> @error('attachment_path') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror <p class="mt-1 text-sm text-gray-500"> Supported formats: JPG, PNG, PDF, DOC, DOCX (Max: 10MB)<br> Screenshots, documents, or any relevant files to support your feedback </p> </div> <!-- Anonymous Option --> <div class="bg-gray-50 p-4 rounded-lg"> <div class="flex items-start"> <input type="checkbox" id="is_anonymous" name="is_anonymous" value="1" {{ old('is_anonymous') ? 'checked' : '' }} class="mt-1 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"> <div class="ml-3"> <label for="is_anonymous" class="block text-sm font-medium text-gray-700"> Submit anonymously </label> <p class="text-sm text-gray-500 mt-1"> Your name will not be visible to others, but administrators can still see who submitted the feedback for follow-up purposes. </p> </div> </div> </div> </div> </div> <!-- Submit Buttons --> <div class="flex items-center justify-end space-x-4 mt-8 pt-6 border-t border-gray-200"> <a href="{{ route('feedback.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors"> Cancel </a> <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center"> <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /> </svg> Submit Feedback </button> </div> </form> <!-- Help Section --> <div class="bg-blue-50 border-t border-blue-200 px-6 py-4"> <div class="flex items-start"> <svg class="w-5 h-5 text-blue-400 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /> </svg> <div> <h4 class="text-blue-800 font-medium">Tips for effective feedback:</h4> <ul class="text-blue-700 text-sm mt-1 space-y-1"> <li>• Be specific about what you experienced or what you'd like to see</li> <li>• Include steps to reproduce any issues you encountered</li> <li>• Attach screenshots or documents when relevant</li> <li>• Choose the appropriate priority level for your feedback</li> </ul> </div> </div> </div> </div> @endsection 
+@extends('layouts.dashboard')
+@section('title', 'Share Your Ideas')
+
+@section('content')
+    <div class="space-y-6">
+        <x-breadcrumbs :items="[
+            ['label' => 'Dashboard', 'href' => route('dashboard')],
+            ['label' => 'Suggestions', 'href' => route('feedback.index')],
+            ['label' => 'New Suggestion'],
+        ]" />
+
+        <div class="card-premium overflow-hidden">
+            <div class="bg-gradient-to-r from-yellow-500 to-orange-500 p-8 text-white">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold">Share Your Ideas</h1>
+                        <p class="text-white/90 mt-1">Help us improve NIMR with your suggestions</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form action="{{ route('feedback.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="card-premium p-8">
+                        <h2 class="text-xl font-bold text-nimr-neutral-900 mb-6">Your Suggestion</h2>
+
+                        <div class="mb-6">
+                            <label for="subject" class="block text-sm font-semibold text-nimr-neutral-900 mb-2">
+                                What's your idea? <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="subject" name="subject" value="{{ old('subject') }}" required
+                                placeholder="E.g., Add a staff parking area..."
+                                class="input @error('subject') border-red-500 @enderror">
+                            @error('subject')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="message" class="block text-sm font-semibold text-nimr-neutral-900 mb-2">
+                                Tell us more <span class="text-red-500">*</span>
+                            </label>
+                            <textarea id="message" name="message" rows="6" required placeholder="Describe your suggestion..."
+                                class="input @error('message') border-red-500 @enderror">{{ old('message') }}</textarea>
+                            @error('message')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="type"
+                                    class="block text-sm font-semibold text-nimr-neutral-900 mb-2">Type</label>
+                                <select id="type" name="type" class="input">
+                                    @foreach ($types as $key => $label)
+                                        <option value="{{ $key }}"
+                                            {{ old('type', 'suggestion') === $key ? 'selected' : '' }}>{{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label for="category"
+                                    class="block text-sm font-semibold text-nimr-neutral-900 mb-2">Category</label>
+                                <select id="category" name="category" class="input">
+                                    @foreach ($categories as $key => $label)
+                                        <option value="{{ $key }}"
+                                            {{ old('category', 'general') === $key ? 'selected' : '' }}>{{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="attachment_path"
+                                class="block text-sm font-semibold text-nimr-neutral-900 mb-2">Attachment (Optional)</label>
+                            <input type="file" id="attachment_path" name="attachment_path"
+                                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" class="input">
+                            <p class="mt-1 text-xs text-nimr-neutral-500">Add images or documents (Max: 10MB)</p>
+                        </div>
+
+                        <div class="bg-nimr-neutral-50 p-6 rounded-xl space-y-4">
+                            <div class="flex items-start gap-3">
+                                <input type="checkbox" id="is_public" name="is_public" value="1"
+                                    {{ old('is_public') ? 'checked' : '' }}
+                                    class="mt-1 rounded border-nimr-neutral-300 text-nimr-primary-600">
+                                <div class="flex-1">
+                                    <label for="is_public" class="block text-sm font-semibold text-nimr-neutral-900">Make
+                                        this suggestion public</label>
+                                    <p class="text-sm text-nimr-neutral-600 mt-1">Let other staff see and upvote your
+                                        suggestion</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <input type="checkbox" id="is_anonymous" name="is_anonymous" value="1"
+                                    {{ old('is_anonymous') ? 'checked' : '' }}
+                                    class="mt-1 rounded border-nimr-neutral-300 text-nimr-primary-600">
+                                <div class="flex-1">
+                                    <label for="is_anonymous"
+                                        class="block text-sm font-semibold text-nimr-neutral-900">Submit anonymously</label>
+                                    <p class="text-sm text-nimr-neutral-600 mt-1">Your name won't be shown</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-nimr-neutral-200">
+                            <a href="{{ route('feedback.index') }}" class="btn btn-outline">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                </svg>
+                                Submit Suggestion
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="card-premium overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-blue-100">
+                            <h3 class="text-lg font-bold text-nimr-neutral-900">💡 Tips</h3>
+                        </div>
+                        <div class="p-6">
+                            <ul class="space-y-3 text-sm text-nimr-neutral-700">
+                                <li class="flex gap-2"><span class="text-green-600 font-bold">✓</span><span>Be specific
+                                        about the problem</span></li>
+                                <li class="flex gap-2"><span class="text-green-600 font-bold">✓</span><span>Explain how it
+                                        helps</span></li>
+                                <li class="flex gap-2"><span class="text-green-600 font-bold">✓</span><span>Make it public
+                                        for more support!</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+@endsection

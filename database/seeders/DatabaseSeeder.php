@@ -16,8 +16,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             HierarchySeeder::class,
             UserSeeder::class,
-            SearchTestDataSeeder::class,
+            SystemLinkSeeder::class,
+            EventSeeder::class,
+            NewsSeeder::class,
+            TrainingVideoSeeder::class,
+            TodoListSeeder::class,
             BadgeSeeder::class,
+            ComprehensiveDataSeeder::class,
         ]);
     }
 }

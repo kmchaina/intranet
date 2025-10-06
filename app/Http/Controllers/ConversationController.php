@@ -19,7 +19,7 @@ class ConversationController extends Controller
     public function index(Request $request)
     {
         $userId = $request->user()->id;
-        $conversations = Conversation::with(['participants.user:id,name','messages' => function($q){
+        $conversations = Conversation::with(['participants.user:id,name', 'messages' => function ($q) {
             $q->latest()->limit(1);
         }])
             ->forUser($userId)
@@ -31,22 +31,22 @@ class ConversationController extends Controller
             )
             ->get();
 
-        $data = $conversations->map(function($c) use ($userId){
+        $data = $conversations->map(function ($c) use ($userId) {
             $last = $c->messages->first();
             $unread = Message::where('conversation_id', $c->id)
-                ->when($c->participants, function($q) use ($c,$userId){
+                ->when($c->participants, function ($q) use ($c, $userId) {
                     $participant = $c->participants->firstWhere('user_id', $userId);
                     if ($participant && $participant->last_read_message_id) {
-                        $q->where('id','>', $participant->last_read_message_id);
+                        $q->where('id', '>', $participant->last_read_message_id);
                     }
                 })
-                ->where('user_id','<>',$userId)
+                ->where('user_id', '<>', $userId)
                 ->count();
             return [
                 'id' => $c->id,
                 'type' => $c->type,
                 'title' => $c->isDirect() ? $this->directTitleFor($c, $userId) : $c->title,
-                'participants' => $c->participants->pluck('user.name','user.id'),
+                'participants' => $c->participants->pluck('user.name', 'user.id'),
                 'last_message' => $last ? [
                     'body' => $last->body,
                     'user_id' => $last->user_id,
@@ -88,7 +88,7 @@ class ConversationController extends Controller
                 'id' => $m->id,
                 'body' => $m->body,
                 'attachments' => $m->attachments,
-                'user' => ['id'=>$m->user->id,'name'=>$m->user->name],
+                'user' => ['id' => $m->user->id, 'name' => $m->user->name],
                 'at' => $m->created_at->toIso8601String(),
             ])
         ]);
@@ -97,29 +97,27 @@ class ConversationController extends Controller
     public function direct(Request $request)
     {
         $data = $request->validate([
-            'user_id' => 'required|exists:users,id|different:auth_user_id'
-        ], [
-            'user_id.different' => 'You cannot start a direct conversation with yourself.'
+            'user_id' => 'required|exists:users,id'
         ]);
 
         $userId = $request->user()->id;
         $otherId = (int) $data['user_id'];
 
         // Find existing direct conversation with exactly these two participants
-        $conversation = Conversation::where('type','direct')
-            ->whereHas('participants', fn($q) => $q->where('user_id',$userId))
-            ->whereHas('participants', fn($q) => $q->where('user_id',$otherId))
+        $conversation = Conversation::where('type', 'direct')
+            ->whereHas('participants', fn($q) => $q->where('user_id', $userId))
+            ->whereHas('participants', fn($q) => $q->where('user_id', $otherId))
             ->whereDoesntHave('participants', fn($q) => $q->whereNotIn('user_id', [$userId, $otherId]))
             ->first();
 
         if (!$conversation) {
-            $conversation = DB::transaction(function() use ($userId,$otherId){
+            $conversation = DB::transaction(function () use ($userId, $otherId) {
                 $c = Conversation::create([
                     'type' => 'direct',
                     'created_by' => $userId,
                 ]);
-                ConversationParticipant::create(['conversation_id'=>$c->id,'user_id'=>$userId]);
-                ConversationParticipant::create(['conversation_id'=>$c->id,'user_id'=>$otherId]);
+                ConversationParticipant::create(['conversation_id' => $c->id, 'user_id' => $userId]);
+                ConversationParticipant::create(['conversation_id' => $c->id, 'user_id' => $otherId]);
                 ActivityLogger::log('conversation.create', 'conversation', $c->id, ['mode' => 'direct']);
                 return $c;
             });
@@ -133,14 +131,11 @@ class ConversationController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:80',
             'participants' => 'required|array|min:2',
-            'participants.*' => 'exists:users,id|distinct|different:auth_user_id'
+            'participants.*' => 'exists:users,id|distinct'
         ]);
 
         $userId = $request->user()->id;
         $participantIds = array_unique(array_map('intval', $data['participants']));
-        if (in_array($userId, $participantIds)) {
-            return response()->json(['message' => 'Creator should not be duplicated in participants'], 422);
-        }
 
         $conversation = DB::transaction(function () use ($userId, $data, $participantIds) {
             $c = Conversation::create([
@@ -148,9 +143,9 @@ class ConversationController extends Controller
                 'title' => $data['title'],
                 'created_by' => $userId,
             ]);
-            ConversationParticipant::create(['conversation_id'=>$c->id,'user_id'=>$userId]);
+            ConversationParticipant::create(['conversation_id' => $c->id, 'user_id' => $userId]);
             foreach ($participantIds as $pid) {
-                ConversationParticipant::create(['conversation_id'=>$c->id,'user_id'=>$pid]);
+                ConversationParticipant::create(['conversation_id' => $c->id, 'user_id' => $pid]);
             }
             ActivityLogger::log('conversation.create', 'conversation', $c->id, ['mode' => 'group']);
             return $c;
@@ -164,8 +159,8 @@ class ConversationController extends Controller
         $this->authorize('view', $conversation);
         $latestId = $conversation->messages()->max('id');
         if ($latestId) {
-            ConversationParticipant::where('conversation_id',$conversation->id)
-                ->where('user_id',$request->user()->id)
+            ConversationParticipant::where('conversation_id', $conversation->id)
+                ->where('user_id', $request->user()->id)
                 ->update(['last_read_message_id' => $latestId]);
         }
         return response()->json(['ok' => true]);
@@ -175,7 +170,7 @@ class ConversationController extends Controller
     public function participantsIndex(Request $request, Conversation $conversation)
     {
         $this->authorize('view', $conversation);
-        $participants = $conversation->participants()->with('user:id,name,role')->get()->map(function($p){
+        $participants = $conversation->participants()->with('user:id,name,role')->get()->map(function ($p) {
             return [
                 'user_id' => $p->user_id,
                 'name' => $p->user->name,
@@ -280,36 +275,36 @@ class ConversationController extends Controller
         $existing[] = $request->user()->id;
         $query = \App\Models\User::query()
             ->whereNotIn('id', $existing)
-            ->where(function($q) use ($term){
-                $q->where('name','like',"%{$term}%")
-                  ->orWhere('email','like',"%{$term}%");
+            ->where(function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                    ->orWhere('email', 'like', "%{$term}%");
             })
             ->orderBy('name')
             ->limit(10)
-            ->get(['id','name','email']);
+            ->get(['id', 'name', 'email']);
         return response()->json(['users' => $query]);
     }
 
     private function directTitleFor(Conversation $conversation, int $viewerId): string
     {
         $other = $conversation->participants
-            ->firstWhere('user_id','!=',$viewerId)?->user;
+            ->firstWhere('user_id', '!=', $viewerId)?->user;
         return $other?->name ?? 'Direct';
     }
 
     // Global user search used when creating a brand new group (no conversation yet)
     public function globalUserSearch(Request $request)
     {
-        $term = trim($request->get('q',''));
+        $term = trim($request->get('q', ''));
         $userId = $request->user()->id;
-        $builder = User::query()->where('id','<>',$userId);
+        $builder = User::query()->where('id', '<>', $userId);
         if ($term !== '') {
-            $builder->where(function($q) use ($term){
-                $q->where('name','like',"%{$term}%")
-                  ->orWhere('email','like',"%{$term}%");
+            $builder->where(function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                    ->orWhere('email', 'like', "%{$term}%");
             });
         }
-        $query = $builder->orderBy('name')->limit(10)->get(['id','name','email']);
+        $query = $builder->orderBy('name')->limit(10)->get(['id', 'name', 'email']);
         return response()->json(['users' => $query]);
     }
 }

@@ -104,7 +104,11 @@ class UserAdminController extends Controller
         // If assigning to station, ensure centre is also set
         if ($validated['station_id']) {
             $station = Station::find($validated['station_id']);
-            $validated['centre_id'] = $station->centre_id;
+            if ($station && $station->centre_id) {
+                $validated['centre_id'] = $station->centre_id;
+            } else {
+                return back()->withErrors(['station_id' => 'Selected station is invalid or not assigned to a centre.']);
+            }
         }
 
         // Clear inappropriate assignments based on role
@@ -171,5 +175,129 @@ class UserAdminController extends Controller
         ];
 
         return view('admin.users.suggestions', compact('suggestions'));
+    }
+
+    /**
+     * Show the form for creating a new user
+     */
+    public function create(): View
+    {
+        if (Auth::user()->role !== 'super_admin') {
+            abort(403, 'Only Super Administrators can create users.');
+        }
+
+        $centres = Centre::where('is_active', true)->orderBy('name')->get();
+        $stations = Station::where('is_active', true)->with('centre')->orderBy('name')->get();
+
+        return view('admin.users.create', compact('centres', 'stations'));
+    }
+
+    /**
+     * Store a newly created user
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        if (Auth::user()->role !== 'super_admin') {
+            abort(403, 'Only Super Administrators can create users.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                'unique:users,email',
+                'regex:/^[a-zA-Z0-9._%+-]+@nimr\.or\.tz$/'
+            ],
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:super_admin,hq_admin,centre_admin,station_admin,staff',
+            'centre_id' => 'nullable|integer',
+            'station_id' => 'nullable|integer',
+            'department_id' => 'nullable|integer',
+            'phone' => 'nullable|string|max:20',
+            'birth_date' => 'nullable|date',
+            'hire_date' => 'nullable|date',
+            'employee_id' => 'nullable|string|max:50|unique:users,employee_id',
+        ], [
+            'email.regex' => 'Email address must be from the @nimr.or.tz domain.'
+        ]);
+
+        // Validation rules based on role
+        if ($validated['role'] === 'centre_admin' && !$validated['centre_id']) {
+            return back()->withErrors(['centre_id' => 'Centre Admins must be assigned to a centre.']);
+        }
+
+        if ($validated['role'] === 'station_admin' && !$validated['station_id']) {
+            return back()->withErrors(['station_id' => 'Station Admins must be assigned to a station.']);
+        }
+
+        // If assigning to station, ensure centre is also set
+        if ($validated['station_id']) {
+            $station = Station::find($validated['station_id']);
+            $validated['centre_id'] = $station->centre_id;
+        }
+
+        // Clear inappropriate assignments based on role
+        if (in_array($validated['role'], ['super_admin', 'hq_admin'])) {
+            $validated['centre_id'] = null;
+            $validated['station_id'] = null;
+        } elseif ($validated['role'] === 'centre_admin') {
+            $validated['station_id'] = null;
+        }
+
+        // Hash password
+        $validated['password'] = bcrypt($validated['password']);
+
+        try {
+            $user = User::create($validated);
+
+            // Send email verification instead of auto-verifying
+            event(new \Illuminate\Auth\Events\Registered($user));
+
+            return redirect()->route('admin.users.index')
+                ->with('success', "User created successfully! {$user->name} has been added to the system. An email verification has been sent to {$user->email}.");
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to create user: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove the specified user from storage
+     */
+    public function destroy(User $user): RedirectResponse
+    {
+        if (Auth::user()->role !== 'super_admin') {
+            abort(403, 'Only Super Administrators can delete users.');
+        }
+
+        // Prevent self-deletion
+        if ($user->id === Auth::id()) {
+            return redirect()->back()
+                ->with('error', 'You cannot delete your own account.');
+        }
+
+        // Check if user has created content that would be orphaned
+        $hasContent = $user->announcements()->count() > 0;
+
+        if ($hasContent) {
+            return redirect()->back()
+                ->with('error', 'Cannot delete user. This user has created content (announcements, documents, or conversations). Please reassign or delete the content first.');
+        }
+
+        try {
+            $userName = $user->name;
+            $user->delete();
+
+            return redirect()->route('admin.users.index')
+                ->with('success', "User {$userName} has been deleted successfully.");
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to delete user: ' . $e->getMessage());
+        }
     }
 }

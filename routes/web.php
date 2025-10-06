@@ -16,13 +16,24 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\BadgeController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\Admin\BackupController;
+use App\Http\Controllers\Admin\LogsController;
+use App\Http\Controllers\Admin\PolicyController;
+use App\Http\Controllers\Admin\TrainingController;
+use App\Http\Controllers\Admin\CentreStaffController;
+use App\Http\Controllers\Admin\StationStaffController;
+use App\Http\Controllers\Admin\StationReportsController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Admin\UserAdminController;
+use App\Http\Controllers\Admin\HqUserController;
+use App\Http\Controllers\Admin\CentreUserController;
+use App\Http\Controllers\Admin\StationUserController;
 use App\Http\Controllers\GlobalSearchController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    if (auth()->check()) {
+    if (Auth::check()) {
         return redirect()->route('dashboard');
     }
     return view('landing');
@@ -110,6 +121,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('birthdays/widget', [BirthdayController::class, 'widget'])->name('birthdays.widget');
     Route::patch('birthdays/profile', [BirthdayController::class, 'updateProfile'])->name('birthdays.update-profile');
     Route::post('birthdays/{user}/celebrate', [BirthdayController::class, 'celebrate'])->name('birthdays.celebrate');
+    Route::get('birthdays/{user}/wishes', [BirthdayController::class, 'showWishes'])->name('birthdays.wishes');
+    Route::post('birthdays/{user}/wishes', [BirthdayController::class, 'storeWish'])->name('birthdays.wishes.store');
+    Route::delete('birthday-wishes/{wish}', [BirthdayController::class, 'destroyWish'])->name('birthdays.wishes.destroy');
+    Route::post('birthday-wishes/{wish}/reactions', [BirthdayController::class, 'addReaction'])->name('birthday-wishes.reactions.add');
+    Route::delete('birthday-wishes/{wish}/reactions', [BirthdayController::class, 'removeReaction'])->name('birthday-wishes.reactions.remove');
 
     // Poll routes
     Route::resource('polls', PollController::class);
@@ -152,9 +168,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('messages/conversations/{conversation}/participants/{user}', [ConversationController::class, 'removeParticipant'])->name('messages.participants.remove');
     Route::post('messages/conversations/{conversation}/leave', [ConversationController::class, 'leave'])->name('messages.participants.leave');
 
+    Route::get('dev/component-lab', function () {
+        abort_unless(app()->environment('local'), 404);
+        return view('dev.component-lab');
+    })->name('dev.component-lab');
+
+    Route::get('dev/design-system', function () {
+        abort_unless(app()->environment('local'), 404);
+        return view('dev.design-system');
+    })->name('dev.design-system');
+
     // Admin routes (Role-based access)
     Route::prefix('admin')->name('admin.')->group(function () {
-        // User Management (Super Admin only)
+        // Super Admin user management
         Route::get('users', [UserAdminController::class, 'index'])->name('users.index');
         Route::get('users/create', [UserAdminController::class, 'create'])->name('users.create');
         Route::post('users', [UserAdminController::class, 'store'])->name('users.store');
@@ -164,46 +190,103 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('users/bulk-update', [UserAdminController::class, 'bulkUpdate'])->name('users.bulk-update');
         Route::get('role-suggestions', [UserAdminController::class, 'getRoleSuggestions'])->name('users.suggestions');
 
+        // HQ Admin user management
+        Route::middleware('can:isHqAdmin')->group(function () {
+            Route::get('hq/users', [HqUserController::class, 'index'])->name('hq.users.index');
+            Route::get('hq/users/create', [HqUserController::class, 'create'])->name('hq.users.create');
+            Route::post('hq/users', [HqUserController::class, 'store'])->name('hq.users.store');
+            Route::get('hq/users/{user}/edit', [HqUserController::class, 'edit'])->name('hq.users.edit');
+            Route::patch('hq/users/{user}', [HqUserController::class, 'update'])->name('hq.users.update');
+            Route::delete('hq/users/{user}', [HqUserController::class, 'destroy'])->name('hq.users.destroy');
+        });
+
+        // Centre Admin user management
+        Route::middleware('can:isCentreAdmin')->group(function () {
+            Route::get('centre/users', [CentreUserController::class, 'index'])->name('centre.users.index');
+            Route::get('centre/users/create', [CentreUserController::class, 'create'])->name('centre.users.create');
+            Route::post('centre/users', [CentreUserController::class, 'store'])->name('centre.users.store');
+            Route::get('centre/users/{user}/edit', [CentreUserController::class, 'edit'])->name('centre.users.edit');
+            Route::patch('centre/users/{user}', [CentreUserController::class, 'update'])->name('centre.users.update');
+            Route::delete('centre/users/{user}', [CentreUserController::class, 'destroy'])->name('centre.users.destroy');
+        });
+
+        // Station Admin user management
+        Route::middleware('can:isStationAdmin')->group(function () {
+            Route::get('station/users', [StationUserController::class, 'index'])->name('station.users.index');
+            Route::get('station/users/create', [StationUserController::class, 'create'])->name('station.users.create');
+            Route::post('station/users', [StationUserController::class, 'store'])->name('station.users.store');
+            Route::get('station/users/{user}/edit', [StationUserController::class, 'edit'])->name('station.users.edit');
+            Route::patch('station/users/{user}', [StationUserController::class, 'update'])->name('station.users.update');
+            Route::delete('station/users/{user}', [StationUserController::class, 'destroy'])->name('station.users.destroy');
+        });
+
         // Content Management (Super Admin, HQ Admin)
-        Route::get('content', function() { return redirect()->route('announcements.index'); })->name('content.index');
+        Route::get('content', function () {
+            return redirect()->route('announcements.index');
+        })->name('content.index');
 
         // System Settings (Super Admin only)
-        Route::get('settings', function() { return view('admin.settings.index'); })->name('settings.index');
+        Route::get('settings', [App\Http\Controllers\Admin\AdminSettingsController::class, 'index'])->name('settings.index');
+        Route::post('settings', [App\Http\Controllers\Admin\AdminSettingsController::class, 'update'])->name('settings.update');
+        Route::post('settings/test-email', [App\Http\Controllers\Admin\AdminSettingsController::class, 'testEmail'])->name('settings.test-email');
+        Route::post('settings/clear-cache', [App\Http\Controllers\Admin\AdminSettingsController::class, 'clearCache'])->name('settings.clear-cache');
+        Route::post('settings/reset-defaults', [App\Http\Controllers\Admin\AdminSettingsController::class, 'resetToDefaults'])->name('settings.reset-defaults');
 
         // Reports (All admin levels)
-        Route::get('reports', function() { return view('admin.reports.index'); })->name('reports.index');
-        Route::get('reports/organizational', function() { return view('admin.reports.organizational'); })->name('reports.organizational');
-        Route::get('reports/centre', function() { return view('admin.reports.centre'); })->name('reports.centre');
+        Route::get('reports', [App\Http\Controllers\Admin\AdminReportsController::class, 'index'])->name('reports.index');
+        Route::get('reports/organizational', [App\Http\Controllers\Admin\AdminReportsController::class, 'organizational'])->name('reports.organizational');
+        Route::get('reports/centre', [App\Http\Controllers\Admin\AdminReportsController::class, 'centre'])->name('reports.centre');
 
         // System Management (Super Admin only)
-        Route::get('backup', function() { return view('admin.backup.index'); })->name('backup.index');
-        Route::get('logs', function() { return view('admin.logs.index'); })->name('logs.index');
+        Route::get('backup', [BackupController::class, 'index'])->name('backup.index');
+        Route::post('backup', [BackupController::class, 'store'])->name('backup.store');
+        Route::get('backup/download/{file}', [BackupController::class, 'download'])->name('backup.download');
+        Route::delete('backup/{file}', [BackupController::class, 'destroy'])->name('backup.destroy');
 
-        // Centre Management (HQ Admin, Centre Admin)
-        Route::get('centres', function() { return view('admin.centres.index'); })->name('centres.index');
-        Route::get('centres/create', function() { return view('admin.centres.create'); })->name('centres.create');
-        Route::post('centres', function() { return redirect()->route('admin.centres.index'); })->name('centres.store');
+        Route::get('logs', [LogsController::class, 'index'])->name('logs.index');
+        Route::get('logs/view/{file}', [LogsController::class, 'show'])->name('logs.show');
+        Route::get('logs/download/{file}', [LogsController::class, 'download'])->name('logs.download');
+        Route::delete('logs/{file}', [LogsController::class, 'destroy'])->name('logs.destroy');
+
+        // Centre Management (HQ Admin, Super Admin)
+        Route::get('centres', [App\Http\Controllers\Admin\CentreAdminController::class, 'index'])->name('centres.index');
+        Route::get('centres/create', [App\Http\Controllers\Admin\CentreAdminController::class, 'create'])->name('centres.create');
+        Route::post('centres', [App\Http\Controllers\Admin\CentreAdminController::class, 'store'])->name('centres.store');
+        Route::get('centres/{centre}', [App\Http\Controllers\Admin\CentreAdminController::class, 'show'])->name('centres.show');
+        Route::get('centres/{centre}/edit', [App\Http\Controllers\Admin\CentreAdminController::class, 'edit'])->name('centres.edit');
+        Route::put('centres/{centre}', [App\Http\Controllers\Admin\CentreAdminController::class, 'update'])->name('centres.update');
+        Route::delete('centres/{centre}', [App\Http\Controllers\Admin\CentreAdminController::class, 'destroy'])->name('centres.destroy');
+        Route::patch('centres/{centre}/toggle-status', [App\Http\Controllers\Admin\CentreAdminController::class, 'toggleStatus'])->name('centres.toggle-status');
+        Route::get('centres/{centre}/stats', [App\Http\Controllers\Admin\CentreAdminController::class, 'getStats'])->name('centres.stats');
 
         // Station Management (Centre Admin, Station Admin)
-        Route::get('stations', function() { return view('admin.stations.index'); })->name('stations.index');
-        Route::get('stations/create', function() { return view('admin.stations.create'); })->name('stations.create');
-        Route::post('stations', function() { return redirect()->route('admin.stations.index'); })->name('stations.store');
+        Route::get('stations', [App\Http\Controllers\Admin\StationAdminController::class, 'index'])->name('stations.index');
+        Route::get('stations/create', [App\Http\Controllers\Admin\StationAdminController::class, 'create'])->name('stations.create');
+        Route::post('stations', [App\Http\Controllers\Admin\StationAdminController::class, 'store'])->name('stations.store');
+        Route::get('stations/{station}', [App\Http\Controllers\Admin\StationAdminController::class, 'show'])->name('stations.show');
+        Route::get('stations/{station}/edit', [App\Http\Controllers\Admin\StationAdminController::class, 'edit'])->name('stations.edit');
+        Route::put('stations/{station}', [App\Http\Controllers\Admin\StationAdminController::class, 'update'])->name('stations.update');
+        Route::delete('stations/{station}', [App\Http\Controllers\Admin\StationAdminController::class, 'destroy'])->name('stations.destroy');
+        Route::patch('stations/{station}/toggle-status', [App\Http\Controllers\Admin\StationAdminController::class, 'toggleStatus'])->name('stations.toggle-status');
+        Route::get('stations/{station}/stats', [App\Http\Controllers\Admin\StationAdminController::class, 'getStats'])->name('stations.stats');
 
         // Policy Management (HQ Admin)
-        Route::get('policies', function() { return view('admin.policies.index'); })->name('policies.index');
+        Route::get('policies', [PolicyController::class, 'index'])->name('policies.index');
+        Route::post('policies', [PolicyController::class, 'store'])->name('policies.store');
+        Route::delete('policies/{policy}', [PolicyController::class, 'destroy'])->name('policies.destroy');
 
         // Training Management (HQ Admin)
-        Route::get('training', function() { return view('admin.training.index'); })->name('training.index');
+        Route::get('training', [TrainingController::class, 'index'])->name('training.index');
+        Route::post('training', [TrainingController::class, 'store'])->name('training.store');
+        Route::patch('training/{trainingModule}', [TrainingController::class, 'update'])->name('training.update');
+        Route::delete('training/{trainingModule}', [TrainingController::class, 'destroy'])->name('training.destroy');
 
         // Centre-specific Staff Management
-        Route::get('centre/staff', function() { return view('admin.centre.staff.index'); })->name('centre.staff.index');
-        Route::get('centre/projects', function() { return view('admin.centre.projects.index'); })->name('centre.projects.index');
+        Route::get('centre/staff', [CentreStaffController::class, 'index'])->name('centre.staff.index');
 
         // Station-specific Management
-        Route::get('station/staff', function() { return view('admin.station.staff.index'); })->name('station.staff.index');
-        Route::get('station/reports', function() { return view('admin.station.reports.index'); })->name('station.reports.index');
-        Route::get('station/equipment', function() { return view('admin.station.equipment.index'); })->name('station.equipment.index');
-        Route::get('station/projects', function() { return view('admin.station.projects.index'); })->name('station.projects.index');
+        Route::get('station/staff', [StationStaffController::class, 'index'])->name('station.staff.index');
+        Route::get('station/reports', [StationReportsController::class, 'index'])->name('station.reports.index');
     });
 });
 

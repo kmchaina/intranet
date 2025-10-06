@@ -26,19 +26,19 @@ export default {
             colors: {
                 // NIMR Professional Color System
                 'nimr': {
-                    // Primary - Medical Blue (Trust, Professionalism)
+                    // Primary - NIMR Cyan (Innovation, Trust, Clarity)
                     'primary': {
-                        50: '#eff6ff',
-                        100: '#dbeafe',
-                        200: '#bfdbfe',
-                        300: '#93c5fd',
-                        400: '#60a5fa',
-                        500: '#3b82f6',  // Main primary
-                        600: '#2563eb',  // Darker primary
-                        700: '#1d4ed8',  // Deep primary
-                        800: '#1e40af',
-                        900: '#1e3a8a',
-                        950: '#172554',
+                        50: '#e6f9ff',   // Lightest cyan tint
+                        100: '#ccf3ff',  // Very light cyan
+                        200: '#99e7ff',  // Light cyan
+                        300: '#66dbff',  // Soft cyan
+                        400: '#33ceff',  // Medium cyan
+                        500: '#00aced',  // NIMR Brand Color ⭐
+                        600: '#0099d4',  // Darker cyan
+                        700: '#0086bb',  // Deep cyan
+                        800: '#0073a2',  // Very deep cyan
+                        900: '#006089',  // Darkest cyan
+                        950: '#004d70',  // Ultra dark cyan
                     },
                     // Secondary - Research Green (Health, Growth)
                     'secondary': {
@@ -112,11 +112,13 @@ export default {
                 },
             },
             boxShadow: {
-                'nimr-sm': '0 2px 4px rgba(30, 64, 175, 0.1)',
-                'nimr-md': '0 4px 8px rgba(30, 64, 175, 0.12)',
-                'nimr-lg': '0 8px 16px rgba(30, 64, 175, 0.15)',
-                'nimr-xl': '0 12px 24px rgba(30, 64, 175, 0.18)',
-                'nimr-glow': '0 0 20px rgba(59, 130, 246, 0.3)',
+                'nimr-sm': '0 2px 4px rgba(0, 172, 237, 0.1)',
+                'nimr-md': '0 4px 8px rgba(0, 172, 237, 0.12)',
+                'nimr-lg': '0 8px 16px rgba(0, 172, 237, 0.15)',
+                'nimr-xl': '0 12px 24px rgba(0, 172, 237, 0.18)',
+                'nimr-2xl': '0 16px 32px rgba(0, 172, 237, 0.2)',
+                'nimr-glow': '0 0 20px rgba(0, 172, 237, 0.3)',
+                'nimr-glow-lg': '0 0 40px rgba(0, 172, 237, 0.4)',
             },
             animation: {
                 'fade-in': 'fadeIn 0.5s ease-in-out',

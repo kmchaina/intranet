@@ -1,7 +1,7 @@
 @php
     use App\Models\AdoptionDaily;
     $latest = AdoptionDaily::query()->orderByDesc('date')->first();
-    $prev = AdoptionDaily::query()->where('date','<',$latest?->date)->orderByDesc('date')->first();
+    $prev = $latest ? AdoptionDaily::query()->where('date','<',$latest->date)->orderByDesc('date')->first() : null;
     $today = $latest;
     $wauPct = $today?->coverage_pct ?? null; // coverage already WAU / eligible
     $stickiness = $today?->stickiness_pct;

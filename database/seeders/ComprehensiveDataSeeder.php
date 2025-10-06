@@ -6,16 +6,16 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Centre;
 use App\Models\Station;
-use App\Models\Department;
 use App\Models\Announcement;
 use App\Models\Poll;
 use App\Models\Document;
 use App\Models\Event;
 use App\Models\TodoList;
-use App\Models\TrainingVideo;
+use App\Models\TrainingModule;
 use App\Models\SystemLink;
 use App\Models\Feedback;
 use App\Models\PasswordVault;
+use App\Models\Department;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 
@@ -23,8 +23,8 @@ class ComprehensiveDataSeeder extends Seeder
 {
     public function run(): void
     {
-    // Ensure canonical headquarters departments are present / updated
-    $this->call(HeadquartersDepartmentSeeder::class);
+        // Ensure canonical headquarters departments are present / updated
+        $this->call(HeadquartersDepartmentSeeder::class);
         // Ensure we have a test user with admin role
         $admin = User::updateOrCreate(
             ['email' => 'admin@nimr.or.tz'],
@@ -41,43 +41,26 @@ class ComprehensiveDataSeeder extends Seeder
             ]
         );
 
-        // Centre admin
         $centre = Centre::first();
-        $centreAdmin = User::updateOrCreate(
-            ['email' => 'centre.admin@nimr.or.tz'],
-            [
-                'name' => 'Centre Administrator',
-                'email_verified_at' => now(),
-                'password' => Hash::make('password'),
-                'role' => 'centre_admin',
-                'centre_id' => $centre->id,
-                'birth_date' => Carbon::today()->addDays(5),
-                'birthday_visibility' => 'public',
-                'hire_date' => Carbon::today()->subYears(3),
-                'show_work_anniversary' => true,
-            ]
-        );
+        $station = Station::with('centre')->first();
 
-        // Station admin
-        $station = Station::first();
-        $stationAdmin = User::updateOrCreate(
-            ['email' => 'station.admin@nimr.or.tz'],
-            [
-                'name' => 'Station Administrator',
-                'email_verified_at' => now(),
-                'password' => Hash::make('password'),
-                'role' => 'station_admin',
-                'centre_id' => $station->centre_id,
-                'station_id' => $station->id,
-                'birth_date' => Carbon::today(),
-                'birthday_visibility' => 'public',
-                'hire_date' => Carbon::today()->subYears(2),
-                'show_work_anniversary' => true,
-            ]
-        );
+        $centreAdmin = $centre
+            ? User::where('centre_id', $centre->id)->where('role', 'centre_admin')->first()
+            : null;
+        $stationAdmin = $station
+            ? User::where('station_id', $station->id)->where('role', 'station_admin')->first()
+            : null;
 
         // Regular staff
         $department = Department::first();
+        if (!$department) {
+            $department = Department::create([
+                'name' => 'Research & Development',
+                'code' => 'RD01',
+                'description' => 'Core research department',
+                'status' => 'active',
+            ]);
+        }
         $staff = User::updateOrCreate(
             ['email' => 'staff@nimr.or.tz'],
             [
@@ -85,7 +68,7 @@ class ComprehensiveDataSeeder extends Seeder
                 'email_verified_at' => now(),
                 'password' => Hash::make('password'),
                 'role' => 'staff',
-                'centre_id' => $centre->id,
+                'centre_id' => $centre?->id,
                 'department_id' => $department->id,
                 'birth_date' => Carbon::tomorrow(),
                 'birthday_visibility' => 'team',
@@ -328,85 +311,92 @@ class ComprehensiveDataSeeder extends Seeder
         }
 
         // Create Training Videos
-        $videos = [
+        $trainingModules = [
             [
-                'title' => 'Laboratory Safety Fundamentals',
-                'description' => 'Essential safety procedures and protocols for laboratory work.',
-                'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-                'duration_minutes' => 15,
-                'category' => 'safety',
-                'target_audience' => 'all',
-                'uploaded_by' => $admin->id,
+                'title' => 'Station Orientation: Working with Community Clinics',
+                'description' => 'Key procedures for station staff working with nearby community clinics, including reporting lines and contact protocols.',
+                'category' => 'orientation',
+                'delivery_mode' => 'video',
+                'duration_minutes' => 25,
                 'is_active' => true,
-            ],
-            [
-                'title' => 'Data Collection Best Practices',
-                'description' => 'Learn the best practices for collecting and managing research data.',
-                'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-                'duration_minutes' => 22,
-                'category' => 'technical',
-                'target_audience' => 'all',
-                'uploaded_by' => $centreAdmin->id,
-                'is_active' => true,
-            ],
-            [
-                'title' => 'Equipment Maintenance Procedures',
-                'description' => 'Step-by-step guide for maintaining laboratory equipment.',
-                'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-                'duration_minutes' => 18,
-                'category' => 'technical',
-                'target_audience' => 'all',
+                'target_audience' => 'station',
+                'resource_link' => 'https://example.com/station-orientation',
                 'uploaded_by' => $stationAdmin->id,
+            ],
+            [
+                'title' => 'Centre Safety Refresher',
+                'description' => 'Quarterly safety briefing covering PPE, incident reporting, and emergency contacts for centre teams.',
+                'category' => 'safety',
+                'delivery_mode' => 'document',
+                'duration_minutes' => 15,
                 'is_active' => true,
+                'target_audience' => 'centre',
+                'resource_link' => 'https://example.com/centre-safety',
+                'uploaded_by' => $centreAdmin->id,
+            ],
+            [
+                'title' => 'HQ Policy Update: Data Governance 2025',
+                'description' => 'New data governance requirements for headquarters teams, including retention, archiving, and access controls.',
+                'category' => 'policy',
+                'delivery_mode' => 'presentation',
+                'duration_minutes' => 30,
+                'is_active' => true,
+                'target_audience' => 'hq',
+                'resource_link' => 'https://example.com/data-governance',
+                'uploaded_by' => $admin->id,
             ],
         ];
 
-        foreach ($videos as $videoData) {
-            TrainingVideo::updateOrCreate(
-                ['title' => $videoData['title']],
-                $videoData
+        foreach ($trainingModules as $moduleData) {
+            TrainingModule::updateOrCreate(
+                ['title' => $moduleData['title']],
+                $moduleData
             );
         }
 
         // Create System Links
         $links = [
             [
-                'title' => 'NIMR Official Website',
-                'description' => 'Official NIMR website with public information and resources.',
-                'url' => 'https://www.nimr.or.tz',
-                'category' => 'external',
-                'icon' => 'fas fa-globe',
-                'access_level' => 'all',
+                'title' => 'Announce to Station',
+                'description' => 'Quick link to create a station announcement.',
+                'url' => route('announcements.create'),
+                'category' => 'communication',
+                'icon' => 'plus',
+                'access_level' => 'stations',
+                'show_on_dashboard' => true,
                 'is_active' => true,
-                'added_by' => $admin->id,
+                'added_by' => $stationAdmin->id,
             ],
             [
-                'title' => 'Research Database Portal',
-                'description' => 'Access to internal research databases and publications.',
-                'url' => 'https://research.nimr.or.tz',
-                'category' => 'research',
-                'icon' => 'fas fa-database',
-                'access_level' => 'all',
+                'title' => 'Station Staff Directory',
+                'description' => 'Manage your station staff contacts.',
+                'url' => route('admin.station.users.index'),
+                'category' => 'management',
+                'icon' => 'users',
+                'access_level' => 'stations',
+                'show_on_dashboard' => true,
                 'is_active' => true,
-                'added_by' => $admin->id,
+                'added_by' => $stationAdmin->id,
             ],
             [
-                'title' => 'Equipment Booking System',
-                'description' => 'Book laboratory equipment and meeting rooms.',
-                'url' => '/equipment-booking',
-                'category' => 'technical',
-                'icon' => 'fas fa-calendar-alt',
-                'access_level' => 'all',
+                'title' => 'Centre Policy Index',
+                'description' => 'Browse centre-level operating policy documents.',
+                'url' => route('admin.policies.index'),
+                'category' => 'policy',
+                'icon' => 'document-text',
+                'access_level' => 'centres',
+                'show_on_dashboard' => true,
                 'is_active' => true,
                 'added_by' => $centreAdmin->id,
             ],
             [
-                'title' => 'IT Support Portal',
-                'description' => 'Submit IT support requests and access technical resources.',
-                'url' => '/it-support',
-                'category' => 'technical',
-                'icon' => 'fas fa-headset',
-                'access_level' => 'all',
+                'title' => 'HQ Data Governance Hub',
+                'description' => 'Headquarters resource for data governance and compliance updates.',
+                'url' => 'https://example.com/hq-governance',
+                'category' => 'hq',
+                'icon' => 'shield-check',
+                'access_level' => 'hq',
+                'show_on_dashboard' => true,
                 'is_active' => true,
                 'added_by' => $admin->id,
             ],
@@ -518,9 +508,9 @@ class ComprehensiveDataSeeder extends Seeder
 
         $this->command->info('Comprehensive sample data created successfully!');
         $this->command->info('Test accounts created:');
-        $this->command->info('- admin@nimr.or.tz (Super Admin) - password: password');
-        $this->command->info('- centre.admin@nimr.or.tz (Centre Admin) - password: password');
-        $this->command->info('- station.admin@nimr.or.tz (Station Admin) - password: password');
-        $this->command->info('- staff@nimr.or.tz (Staff) - password: password');
+        $this->command->info('- super.admin@nimr.or.tz (Super Admin) - password: password');
+        $this->command->info('- ' . optional($centreAdmin)->email . ' (Centre Admin) - password: password');
+        $this->command->info('- ' . optional($stationAdmin)->email . ' (Station Admin) - password: password');
+        $this->command->info('- ' . optional($staff)->email . ' (Staff) - password: password');
     }
 }

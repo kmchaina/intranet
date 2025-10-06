@@ -14,11 +14,11 @@ class PasswordVaultSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get Emmanuel Kaindoa user
-        $user = User::where('email', 'emmanuel.kaindoa@nimr.or.tz')->first();
+        // Use seeded staff account
+        $user = User::where('email', 'staff@nimr.or.tz')->first();
 
         if (!$user) {
-            $this->command->info('Emmanuel Kaindoa user not found. Please ensure the user exists.');
+            $this->command->info('Staff seed user not found. Skipping password vault seeding.');
             return;
         }
 
@@ -51,7 +51,7 @@ class PasswordVaultSeeder extends Seeder
             [
                 'title' => 'Research Database Access',
                 'website_url' => 'https://research.nimr.or.tz',
-                'username' => 'researcher_' . strtolower($user->first_name),
+                'username' => 'researcher_' . $user->id,
                 'password' => 'ResearchDB2024#',
                 'notes' => 'Access to NIMR research database and publications',
                 'category' => 'work',
@@ -75,12 +75,12 @@ class PasswordVaultSeeder extends Seeder
             [
                 'title' => 'Gmail Personal',
                 'website_url' => 'https://gmail.com',
-                'username' => strtolower($user->first_name) . '.' . strtolower($user->last_name) . '@gmail.com',
+                'username' => 'staff.' . $user->id . '@gmail.com',
                 'password' => 'PersonalGmail2024!',
                 'notes' => 'Personal email account for private communications',
                 'category' => 'personal',
-                'folder' => 'Email Accounts',
-                'is_favorite' => true,
+                'folder' => 'Personal',
+                'is_favorite' => false,
                 'icon' => 'envelope',
             ],
             [

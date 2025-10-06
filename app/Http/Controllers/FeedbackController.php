@@ -3,24 +3,42 @@
 namespace App\Http\Controllers;
 
 use App\Models\Feedback;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class FeedbackController extends Controller
 {
+    /**
+     * Get authenticated user with proper type hinting
+     */
+    private function getAuthUser(): User
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (!$user instanceof User) {
+            abort(401);
+        }
+
+        return $user;
+    }
+
     public function index(Request $request)
     {
         $search = $request->get('search');
         $status = $request->get('status');
         $type = $request->get('type');
-        $priority = $request->get('priority');
 
-        $query = Feedback::with('submitter', 'assignee');
+        $query = Feedback::with('submitter');
 
-        // Non-admin users only see their own feedback
-        if (!Auth::user()->isAdmin()) {
-            $query->where('submitted_by', Auth::id());
+        // Non-admin users only see their own and public suggestions
+        if (!$this->getAuthUser()->isAdmin()) {
+            $query->where(function ($q) {
+                $q->where('submitted_by', Auth::id())
+                    ->orWhere('is_public', true);
+            });
         }
 
         if ($search) {
@@ -38,27 +56,20 @@ class FeedbackController extends Controller
             $query->where('type', $type);
         }
 
-        if ($priority) {
-            $query->where('priority', $priority);
-        }
-
-        $feedback = $query->orderBy('priority', 'desc')
+        $feedback = $query->orderBy('upvotes_count', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
         $statuses = Feedback::getStatuses();
         $types = Feedback::getTypes();
-        $priorities = Feedback::getPriorities();
 
         return view('feedback.index', compact(
             'feedback',
             'statuses',
             'types',
-            'priorities',
             'search',
             'status',
-            'type',
-            'priority'
+            'type'
         ));
     }
 
@@ -66,9 +77,8 @@ class FeedbackController extends Controller
     {
         $types = Feedback::getTypes();
         $categories = Feedback::getCategories();
-        $priorities = Feedback::getPriorities();
 
-        return view('feedback.create', compact('types', 'categories', 'priorities'));
+        return view('feedback.create', compact('types', 'categories'));
     }
 
     public function store(Request $request)
@@ -77,10 +87,10 @@ class FeedbackController extends Controller
             'subject' => 'required|string|max:255',
             'message' => 'required|string',
             'type' => 'required|string|in:' . implode(',', array_keys(Feedback::getTypes())),
-            'priority' => 'required|string|in:' . implode(',', array_keys(Feedback::getPriorities())),
             'category' => 'required|string|in:' . implode(',', array_keys(Feedback::getCategories())),
             'is_anonymous' => 'boolean',
-            'attachment_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240', // 10MB max
+            'is_public' => 'boolean',
+            'attachment_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240',
         ]);
 
         // Handle file upload
@@ -88,19 +98,20 @@ class FeedbackController extends Controller
             $file = $request->file('attachment_path');
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('feedback-attachments', $filename, 'public');
-            $validated['attachments'] = [$path]; // Store as array since it's JSON in database
+            $validated['attachments'] = [$path];
         }
 
-        // Map form fields to model fields
+        // Create suggestion
         $feedbackData = [
             'subject' => $validated['subject'],
             'message' => $validated['message'],
             'type' => $validated['type'],
             'category' => $validated['category'],
-            'priority' => $validated['priority'],
-            'status' => 'pending',
-            'is_anonymous' => $validated['is_anonymous'] ?? false,
+            'status' => 'new',
+            'is_anonymous' => $request->has('is_anonymous'),
+            'is_public' => $request->has('is_public'),
             'attachments' => $validated['attachments'] ?? null,
+            'upvotes_count' => 0,
         ];
 
         if (!$feedbackData['is_anonymous']) {
@@ -110,37 +121,35 @@ class FeedbackController extends Controller
         Feedback::create($feedbackData);
 
         return redirect()->route('feedback.index')
-            ->with('success', 'Thank you for your feedback! We will review it shortly.');
+            ->with('success', 'Thank you for your suggestion! We appreciate your input.');
     }
 
     public function show(Feedback $feedback)
     {
         $statuses = Feedback::getStatuses();
         $types = Feedback::getTypes();
-        $priorities = Feedback::getPriorities();
         $categories = Feedback::getCategories();
 
-        return view('feedback.show', compact('feedback', 'statuses', 'types', 'priorities', 'categories'));
+        return view('feedback.show', compact('feedback', 'statuses', 'types', 'categories'));
     }
 
     public function edit(Feedback $feedback)
     {
         // Only allow editing if user owns the feedback or is admin
-        if ($feedback->submitted_by !== Auth::id() && !Auth::user()->isAdmin()) {
+        if ($feedback->submitted_by !== Auth::id() && !$this->getAuthUser()->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
         $types = Feedback::getTypes();
         $categories = Feedback::getCategories();
-        $priorities = Feedback::getPriorities();
 
-        return view('feedback.edit', compact('feedback', 'types', 'categories', 'priorities'));
+        return view('feedback.edit', compact('feedback', 'types', 'categories'));
     }
 
     public function update(Request $request, Feedback $feedback)
     {
         // Only allow editing if user owns the feedback or is admin
-        if ($feedback->submitted_by !== Auth::id() && !Auth::user()->isAdmin()) {
+        if ($feedback->submitted_by !== Auth::id() && !$this->getAuthUser()->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -148,11 +157,11 @@ class FeedbackController extends Controller
             'subject' => 'required|string|max:255',
             'message' => 'required|string',
             'type' => 'required|string|in:' . implode(',', array_keys(Feedback::getTypes())),
-            'priority' => 'required|string|in:' . implode(',', array_keys(Feedback::getPriorities())),
             'category' => 'required|string|in:' . implode(',', array_keys(Feedback::getCategories())),
             'status' => 'sometimes|string|in:' . implode(',', array_keys(Feedback::getStatuses())),
-            'admin_response' => 'nullable|string',
-            'assigned_to' => 'nullable|exists:users,id',
+            'admin_response_text' => 'nullable|string',
+            'admin_notes' => 'nullable|string',
+            'is_public' => 'boolean',
             'attachment_path' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240',
         ]);
 
@@ -171,29 +180,27 @@ class FeedbackController extends Controller
             $validated['attachments'] = [$path];
         }
 
-        // Map form fields to model fields
+        // Basic fields anyone can update
         $updateData = [
             'subject' => $validated['subject'],
             'message' => $validated['message'],
             'type' => $validated['type'],
-            'priority' => $validated['priority'],
             'category' => $validated['category'],
         ];
 
-        // Only admins can update status, admin_response, and assigned_to
-        if (Auth::user()->isAdmin()) {
+        // Only admins can update status, admin_response, and admin notes
+        if ($this->getAuthUser()->isAdmin()) {
             if (isset($validated['status'])) {
                 $updateData['status'] = $validated['status'];
             }
-            if (isset($validated['admin_response'])) {
-                $updateData['admin_response'] = $validated['admin_response'];
-                $updateData['responded_at'] = now();
+            if (isset($validated['admin_response_text'])) {
+                $updateData['admin_response_text'] = $validated['admin_response_text'];
             }
-            if (isset($validated['assigned_to'])) {
-                $updateData['assigned_to'] = $validated['assigned_to'];
+            if (isset($validated['admin_notes'])) {
+                $updateData['admin_notes'] = $validated['admin_notes'];
             }
-            if (isset($validated['status']) && $validated['status'] === 'resolved') {
-                $updateData['resolved_at'] = now();
+            if (isset($validated['is_public'])) {
+                $updateData['is_public'] = $validated['is_public'];
             }
         }
 
@@ -204,7 +211,7 @@ class FeedbackController extends Controller
         $feedback->update($updateData);
 
         return redirect()->route('feedback.show', $feedback)
-            ->with('success', 'Feedback updated successfully!');
+            ->with('success', 'Suggestion updated successfully!');
     }
 
     public function destroy(Feedback $feedback)
@@ -224,21 +231,20 @@ class FeedbackController extends Controller
         $feedback->delete();
 
         return redirect()->route('feedback.index')
-            ->with('success', 'Feedback deleted successfully!');
+            ->with('success', 'Suggestion deleted successfully!');
     }
 
     public function updateStatus(Request $request, Feedback $feedback)
     {
         $validated = $request->validate([
             'status' => 'required|string|in:' . implode(',', array_keys(Feedback::getStatuses())),
-            'admin_response' => 'nullable|string',
+            'admin_response_text' => 'nullable|string',
+            'admin_notes' => 'nullable|string',
         ]);
-
-        $validated['assigned_to'] = Auth::id();
 
         $feedback->update($validated);
 
         return redirect()->route('feedback.show', $feedback)
-            ->with('success', 'Feedback status updated successfully!');
+            ->with('success', 'Suggestion status updated successfully!');
     }
 }
