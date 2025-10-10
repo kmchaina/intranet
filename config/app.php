@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    // (Deliberately no explicit providers override to retain framework defaults.)
+
 ];

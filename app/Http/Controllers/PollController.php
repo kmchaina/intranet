@@ -195,8 +195,8 @@ class PollController extends Controller
     {
         $this->authorize('update', $poll);
 
-        $departments = User::distinct()->pluck('department')->filter();
-        $users = User::orderBy('name')->get(['id', 'name', 'department']);
+        $departments = \App\Models\Department::orderBy('name')->get();
+        $users = User::orderBy('name')->get(['id', 'name', 'department_id']);
 
         return view('polls.edit', compact('poll', 'departments', 'users'));
     }

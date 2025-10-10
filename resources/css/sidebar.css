@@ -1,24 +1,21 @@
 /**
- * NIMR Intranet - Premium Sidebar Navigation
- * Using #00aced brand color
+ * NIMR Intranet - Professional Sidebar Navigation
+ * Using #2664eb professional brand color
  */
 
 /* ========================================
-   SIDEBAR CONTAINER - Removed, using Tailwind classes
+   SIDEBAR CONTAINER - Using Tailwind classes
    ======================================== */
 
 /* Brand Logo Section */
 .sidebar-brand {
-    background: linear-gradient(135deg, #00aced 0%, #0086bb 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #2664eb;
     font-weight: 800;
     letter-spacing: -0.025em;
 }
 
 /* ========================================
-   NAVIGATION LINKS - Premium Style
+   NAVIGATION LINKS - Professional Style
    ======================================== */
 .nav-link {
     display: flex;
@@ -35,25 +32,21 @@
     overflow: hidden;
 }
 
-/* Hover Effect - Smooth lift with cyan background */
+/* Hover Effect */
 .nav-link:hover {
-    background: rgba(0, 172, 237, 0.08);
-    color: #00aced;
+    background: rgba(38, 100, 235, 0.08);
+    color: #2664eb;
     transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(0, 172, 237, 0.15);
+    box-shadow: 0 2px 8px rgba(38, 100, 235, 0.15);
 }
 
-/* Active State - Strong cyan accent */
+/* Active State */
 .nav-link-active {
-    background: linear-gradient(
-        90deg,
-        rgba(0, 172, 237, 0.15) 0%,
-        rgba(0, 172, 237, 0.05) 100%
-    );
-    color: #00aced;
-    border-left: 3px solid #00aced;
+    background: rgba(38, 100, 235, 0.1);
+    color: #2664eb;
+    border-left: 3px solid #2664eb;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0, 172, 237, 0.2);
+    box-shadow: 0 2px 8px rgba(38, 100, 235, 0.2);
 }
 
 /* Icon Container */
@@ -64,274 +57,67 @@
     align-items: center;
     justify-content: center;
     border-radius: 0.5rem;
-    background: rgba(0, 172, 237, 0.1);
-    color: #00aced;
+    background: rgba(38, 100, 235, 0.1);
+    color: #2664eb;
     transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-link:hover .nav-link-icon {
-    background: rgba(0, 172, 237, 0.2);
+    background: rgba(38, 100, 235, 0.2);
     transform: scale(1.1) rotate(5deg);
 }
 
 .nav-link-active .nav-link-icon {
-    background: #00aced;
+    background: #2664eb;
     color: white;
-    box-shadow: 0 4px 12px rgba(0, 172, 237, 0.4);
+    box-shadow: 0 4px 12px rgba(38, 100, 235, 0.4);
 }
 
-/* Staff View - Indigo/Purple Theme */
-.bg-gradient-to-b.from-indigo-50 .nav-link-icon {
-    background: rgba(79, 70, 229, 0.1);
-    color: #4f46e5;
+/* Universal styling for white sidebar - applies to all roles */
+.bg-white .nav-link-icon {
+    background: rgba(38, 100, 235, 0.1);
+    color: #2664eb;
 }
 
-.bg-gradient-to-b.from-indigo-50 .nav-link:hover .nav-link-icon {
-    background: rgba(79, 70, 229, 0.2);
+.bg-white .nav-link:hover .nav-link-icon {
+    background: rgba(38, 100, 235, 0.2);
 }
 
-.bg-gradient-to-b.from-indigo-50 .nav-link-active .nav-link-icon {
-    background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+.bg-white .nav-link-active .nav-link-icon {
+    background: #2664eb;
     color: white;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+    box-shadow: 0 4px 12px rgba(38, 100, 235, 0.4);
 }
 
-.bg-gradient-to-b.from-indigo-50 .nav-link:hover {
-    background: rgba(79, 70, 229, 0.08);
-    color: #4f46e5;
+.bg-white .nav-link:hover {
+    background: rgba(38, 100, 235, 0.08);
+    color: #2664eb;
 }
 
-.bg-gradient-to-b.from-indigo-50 .nav-link-active {
-    background: linear-gradient(
-        90deg,
-        rgba(79, 70, 229, 0.15) 0%,
-        rgba(79, 70, 229, 0.05) 100%
-    );
-    color: #4f46e5;
-    border-left: 3px solid #4f46e5;
+.bg-white .nav-link-active {
+    background: rgba(38, 100, 235, 0.1);
+    color: #2664eb;
+    border-left: 3px solid #2664eb;
 }
 
-.bg-gradient-to-b.from-indigo-50 .nav-section-toggle:hover {
-    background: rgba(79, 70, 229, 0.05);
+.bg-white .nav-section-toggle:hover {
+    background: rgba(38, 100, 235, 0.05);
 }
 
-.bg-gradient-to-b.from-indigo-50 .nav-section-expanded {
-    background: rgba(79, 70, 229, 0.1);
-    color: #4f46e5;
+.bg-white .nav-section-expanded {
+    background: rgba(38, 100, 235, 0.1);
+    color: #2664eb;
 }
 
-.bg-gradient-to-b.from-indigo-50 .view-mode-btn-active {
-    background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-}
-
-.bg-gradient-to-b.from-indigo-50
-    .view-mode-btn:not(.view-mode-btn-active):hover {
-    background: rgba(79, 70, 229, 0.1);
-    color: #4f46e5;
-}
-
-/* Station Admin - Cyan/Blue (Precision) */
-.bg-gradient-to-b.from-cyan-50 .nav-link-icon {
-    background: rgba(6, 182, 212, 0.1);
-    color: #0891b2;
-}
-
-.bg-gradient-to-b.from-cyan-50 .nav-link:hover .nav-link-icon {
-    background: rgba(6, 182, 212, 0.2);
-}
-
-.bg-gradient-to-b.from-cyan-50 .nav-link-active .nav-link-icon {
-    background: linear-gradient(135deg, #0891b2 0%, #3b82f6 100%);
+.bg-white .view-mode-btn-active {
+    background: #2664eb;
     color: white;
-    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+    box-shadow: 0 4px 12px rgba(38, 100, 235, 0.3);
 }
 
-.bg-gradient-to-b.from-cyan-50 .nav-link:hover {
-    background: rgba(6, 182, 212, 0.08);
-    color: #0891b2;
-}
-
-.bg-gradient-to-b.from-cyan-50 .nav-link-active {
-    background: linear-gradient(
-        90deg,
-        rgba(6, 182, 212, 0.15) 0%,
-        rgba(6, 182, 212, 0.05) 100%
-    );
-    color: #0891b2;
-    border-left: 3px solid #0891b2;
-}
-
-.bg-gradient-to-b.from-cyan-50 .nav-section-toggle:hover {
-    background: rgba(6, 182, 212, 0.05);
-}
-
-.bg-gradient-to-b.from-cyan-50 .nav-section-expanded {
-    background: rgba(6, 182, 212, 0.1);
-    color: #0891b2;
-}
-
-.bg-gradient-to-b.from-cyan-50 .view-mode-btn-active {
-    background: linear-gradient(135deg, #0891b2 0%, #3b82f6 100%);
-    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
-}
-
-.bg-gradient-to-b.from-cyan-50 .view-mode-btn:not(.view-mode-btn-active):hover {
-    background: rgba(6, 182, 212, 0.1);
-    color: #0891b2;
-}
-
-/* Centre Admin - Violet/Magenta (Insight) */
-.bg-gradient-to-b.from-violet-50 .nav-link-icon {
-    background: rgba(139, 92, 246, 0.1);
-    color: #8b5cf6;
-}
-
-.bg-gradient-to-b.from-violet-50 .nav-link:hover .nav-link-icon {
-    background: rgba(139, 92, 246, 0.2);
-}
-
-.bg-gradient-to-b.from-violet-50 .nav-link-active .nav-link-icon {
-    background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-}
-
-.bg-gradient-to-b.from-violet-50 .nav-link:hover {
-    background: rgba(139, 92, 246, 0.08);
-    color: #8b5cf6;
-}
-
-.bg-gradient-to-b.from-violet-50 .nav-link-active {
-    background: linear-gradient(
-        90deg,
-        rgba(139, 92, 246, 0.15) 0%,
-        rgba(139, 92, 246, 0.05) 100%
-    );
-    color: #8b5cf6;
-    border-left: 3px solid #8b5cf6;
-}
-
-.bg-gradient-to-b.from-violet-50 .nav-section-toggle:hover {
-    background: rgba(139, 92, 246, 0.05);
-}
-
-.bg-gradient-to-b.from-violet-50 .nav-section-expanded {
-    background: rgba(139, 92, 246, 0.1);
-    color: #8b5cf6;
-}
-
-.bg-gradient-to-b.from-violet-50 .view-mode-btn-active {
-    background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-}
-
-.bg-gradient-to-b.from-violet-50
-    .view-mode-btn:not(.view-mode-btn-active):hover {
-    background: rgba(139, 92, 246, 0.1);
-    color: #8b5cf6;
-}
-
-/* HQ Admin - Slate/Charcoal (Governance) */
-.bg-gradient-to-b.from-slate-50 .nav-link-icon {
-    background: rgba(71, 85, 105, 0.1);
-    color: #475569;
-}
-
-.bg-gradient-to-b.from-slate-50 .nav-link:hover .nav-link-icon {
-    background: rgba(71, 85, 105, 0.2);
-}
-
-.bg-gradient-to-b.from-slate-50 .nav-link-active .nav-link-icon {
-    background: linear-gradient(135deg, #475569 0%, #374151 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(71, 85, 105, 0.4);
-}
-
-.bg-gradient-to-b.from-slate-50 .nav-link:hover {
-    background: rgba(71, 85, 105, 0.08);
-    color: #475569;
-}
-
-.bg-gradient-to-b.from-slate-50 .nav-link-active {
-    background: linear-gradient(
-        90deg,
-        rgba(71, 85, 105, 0.15) 0%,
-        rgba(71, 85, 105, 0.05) 100%
-    );
-    color: #475569;
-    border-left: 3px solid #475569;
-}
-
-.bg-gradient-to-b.from-slate-50 .nav-section-toggle:hover {
-    background: rgba(71, 85, 105, 0.05);
-}
-
-.bg-gradient-to-b.from-slate-50 .nav-section-expanded {
-    background: rgba(71, 85, 105, 0.1);
-    color: #475569;
-}
-
-.bg-gradient-to-b.from-slate-50 .view-mode-btn-active {
-    background: linear-gradient(135deg, #475569 0%, #374151 100%);
-    box-shadow: 0 4px 12px rgba(71, 85, 105, 0.3);
-}
-
-.bg-gradient-to-b.from-slate-50
-    .view-mode-btn:not(.view-mode-btn-active):hover {
-    background: rgba(71, 85, 105, 0.1);
-    color: #475569;
-}
-
-/* Super Admin - Amber/Gold (Dominion) */
-.bg-gradient-to-b.from-amber-50 .nav-link-icon {
-    background: rgba(245, 158, 11, 0.1);
-    color: #f59e0b;
-}
-
-.bg-gradient-to-b.from-amber-50 .nav-link:hover .nav-link-icon {
-    background: rgba(245, 158, 11, 0.2);
-}
-
-.bg-gradient-to-b.from-amber-50 .nav-link-active .nav-link-icon {
-    background: linear-gradient(135deg, #f59e0b 0%, #eab308 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
-}
-
-.bg-gradient-to-b.from-amber-50 .nav-link:hover {
-    background: rgba(245, 158, 11, 0.08);
-    color: #f59e0b;
-}
-
-.bg-gradient-to-b.from-amber-50 .nav-link-active {
-    background: linear-gradient(
-        90deg,
-        rgba(245, 158, 11, 0.15) 0%,
-        rgba(245, 158, 11, 0.05) 100%
-    );
-    color: #f59e0b;
-    border-left: 3px solid #f59e0b;
-}
-
-.bg-gradient-to-b.from-amber-50 .nav-section-toggle:hover {
-    background: rgba(245, 158, 11, 0.05);
-}
-
-.bg-gradient-to-b.from-amber-50 .nav-section-expanded {
-    background: rgba(245, 158, 11, 0.1);
-    color: #f59e0b;
-}
-
-.bg-gradient-to-b.from-amber-50 .view-mode-btn-active {
-    background: linear-gradient(135deg, #f59e0b 0%, #eab308 100%);
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-}
-
-.bg-gradient-to-b.from-amber-50
-    .view-mode-btn:not(.view-mode-btn-active):hover {
-    background: rgba(245, 158, 11, 0.1);
-    color: #f59e0b;
+.bg-white .view-mode-btn:not(.view-mode-btn-active):hover {
+    background: rgba(38, 100, 235, 0.1);
+    color: #2664eb;
 }
 
 /* ========================================
@@ -364,24 +150,20 @@
 }
 
 .nav-section-toggle:hover {
-    background: rgba(0, 172, 237, 0.05);
+    background: rgba(38, 100, 235, 0.05);
 }
 
 .nav-section-expanded {
-    background: rgba(0, 172, 237, 0.1);
-    color: #00aced;
+    background: rgba(38, 100, 235, 0.1);
+    color: #2664eb;
 }
 
 /* ========================================
    VIEW MODE TOGGLE (Admin/Staff)
    ======================================== */
 .view-mode-container {
-    background: linear-gradient(
-        135deg,
-        rgba(0, 172, 237, 0.05) 0%,
-        rgba(0, 172, 237, 0.1) 100%
-    );
-    border: 1px solid rgba(0, 172, 237, 0.2);
+    background: rgba(38, 100, 235, 0.05);
+    border: 1px solid rgba(38, 100, 235, 0.2);
     border-radius: 0.75rem;
     padding: 0.75rem;
     margin-bottom: 1rem;
@@ -398,10 +180,28 @@
 }
 
 .view-mode-btn-active {
-    background: #00aced;
+    background: #2664eb;
     color: white;
-    box-shadow: 0 4px 12px rgba(0, 172, 237, 0.3);
+    box-shadow: 0 4px 12px rgba(38, 100, 235, 0.3);
     transform: scale(1.02);
+}
+
+/* Fallback for environments without Tailwind @apply processing for these classes */
+.view-mode-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.view-mode-btn.view-mode-btn-active {
+    border-color: rgba(38, 100, 235, 0.25);
+}
+
+.view-mode-btn:not(.view-mode-btn-active):hover {
+    border-color: rgba(38, 100, 235, 0.25);
 }
 
 .view-mode-btn:not(.view-mode-btn-active) {
@@ -409,8 +209,8 @@
 }
 
 .view-mode-btn:not(.view-mode-btn-active):hover {
-    background: rgba(0, 172, 237, 0.1);
-    color: #00aced;
+    background: rgba(38, 100, 235, 0.1);
+    color: #2664eb;
 }
 
 /* ========================================
@@ -430,18 +230,18 @@ aside ::-webkit-scrollbar {
 }
 
 aside ::-webkit-scrollbar-track {
-    background: rgba(0, 172, 237, 0.05);
+    background: rgba(38, 100, 235, 0.05);
     border-radius: 3px;
 }
 
 aside ::-webkit-scrollbar-thumb {
-    background: rgba(0, 172, 237, 0.3);
+    background: rgba(38, 100, 235, 0.3);
     border-radius: 3px;
     transition: background 200ms ease;
 }
 
 aside ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 172, 237, 0.5);
+    background: rgba(38, 100, 235, 0.5);
 }
 
 /* ========================================
@@ -491,9 +291,9 @@ aside ::-webkit-scrollbar-thumb:hover {
     font-size: 0.625rem;
     font-weight: 700;
     color: white;
-    background: #00aced;
+    background: #2664eb;
     border-radius: 9999px;
-    box-shadow: 0 2px 8px rgba(0, 172, 237, 0.4);
+    box-shadow: 0 2px 8px rgba(38, 100, 235, 0.4);
     margin-left: auto;
 }
 

@@ -97,67 +97,40 @@
     // Unified professional sidebar styling
     $isLightSidebar = true; // All dashboards use light sidebar now
 
-    // Dynamic sidebar colors based on role (using CSS classes that exist)
-    $sidebarBgClasses = "bg-gradient-to-b from-{$primary}-50 to-{$accent}-50 border-r border-{$primary}-100";
+    // Dynamic sidebar colors - using professional solid color #2664eb
+    $sidebarBgClasses = 'bg-white border-r border-gray-200';
     $sidebarText = 'text-slate-800';
-    $sidebarTextMuted = "text-{$primary}-600";
-    $sidebarBorder = "border-{$primary}-100";
-    $navLinkText = "text-slate-700 hover:text-{$primary}-700";
-    $brandTitle = "text-transparent bg-clip-text bg-gradient-to-r from-{$primary}-600 to-{$accent}-600 font-extrabold";
-    $brandSub = "text-{$primary}-600";
-    $toggleBg = "bg-{$primary}-100/50";
-    $activeNavBg = "bg-{$primary}-100";
-    $hoverNavBg = "hover:bg-{$primary}-50";
+    $sidebarTextMuted = 'text-gray-600';
+    $sidebarBorder = 'border-gray-200';
+    $navLinkText = 'text-slate-700 hover:text-slate-900';
+    $brandTitle = 'font-extrabold';
+    $brandSub = 'text-gray-600';
+    $toggleBg = 'bg-gray-100';
+    $activeNavBg = 'bg-blue-50';
+    $hoverNavBg = 'hover:bg-gray-50';
 
-    // Inline styles for dynamic colors (fallback for non-compiled Tailwind classes)
-    $brandTitleStyle = "background: linear-gradient(to right, {$colors['primary_600']}, {$colors['accent_600']}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;";
-    $brandSubStyle = "color: {$colors['primary_600']};";
+    // Inline styles for dynamic colors using professional color
+    $brandTitleStyle = 'color: #2664eb;';
+    $brandSubStyle = 'color: #666;';
 @endphp
 
-<aside
-    x-bind:class="(sidebarOpen ? 'w-72' : 'w-20') + ' ' + (window.innerWidth < 1024 ? (sidebarOpen ? 'translate-x-0' :
-        '-translate-x-full') : '')"
-    class="{{ $sidebarBgClasses }} flex flex-col overflow-hidden flex-shrink-0 transition-all duration-300 shadow-2xl z-40 fixed inset-y-0 left-0 lg:relative">
-    <div class="p-6">
-        <div class="flex items-center" x-show="sidebarOpen" x-transition>
-            <div class="w-12 h-12 mr-3"><img src="{{ asset('images/logos/NIMR.png') }}"
-                    class="w-full h-full object-contain" alt="Logo"></div>
-            <div>
-                <h1 class="text-xl font-extrabold" style="{{ $brandTitleStyle }}">NIMR Intranet</h1>
-                <p class="text-sm font-medium" style="{{ $brandSubStyle }}">National Institute for Medical Research</p>
+<aside x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+    x-transition:leave="transition ease-in duration-300" x-transition:leave-start="translate-x-0"
+    x-transition:leave-end="-translate-x-full"
+    class="{{ $sidebarBgClasses }} w-72 flex flex-col overflow-hidden flex-shrink-0 shadow-2xl z-40 fixed inset-y-0 left-0 lg:relative lg:translate-x-0">
+    <div class="p-6 pb-4 border-b border-white/40">
+        <div class="flex items-center gap-3">
+            <img src="{{ asset('images/logos/NIMR.png') }}" class="w-12 h-12 object-contain flex-shrink-0"
+                alt="Logo">
+            <div x-show="sidebarOpen" x-transition.opacity.duration.200ms class="min-w-0">
+                <h1 class="text-xl font-extrabold leading-tight" style="{{ $brandTitleStyle }}">NIMR Intranet</h1>
+                <p class="text-xs font-medium opacity-80" style="{{ $brandSubStyle }}">National Institute for Medical
+                    Research</p>
             </div>
         </div>
-        <div x-show="!sidebarOpen" x-transition class="flex justify-center">
-            <div class="w-12 h-12"><img src="{{ asset('images/logos/NIMR.png') }}" class="w-full h-full object-contain"
-                    alt="Logo"></div>
-        </div>
     </div>
-    <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto {{ $sidebarText }}" x-data="{
-        staffView: {{ $isStaffView ? 'true' : 'false' }},
-        switchToAdminView() {
-            this.staffView = false;
-            localStorage.setItem('staffView', 'false');
-            window.location.href = '{{ route('dashboard') }}?view=admin';
-        },
-        switchToStaffView() {
-            this.staffView = true;
-            localStorage.setItem('staffView', 'true');
-            window.location.href = '{{ route('dashboard') }}?view=staff';
-        },
-        expandedSection: localStorage.getItem('expandedSection') || null,
-        toggleSection(section) {
-            if (this.expandedSection === section) {
-                this.expandedSection = null;
-                localStorage.removeItem('expandedSection');
-            } else {
-                this.expandedSection = section;
-                localStorage.setItem('expandedSection', section);
-            }
-        },
-        isExpanded(section) {
-            return this.expandedSection === section;
-        }
-    }"
+    <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto {{ $sidebarText }}"
         style="scrollbar-width:thin; scrollbar-color:#CBD5E0 transparent;">
         @if (auth()->check() && auth()->user()->isAdmin())
             <div class="mb-5 px-2" x-show="sidebarOpen" x-transition>
@@ -170,7 +143,7 @@
                         </svg>
                         View Mode
                     </div>
-                    <div class="flex {{ $toggleBg }} rounded-lg p-1 shadow-sm gap-1">
+                    <div class="flex {{ $toggleBg }} rounded-lg p-1 shadow-sm gap-1 view-mode-btn-group">
                         <button @click="switchToAdminView()"
                             :class="!staffView ? 'view-mode-btn view-mode-btn-active' : 'view-mode-btn'"
                             class="flex items-center justify-center gap-1.5">
@@ -216,7 +189,10 @@
                 <div class="space-y-1">
                     @if (trim($sectionName) !== '')
                         <button @click="toggleSection('{{ $sectionName }}')" x-show="sidebarOpen" x-transition
-                            class="nav-section-toggle"
+                            class="nav-section-toggle focus:outline-none focus:ring-2 focus:ring-offset-1"
+                            style="--tw-ring-color: rgba(38, 100, 235, 0.5);"
+                            :aria-expanded="isExpanded('{{ $sectionName }}') ? 'true' : 'false'"
+                            aria-controls="section-{{ Str::slug($sectionName) }}"
                             :class="isExpanded('{{ $sectionName }}') ? 'nav-section-expanded' :
                                 '{{ $sidebarTextMuted }} hover:{{ $isLightSidebar ? 'text-slate-900' : 'text-white' }}'">
                             <span class="flex items-center gap-2">
@@ -258,8 +234,8 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div x-show="isExpanded('{{ $sectionName }}')" x-transition
-                            class="ml-2 space-y-1 border-l {{ $sidebarBorder }} pl-3">
+                        <div id="section-{{ Str::slug($sectionName) }}" x-show="isExpanded('{{ $sectionName }}')"
+                            x-transition x-cloak class="ml-2 space-y-1 border-l {{ $sidebarBorder }} pl-3">
                             @foreach ($items as $item)
                                 @php
                                     $iconPath = config('icons.' . ($item['icon'] ?? ''));

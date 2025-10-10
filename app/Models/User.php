@@ -215,7 +215,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function canManagePolls(): bool
     {
-        return $this->isAdmin(); // All admin levels can manage polls
+        return false; // No global poll management permission - only creators can edit their own
     }
 
 
@@ -453,6 +453,22 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sentWishes()
     {
         return $this->hasMany(BirthdayWish::class, 'sender_id');
+    }
+
+    /**
+     * Notifications for this user
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    /**
+     * Get unread notifications count
+     */
+    public function getUnreadNotificationsCountAttribute()
+    {
+        return $this->notifications()->unread()->count();
     }
 
     /**

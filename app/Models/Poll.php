@@ -155,6 +155,7 @@ class Poll extends Model
 
     public function canManage(?User $user = null): bool
     {
+        /** @var User|null $user */
         $user = $user ?? Auth::user();
 
         if (!$user) {

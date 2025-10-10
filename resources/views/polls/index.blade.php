@@ -395,7 +395,7 @@
                 <!-- Active Polls Quick Access -->
                 @if ($activePolls->count() > 0)
                     <div class="card-premium overflow-hidden">
-                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
+                        <div style="background-color: rgba(37, 99, 235, 0.1);" class="px-6 py-4 border-b border-gray-200">
                             <div class="flex items-center gap-2">
                                 <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                 <h3 class="text-lg font-semibold text-gray-900">Active Polls</h3>
@@ -470,7 +470,7 @@
 
                 <!-- Poll Statistics -->
                 <div class="card-premium overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+                    <div style="background-color: rgba(37, 99, 235, 0.1);" class="px-6 py-4 border-b border-gray-200">
                         <h3 class="text-lg font-semibold text-gray-900">Poll Statistics</h3>
                     </div>
                     <div class="p-6">
@@ -535,7 +535,7 @@
                 <!-- Quick Actions -->
                 @auth
                     <div class="card-premium overflow-hidden">
-                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-gray-200">
+                        <div style="background-color: rgba(37, 99, 235, 0.1);" class="px-6 py-4 border-b border-gray-200">
                             <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
                         </div>
                         <div class="p-6 space-y-3">

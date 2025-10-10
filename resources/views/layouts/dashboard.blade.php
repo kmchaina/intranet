@@ -1,5 +1,37 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="{ sidebarOpen: localStorage.getItem('sidebarOpen') !== 'false', init() { this.$watch('sidebarOpen', v => localStorage.setItem('sidebarOpen', v)); } }">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="{
+    sidebarOpen: localStorage.getItem('sidebarOpen') !== 'false',
+    staffView: {{ auth()->check() && session('staffView', false) ? 'true' : 'false' }},
+    expandedSection: null,
+    toggleSection(section) {
+        if (this.expandedSection === section) {
+            this.expandedSection = null;
+            localStorage.removeItem('expandedSection');
+        } else {
+            this.expandedSection = section;
+            localStorage.setItem('expandedSection', section);
+        }
+    },
+    isExpanded(section) {
+        return this.expandedSection === section;
+    },
+    switchToAdminView() {
+        this.staffView = false;
+        localStorage.setItem('staffView', 'false');
+        window.location.href = '{{ route('dashboard') }}?view=admin';
+    },
+    switchToStaffView() {
+        this.staffView = true;
+        localStorage.setItem('staffView', 'true');
+        window.location.href = '{{ route('dashboard') }}?view=staff';
+    },
+    init() {
+        this.$watch('sidebarOpen', v => localStorage.setItem('sidebarOpen', v));
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024 && !this.sidebarOpen) this.sidebarOpen = true;
+        });
+    }
+}">
 
 <head>
     <meta charset="utf-8">
@@ -13,6 +45,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    {{-- Styles pushed from child views --}}
+    @stack('styles')
 </head>
 
 <body class="bg-gray-50 antialiased overflow-hidden">
@@ -35,8 +69,8 @@
                     </button>
                     <div class="min-w-0">
                         <div class="flex items-baseline gap-3">
-                            <span
-                                class="text-lg text-indigo-600 font-bold">{{ \Carbon\Carbon::now()->format('l') }}</span>
+                            <span class="text-lg font-bold"
+                                style="color: #2664eb;">{{ \Carbon\Carbon::now()->format('l') }}</span>
                             <span
                                 class="text-sm text-gray-600 font-medium">{{ \Carbon\Carbon::now()->format('F j, Y') }}</span>
                             <span
@@ -64,7 +98,7 @@
                             </svg>
                             <span class="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
                         </button>
-                        <div x-show="open" @click.away="open=false" x-transition
+                        <div x-show="open" x-cloak @click.away="open=false" x-transition
                             class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-hidden">
                             <div class="p-4 border-b border-gray-200">
                                 <h3 class="text-sm font-semibold text-gray-900">Notifications</h3>
@@ -85,7 +119,7 @@
                                     src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=3b82f6&color=ffffff"
                                     alt="{{ auth()->user()->name }}">
                             </button>
-                            <div x-show="open" @click.away="open=false" x-transition
+                            <div x-show="open" x-cloak @click.away="open=false" x-transition
                                 class="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                                 <div class="p-4 border-b border-gray-200 flex items-center space-x-3">
                                     <img class="w-10 h-10 rounded-full object-cover border border-gray-200"
@@ -108,8 +142,7 @@
                     @endauth
                 </div>
             </header>
-            <main
-                class="flex-1 overflow-y-auto bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-100/40 content-area">
+            <main class="flex-1 overflow-y-auto bg-gray-50 content-area">
                 <div class="p-8">
                     @if (session('success'))
                         <div
@@ -162,6 +195,8 @@
             }
         })();
     </script>
+    {{-- Scripts pushed from child views (e.g., birthday wishes page) --}}
+    @stack('scripts')
     @include('messaging.widget')
 </body>
 

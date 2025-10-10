@@ -6,8 +6,10 @@ use App\Models\Conversation;
 use App\Models\ConversationParticipant;
 use App\Models\Message;
 use App\Models\User;
+use App\Services\ConversationAccessCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Services\ActivityLogger;
 
@@ -23,6 +25,7 @@ class ConversationController extends Controller
             $q->latest()->limit(1);
         }])
             ->forUser($userId)
+            ->orderByDesc('updated_at')
             ->orderByDesc(
                 Message::select('created_at')
                     ->whereColumn('messages.conversation_id', 'conversations.id')
@@ -30,6 +33,9 @@ class ConversationController extends Controller
                     ->limit(1)
             )
             ->get();
+
+        // Hydrate membership cache with all conversation ids for this user (index heavy scenario)
+        app(ConversationAccessCache::class)->hydrate($userId, $conversations->pluck('id')->all());
 
         $data = $conversations->map(function ($c) use ($userId) {
             $last = $c->messages->first();
@@ -47,6 +53,7 @@ class ConversationController extends Controller
                 'type' => $c->type,
                 'title' => $c->isDirect() ? $this->directTitleFor($c, $userId) : $c->title,
                 'participants' => $c->participants->pluck('user.name', 'user.id'),
+                'created_by' => $c->created_by, // Add creator ID for admin checks
                 'last_message' => $last ? [
                     'body' => $last->body,
                     'user_id' => $last->user_id,
@@ -69,8 +76,11 @@ class ConversationController extends Controller
     {
         $this->authorize('view', $conversation);
         $userId = $request->user()->id;
+        // Hydrate single conversation for subsequent policy checks in same request
+        app(ConversationAccessCache::class)->hydrate($userId, [$conversation->id]);
 
         $messages = $conversation->messages()
+            ->withTrashed()
             ->with('user:id,name')
             ->latest()
             ->limit(30)
@@ -86,8 +96,10 @@ class ConversationController extends Controller
             ],
             'messages' => $messages->map(fn($m) => [
                 'id' => $m->id,
-                'body' => $m->body,
-                'attachments' => $m->attachments,
+                'deleted' => !is_null($m->deleted_at),
+                'deleted_at' => $m->deleted_at?->toIso8601String(),
+                'body' => $m->deleted_at ? null : $m->body,
+                'attachments' => $m->deleted_at ? [] : $m->attachments,
                 'user' => ['id' => $m->user->id, 'name' => $m->user->name],
                 'at' => $m->created_at->toIso8601String(),
             ])
@@ -125,7 +137,6 @@ class ConversationController extends Controller
 
         return response()->json(['id' => $conversation->id]);
     }
-
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -157,13 +168,23 @@ class ConversationController extends Controller
     public function markRead(Request $request, Conversation $conversation)
     {
         $this->authorize('view', $conversation);
-        $latestId = $conversation->messages()->max('id');
+        $latest = $conversation->messages()
+            ->select('id', 'created_at')
+            ->orderByDesc('id')
+            ->first();
+        $latestId = $latest?->id;
         if ($latestId) {
             ConversationParticipant::where('conversation_id', $conversation->id)
                 ->where('user_id', $request->user()->id)
                 ->update(['last_read_message_id' => $latestId]);
         }
-        return response()->json(['ok' => true]);
+        return response()->json([
+            'ok' => true,
+            'conversation_id' => $conversation->id,
+            'latest_message_id' => $latestId,
+            'latest_at' => $latest?->created_at?->toIso8601String(),
+            'unread' => 0
+        ]);
     }
 
     // Participants list
@@ -306,5 +327,26 @@ class ConversationController extends Controller
         }
         $query = $builder->orderBy('name')->limit(10)->get(['id', 'name', 'email']);
         return response()->json(['users' => $query]);
+    }
+
+    public function destroy(Request $request, Conversation $conversation)
+    {
+        $this->authorize('destroy', $conversation);
+
+        // Log the deletion
+        ActivityLogger::log(
+            'conversation.deleted',
+            'conversation',
+            $conversation->id,
+            ['title' => $conversation->title]
+        );
+
+        // Soft delete the conversation
+        $conversation->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Conversation deleted successfully'
+        ]);
     }
 }

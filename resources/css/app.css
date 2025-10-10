@@ -8,3 +8,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Hide cloaked Alpine elements until initialized */
+[x-cloak] {
+    display: none !important;
+}

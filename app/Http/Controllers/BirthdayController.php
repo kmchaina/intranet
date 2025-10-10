@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\BirthdayWish;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 
 class BirthdayController extends Controller
@@ -184,8 +185,24 @@ class BirthdayController extends Controller
 
         // Update reply count if this is a reply
         if ($request->parent_wish_id) {
-            BirthdayWish::where('id', $request->parent_wish_id)
-                ->increment('reply_count');
+            $parentWish = BirthdayWish::find($request->parent_wish_id);
+            $parentWish->increment('reply_count');
+            
+            // Create notification for the parent wish sender (if not replying to own wish)
+            if ($parentWish->sender_id !== Auth::id()) {
+                $replier = Auth::user();
+                Notification::create([
+                    'user_id' => $parentWish->sender_id,
+                    'type' => 'birthday_reply',
+                    'title' => 'New Reply to Your Birthday Wish',
+                    'message' => "{$replier->name} replied to your birthday wish",
+                    'data' => [
+                        'wish_id' => $parentWish->id,
+                        'reply_id' => $wish->id,
+                        'replier_id' => Auth::id(),
+                    ],
+                ]);
+            }
         }
 
         return back()->with('success', $request->parent_wish_id ? '💬 Reply sent!' : '🎉 Your wish has been sent!');
@@ -215,12 +232,44 @@ class BirthdayController extends Controller
             'emoji' => 'required|string|max:10',
         ]);
 
-        $wish->addReaction($request->emoji, Auth::id());
+        $userId = Auth::id();
+        
+        // Check if user already reacted with this emoji
+        if ($wish->hasUserReacted($request->emoji, $userId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have already reacted with this emoji',
+            ], 400);
+        }
 
+        $wish->addReaction($request->emoji, $userId);
+
+        // Create notification for the wish recipient (if not reacting to own wish)
+        if ($wish->recipient_id !== $userId) {
+            $reactor = Auth::user();
+            Notification::create([
+                'user_id' => $wish->recipient_id,
+                'type' => 'birthday_reaction',
+                'title' => 'New Reaction on Your Birthday Wish',
+                'message' => "{$reactor->name} reacted with {$request->emoji} to your birthday wish",
+                'data' => [
+                    'wish_id' => $wish->id,
+                    'reactor_id' => $userId,
+                    'emoji' => $request->emoji,
+                ],
+            ]);
+        }
+
+        // Get reactor names for tooltip
+        $reactorIds = $wish->reactions[$request->emoji] ?? [];
+        $reactors = User::whereIn('id', $reactorIds)->pluck('name')->take(3);
+        
         return response()->json([
             'success' => true,
             'reaction_count' => $wish->getReactionCount($request->emoji),
-            'has_reacted' => $wish->hasUserReacted($request->emoji, Auth::id()),
+            'has_reacted' => true,
+            'reactors' => $reactors->toArray(),
+            'total_reactors' => count($reactorIds),
         ]);
     }
 
@@ -233,12 +282,52 @@ class BirthdayController extends Controller
             'emoji' => 'required|string|max:10',
         ]);
 
-        $wish->removeReaction($request->emoji, Auth::id());
+        $userId = Auth::id();
+        
+        // Check if user has reacted with this emoji
+        if (!$wish->hasUserReacted($request->emoji, $userId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have not reacted with this emoji',
+            ], 400);
+        }
+
+        $wish->removeReaction($request->emoji, $userId);
+
+        // Get remaining reactor names for tooltip
+        $reactorIds = $wish->reactions[$request->emoji] ?? [];
+        $reactors = User::whereIn('id', $reactorIds)->pluck('name')->take(3);
 
         return response()->json([
             'success' => true,
             'reaction_count' => $wish->getReactionCount($request->emoji),
-            'has_reacted' => $wish->hasUserReacted($request->emoji, Auth::id()),
+            'has_reacted' => false,
+            'reactors' => $reactors->toArray(),
+            'total_reactors' => count($reactorIds),
+        ]);
+    }
+
+    /**
+     * Get reaction details for a wish
+     */
+    public function getReactionDetails(BirthdayWish $wish)
+    {
+        $reactionDetails = [];
+        
+        foreach ($wish->reactions ?? [] as $emoji => $userIds) {
+            if (!empty($userIds)) {
+                $users = User::whereIn('id', $userIds)->get(['id', 'name']);
+                $reactionDetails[$emoji] = [
+                    'count' => count($userIds),
+                    'users' => $users->toArray(),
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'reactions' => $reactionDetails,
+            'total_reactions' => collect($reactionDetails)->sum('count'),
         ]);
     }
 }

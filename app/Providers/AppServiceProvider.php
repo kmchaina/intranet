@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\Eloquent\Builder;
+use App\Services\ConversationAccessCache;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -12,7 +12,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(ConversationAccessCache::class, fn() => new ConversationAccessCache());
     }
 
     /**

@@ -24,27 +24,26 @@ class MessagingDeleteTest extends TestCase
         return $c;
     }
 
-    public function test_author_can_delete_within_window()
+    public function test_author_can_soft_delete_message()
     {
         $alice = User::factory()->create();
         $bob = User::factory()->create();
         $conv = $this->group($alice, [$bob]);
         $msg = Message::create(['conversation_id' => $conv->id, 'user_id' => $alice->id, 'body' => 'Temp']);
-
         $this->actingAs($alice);
         $resp = $this->deleteJson("/messages/conversations/{$conv->id}/items/{$msg->id}");
-        $resp->assertStatus(204);
-        $this->assertDatabaseMissing('messages', ['id' => $msg->id]);
+        $resp->assertStatus(200)->assertJson(['id' => $msg->id, 'deleted' => true]);
+        $this->assertSoftDeleted('messages', ['id' => $msg->id]);
     }
 
-    public function test_author_cannot_delete_after_window()
+    public function test_author_soft_delete_old_message()
     {
         $alice = User::factory()->create();
         $conv = $this->group($alice);
-        $msg = Message::create(['conversation_id' => $conv->id, 'user_id' => $alice->id, 'body' => 'Old', 'created_at' => now()->subMinutes(6), 'updated_at' => now()->subMinutes(6)]);
+        $msg = Message::create(['conversation_id' => $conv->id, 'user_id' => $alice->id, 'body' => 'Old', 'created_at' => now()->subMinutes(60), 'updated_at' => now()->subMinutes(60)]);
         $this->actingAs($alice);
-        $this->deleteJson("/messages/conversations/{$conv->id}/items/{$msg->id}")->assertStatus(403);
-        $this->assertDatabaseHas('messages', ['id' => $msg->id]);
+        $this->deleteJson("/messages/conversations/{$conv->id}/items/{$msg->id}")->assertStatus(200);
+        $this->assertSoftDeleted('messages', ['id' => $msg->id]);
     }
 
     public function test_non_author_cannot_delete()

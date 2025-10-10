@@ -14,7 +14,36 @@ export default {
     ],
     safelist: [
         {
-            pattern: /(bg|text)-(red|orange|green|blue|gray)-(100|600|800)/,
+            pattern: /(bg|text)-(red|orange|green|blue|gray|yellow)-(100|600|800)/,
+            variants: ['hover'],
+        },
+        'status-active',
+        'status-draft',
+        'status-closed',
+        'status-error',
+    ],
+
+    // Add custom styles for status indicators
+    plugins: [
+        forms,
+        typography,
+        aspectRatio,
+        lineClamp,
+        function({ addComponents }) {
+            addComponents({
+                '.status-active': {
+                    '@apply bg-green-100 text-green-800': {},
+                },
+                '.status-draft': {
+                    '@apply bg-gray-100 text-gray-800': {},
+                },
+                '.status-closed': {
+                    '@apply bg-yellow-100 text-yellow-800': {},
+                },
+                '.status-error': {
+                    '@apply bg-red-100 text-red-800': {},
+                },
+            })
         },
     ],
 

@@ -49,12 +49,12 @@ class MessagingTest extends TestCase
         $cid = $resp->json('id');
 
         // Post message
-        $msgResp = $this->postJson("/messages/conversations/$cid/items", [ 'body' => 'Hello team' ]);
-        $msgResp->assertStatus(201)->assertJsonStructure(['id','body','user_id']);
+        $msgResp = $this->postJson("/messages/conversations/$cid/items", ['body' => 'Hello team']);
+        $msgResp->assertStatus(201)->assertJsonStructure(['id', 'body', 'user' => ['id', 'name']]);
 
         // Fetch conversation messages
         $list = $this->getJson("/messages/conversations/$cid");
-        $list->assertStatus(200)->assertJsonStructure(['conversation','messages']);
+        $list->assertStatus(200)->assertJsonStructure(['conversation', 'messages']);
         $this->assertEquals('Hello team', $list->json('messages.0.body'));
     }
 

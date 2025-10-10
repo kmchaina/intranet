@@ -126,6 +126,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('birthday-wishes/{wish}', [BirthdayController::class, 'destroyWish'])->name('birthdays.wishes.destroy');
     Route::post('birthday-wishes/{wish}/reactions', [BirthdayController::class, 'addReaction'])->name('birthday-wishes.reactions.add');
     Route::delete('birthday-wishes/{wish}/reactions', [BirthdayController::class, 'removeReaction'])->name('birthday-wishes.reactions.remove');
+    Route::get('birthday-wishes/{wish}/reactions', [BirthdayController::class, 'getReactionDetails'])->name('birthday-wishes.reactions.details');
 
     // Poll routes
     Route::resource('polls', PollController::class);
@@ -155,10 +156,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('messages/group', [ConversationController::class, 'store'])->name('messages.group');
     Route::post('messages/conversations/{conversation}/mark-read', [ConversationController::class, 'markRead'])->name('messages.mark-read');
     Route::get('messages/conversations/{conversation}/items', [MessageController::class, 'index'])->name('messages.items');
+    // Pagination backward fetch (older messages before a given id)
+    Route::get('messages/conversations/{conversation}/items/older', [MessageController::class, 'older'])->name('messages.items.older');
     Route::post('messages/conversations/{conversation}/items', [MessageController::class, 'store'])->name('messages.items.store');
     Route::delete('messages/conversations/{conversation}/items/{message}', [MessageController::class, 'destroy'])->name('messages.items.destroy');
     Route::post('messages/conversations/{conversation}/attachments', [MessageController::class, 'uploadAttachments'])->name('messages.attachments.upload');
+    // Ephemeral typing indicator (optional real-time UX). Throttled to avoid spamming broadcast layer.
+    Route::post('messages/conversations/{conversation}/typing', [MessageController::class, 'typing'])
+        ->middleware('throttle:60,1')
+        ->name('messages.typing');
+    // Search within a single conversation
+    Route::get('messages/conversations/{conversation}/search', [MessageController::class, 'searchConversation'])
+        ->name('messages.search.conversation');
+    // Global search across conversations user participates in
+    Route::get('messages/search', [MessageController::class, 'searchAll'])
+        ->name('messages.search.all');
+    // Draft endpoints
+    Route::get('messages/conversations/{conversation}/draft', [MessageController::class, 'getDraft'])->name('messages.draft.get');
+    Route::put('messages/conversations/{conversation}/draft', [MessageController::class, 'saveDraft'])->name('messages.draft.save');
+    Route::delete('messages/conversations/{conversation}/draft', [MessageController::class, 'clearDraft'])->name('messages.draft.clear');
+    // Presence heartbeat
+    Route::post('messages/presence/heartbeat', [MessageController::class, 'presenceHeartbeat'])->name('messages.presence.heartbeat');
+    Route::get('messages/conversations/{conversation}/presence', [MessageController::class, 'getPresence'])->name('messages.presence.get');
     Route::patch('messages/conversations/{conversation}/title', [ConversationController::class, 'updateTitle'])->name('messages.update-title');
+    Route::delete('messages/conversations/{conversation}', [ConversationController::class, 'destroy'])->name('messages.conversations.destroy');
     Route::get('messages/conversations/{conversation}/user-search', [ConversationController::class, 'userSearch'])
         ->middleware('throttle:30,1') // limit to 30 searches per minute per user
         ->name('messages.user-search');
@@ -167,6 +188,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('messages/conversations/{conversation}/participants', [ConversationController::class, 'addParticipants'])->name('messages.participants.add');
     Route::delete('messages/conversations/{conversation}/participants/{user}', [ConversationController::class, 'removeParticipant'])->name('messages.participants.remove');
     Route::post('messages/conversations/{conversation}/leave', [ConversationController::class, 'leave'])->name('messages.participants.leave');
+
+    // Serve message attachments with authorization
+    Route::get('messages/attachments/{attachment}', [MessageController::class, 'downloadAttachment'])->name('messages.attachments.download');
+
+    // Message reactions
+    Route::post('messages/{message}/reactions', [MessageController::class, 'toggleReaction'])->name('messages.reactions.toggle');
 
     Route::get('dev/component-lab', function () {
         abort_unless(app()->environment('local'), 404);
