@@ -30,5 +30,10 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('isHqAdmin', fn(User $user) => $user->isHqAdmin());
         Gate::define('isCentreAdmin', fn(User $user) => $user->isCentreAdmin());
         Gate::define('isStationAdmin', fn(User $user) => $user->isStationAdmin());
+
+        // Laravel Pulse access - Only Super Admins
+        Gate::define('viewPulse', function (User $user) {
+            return $user->isSuperAdmin();
+        });
     }
 }
