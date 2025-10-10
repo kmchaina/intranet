@@ -218,8 +218,8 @@ class UserAdminController extends Controller
             'station_id' => 'nullable|integer',
             'department_id' => 'nullable|integer',
             'phone' => 'nullable|string|max:20',
-            'birth_date' => 'nullable|date',
-            'hire_date' => 'nullable|date',
+            'birth_date' => 'nullable|date|before:today',
+            'hire_date' => 'nullable|date|before_or_equal:today',
             'employee_id' => 'nullable|string|max:50|unique:users,employee_id',
         ], [
             'email.regex' => 'Email address must be from the @nimr.or.tz domain.'

@@ -49,7 +49,7 @@ class BirthdayController extends Controller
     public function updateProfile(Request $request)
     {
         $request->validate([
-            'birth_date' => 'nullable|date',
+            'birth_date' => 'nullable|date|before:today',
             'birthday_visibility' => 'required|in:public,team,private'
         ]);
 
