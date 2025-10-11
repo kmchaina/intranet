@@ -43,8 +43,7 @@
                 {{-- Welcome Card --}}
                 <div class="card-premium overflow-hidden relative bg-white border border-gray-200 min-h-[280px]">
                     <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-                        <img src="{{ asset('images/svg/people.svg') }}" alt="Welcome"
-                            class="w-full h-full object-cover">
+                        <img src="{{ asset('images/svg/people.svg') }}" alt="Welcome" class="w-full h-full object-cover">
                     </div>
                     <div class="relative z-10 p-6 h-full flex items-start justify-end">
                         @php
@@ -142,8 +141,8 @@
                     <div class="p-6 border-b border-indigo-100" style="background-color: rgba(37, 99, 235, 0.1);">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <div
-                                    class="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg" style="background-color: #2563eb;">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg"
+                                    style="background-color: #2563eb;">
                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -155,8 +154,8 @@
                                     <p class="text-xs text-nimr-neutral-600">Today's celebrations</p>
                                 </div>
                             </div>
-                            <a href="{{ route('birthdays.index') }}"
-                                class="text-sm font-semibold flex items-center gap-1" style="color: #2563eb;">
+                            <a href="{{ route('birthdays.index') }}" class="text-sm font-semibold flex items-center gap-1"
+                                style="color: #2563eb;">
                                 View all
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -172,8 +171,8 @@
                                 @foreach ($todaysBirthdays->take(4) as $user)
                                     <a href="{{ route('birthdays.wishes', $user) }}"
                                         class="flex items-center gap-3 p-3 rounded-lg border border-nimr-neutral-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 group">
-                                        <div
-                                            class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 group-hover:scale-110 transition-transform shadow-md" style="background-color: #2563eb;">
+                                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 group-hover:scale-110 transition-transform shadow-md"
+                                            style="background-color: #2563eb;">
                                             {{ substr($user->name, 0, 1) }}
                                         </div>
                                         <div class="flex-1 min-w-0">
@@ -198,20 +197,25 @@
                                 <p class="text-4xl mb-2">🎂</p>
                                 <p class="text-sm text-nimr-neutral-500 mb-2">No birthdays today</p>
                                 @if (!auth()->user()->birth_date)
-                                    <div
-                                        class="border border-indigo-200 rounded-lg p-4 mb-4" style="background-color: rgba(37, 99, 235, 0.1);">
+                                    <div class="border border-indigo-200 rounded-lg p-4 mb-4"
+                                        style="background-color: rgba(37, 99, 235, 0.1);">
                                         <p class="text-sm text-indigo-700 font-medium mb-2">🎉 Want us to celebrate your
                                             birthday?</p>
                                         <p class="text-xs text-indigo-600 mb-3">Add your birth date so we can celebrate
                                             with you!</p>
                                         <a href="{{ route('birthdays.index') }}"
-                                            class="inline-flex items-center px-3 py-1.5 text-white text-xs font-medium rounded-md transition-all duration-200" style="background-color: #2563eb;" onmouseover="this.style.backgroundColor='#1d4ed8'" onmouseout="this.style.backgroundColor='#2563eb'">
+                                            class="inline-flex items-center px-3 py-1.5 text-white text-xs font-medium rounded-md transition-all duration-200"
+                                            style="background-color: #2563eb;"
+                                            onmouseover="this.style.backgroundColor='#1d4ed8'"
+                                            onmouseout="this.style.backgroundColor='#2563eb'">
                                             Add My Birthday
                                         </a>
                                     </div>
                                 @endif
                                 <a href="{{ route('birthdays.index') }}"
-                                    class="inline-flex items-center px-4 py-2 text-white text-sm font-medium rounded-lg transition-all duration-200" style="background-color: #2563eb;" onmouseover="this.style.backgroundColor='#1d4ed8'" onmouseout="this.style.backgroundColor='#2563eb'">
+                                    class="inline-flex items-center px-4 py-2 text-white text-sm font-medium rounded-lg transition-all duration-200"
+                                    style="background-color: #2563eb;" onmouseover="this.style.backgroundColor='#1d4ed8'"
+                                    onmouseout="this.style.backgroundColor='#2563eb'">
                                     View All Birthdays
                                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -244,8 +248,8 @@
                     <div class="p-6 border-b border-indigo-100" style="background-color: rgba(37, 99, 235, 0.1);">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <div
-                                    class="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg" style="background-color: #2563eb;">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg"
+                                    style="background-color: #2563eb;">
                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -275,24 +279,30 @@
                                     <a href="{{ route('announcements.show', $announcement) }}"
                                         class="block p-4 rounded-xl border border-nimr-neutral-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 hover:shadow-md group">
                                         <div class="flex items-start gap-3">
-                                            <div
-                                                class="w-2 h-2 rounded-full mt-2 group-hover:scale-125 transition-transform" style="background-color: #2563eb;">
+                                            <div class="w-10 h-10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm"
+                                                style="background-color: #2563eb;">
+                                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                                                </svg>
                                             </div>
                                             <div class="flex-1 min-w-0">
-                                                <p
-                                                    class="font-semibold text-nimr-neutral-900 group-hover:text-indigo-700 line-clamp-2">
-                                                    {{ $announcement->title }}</p>
-                                                <div class="flex items-center gap-2 mt-2 text-xs text-nimr-neutral-500">
-                                                    <span class="inline-flex items-center gap-1">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                        </svg>
-                                                        {{ $announcement->creator->name ?? 'Unknown' }}
-                                                    </span>
-                                                    <span class="text-nimr-neutral-300">•</span>
+                                                <div class="flex items-start gap-2 mb-2">
+                                                    <p
+                                                        class="flex-1 font-semibold text-nimr-neutral-900 group-hover:text-indigo-700 line-clamp-2">
+                                                        {{ $announcement->title }}
+                                                    </p>
+                                                    @if (!$announcement->isReadBy(auth()->user()))
+                                                        <span
+                                                            class="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full shadow-md animate-pulse flex-shrink-0">
+                                                            <span
+                                                                class="w-1.5 h-1.5 bg-white rounded-full animate-ping"></span>
+                                                            UNREAD
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <div class="flex items-center gap-2 text-xs text-nimr-neutral-500">
                                                     <span class="inline-flex items-center gap-1">
                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor"
                                                             viewBox="0 0 24 24">
@@ -328,8 +338,8 @@
                     <div class="p-6 border-b border-indigo-100" style="background-color: rgba(37, 99, 235, 0.1);">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <div
-                                    class="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg" style="background-color: #2563eb;">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg"
+                                    style="background-color: #2563eb;">
                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -341,8 +351,8 @@
                                     <p class="text-xs text-nimr-neutral-600">Don't miss what's happening</p>
                                 </div>
                             </div>
-                            <a href="{{ route('events.index') }}"
-                                class="text-sm font-semibold flex items-center gap-1" style="color: #2563eb;">
+                            <a href="{{ route('events.index') }}" class="text-sm font-semibold flex items-center gap-1"
+                                style="color: #2563eb;">
                                 View all
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -358,12 +368,12 @@
                                 @foreach ($upcomingEvents->take(5) as $event)
                                     <div
                                         class="flex items-start gap-4 p-4 rounded-xl border border-nimr-neutral-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 hover:shadow-md group">
-                                        <div
-                                            class="w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform" style="background-color: rgba(37, 99, 235, 0.1);">
-                                            <span
-                                                class="text-xs font-semibold uppercase" style="color: #2563eb;">{{ $event->start_datetime->format('M') }}</span>
-                                            <span
-                                                class="text-lg font-bold" style="color: #1d4ed8;">{{ $event->start_datetime->format('d') }}</span>
+                                        <div class="w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform"
+                                            style="background-color: rgba(37, 99, 235, 0.1);">
+                                            <span class="text-xs font-semibold uppercase"
+                                                style="color: #2563eb;">{{ $event->start_datetime->format('M') }}</span>
+                                            <span class="text-lg font-bold"
+                                                style="color: #1d4ed8;">{{ $event->start_datetime->format('d') }}</span>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <p
@@ -393,8 +403,8 @@
                                                 @endif
                                             </div>
                                         </div>
-                                        <a href="{{ route('events.show', $event) }}"
-                                            class="btn btn-sm flex-shrink-0" style="background-color: #2563eb; color: white; border: 1px solid #2563eb;">
+                                        <a href="{{ route('events.show', $event) }}" class="btn btn-sm flex-shrink-0"
+                                            style="background-color: #2563eb; color: white; border: 1px solid #2563eb;">
                                             View
                                         </a>
                                     </div>
@@ -433,8 +443,8 @@
                     {{-- Documents --}}
                     <a href="{{ route('documents.index') }}"
                         class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 group">
-                        <div
-                            class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style="background-color: #3b82f6;">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
+                            style="background-color: #3b82f6;">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -447,8 +457,8 @@
                     {{-- Announcements --}}
                     <a href="{{ route('announcements.index') }}"
                         class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-purple-400 hover:bg-purple-50 transition-all duration-200 group">
-                        <div
-                            class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style="background-color: #8b5cf6;">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
+                            style="background-color: #8b5cf6;">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
@@ -461,8 +471,8 @@
                     {{-- News --}}
                     <a href="{{ route('news.index') }}"
                         class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-pink-400 hover:bg-pink-50 transition-all duration-200 group">
-                        <div
-                            class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style="background-color: #ec4899;">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
+                            style="background-color: #ec4899;">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
@@ -474,8 +484,8 @@
                     {{-- Events --}}
                     <a href="{{ route('events.index') }}"
                         class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-green-400 hover:bg-green-50 transition-all duration-200 group">
-                        <div
-                            class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style="background-color: #10b981;">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
+                            style="background-color: #10b981;">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 012-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -487,8 +497,8 @@
                     {{-- Polls --}}
                     <a href="{{ route('polls.index') }}"
                         class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 group">
-                        <div
-                            class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style="background-color: #f59e0b;">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
+                            style="background-color: #f59e0b;">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -500,8 +510,8 @@
                     {{-- Messages --}}
                     <a href="{{ route('messages.index') }}"
                         class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-200 group">
-                        <div
-                            class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style="background-color: #6366f1;">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
+                            style="background-color: #6366f1;">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -514,8 +524,8 @@
                     {{-- Feedback --}}
                     <a href="{{ route('feedback.index') }}"
                         class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 group">
-                        <div
-                            class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style="background-color: #0ea5e9;">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
+                            style="background-color: #0ea5e9;">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
@@ -527,8 +537,8 @@
                     {{-- System Links --}}
                     <a href="{{ route('system-links.index') }}"
                         class="flex items-center gap-2.5 p-2.5 rounded-lg border border-nimr-neutral-200 hover:border-teal-400 hover:bg-teal-50 transition-all duration-200 group">
-                        <div
-                            class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style="background-color: #14b8a6;">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
+                            style="background-color: #14b8a6;">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
@@ -540,7 +550,8 @@
                 </div>
 
                 {{-- Online People Section --}}
-                <div class="border border-green-200 p-4 rounded-xl mt-3" style="background-color: rgba(37, 99, 235, 0.05);">
+                <div class="border border-green-200 p-4 rounded-xl mt-3"
+                    style="background-color: rgba(37, 99, 235, 0.05);">
                     <div class="flex items-center gap-2 mb-3">
                         <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                         <h3 class="text-xs font-bold text-nimr-neutral-900">Online Now</h3>
@@ -550,8 +561,8 @@
                         @forelse($onlineUsers as $onlineUser)
                             <div class="flex items-center gap-2 p-2 rounded-lg hover:bg-white/50 transition-colors">
                                 <div class="relative flex-shrink-0">
-                                    <div
-                                        class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm" style="background-color: #2563eb;">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm"
+                                        style="background-color: #2563eb;">
                                         {{ substr($onlineUser->name, 0, 1) }}
                                     </div>
                                     <div

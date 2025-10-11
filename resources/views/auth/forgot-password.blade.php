@@ -2,8 +2,8 @@
 
 <x-guest-layout>
     <div class="mb-6 text-center">
-        <div
-            class="w-16 h-16 bg-gradient-to-br from-nimr-primary-500 to-nimr-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            style="background: linear-gradient(to bottom right, #2563eb, #1e40af);">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
@@ -47,8 +47,9 @@
 
         {{-- Back to Login --}}
         <div class="text-center pt-4 border-t border-nimr-neutral-200">
-            <a href="{{ route('login') }}"
-                class="text-sm font-medium text-nimr-primary-600 hover:text-nimr-primary-700 hover:underline transition-colors inline-flex items-center gap-1">
+            <a href="{{ route('login') }}" style="color: #2563eb;"
+                class="text-sm font-medium hover:underline transition-colors inline-flex items-center gap-1"
+                onmouseover="this.style.color='#1e40af'" onmouseout="this.style.color='#2563eb'">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18" />

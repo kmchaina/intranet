@@ -1,137 +1,191 @@
 # NIMR Intranet System Development Budget
 
-## Project Overview
-**Project:** NIMR Intranet System Development  
-**Duration:** 5 weeks total (3 weeks development + 1 week documentation + 1 week deployment)  
-**Daily Rate:** Tshs. 150,000/=  
-**Budget Period:** Development, Documentation & Deployment  
+## Project Information
+| **Item** | **Details** |
+|----------|-------------|
+| Project Name | NIMR Intranet System Development |
+| Total Duration | 5 weeks |
+| Daily Rate | Tshs. 150,000/= per developer |
+| Budget Period | Development, Documentation & Deployment |
+| Project Start | [To be determined] |
+| Project End | [To be determined] |
 
 ---
 
-## Team Composition & Allocation
+## Phase Breakdown
 
-### Week 1-3: System Development
-**Duration:** 21 days (3 weeks)  
-**Team Members:**
-- Kusa Mchaina (Developer)
-- Fagason Mduma (Developer)
-
-**Daily Cost:** Tshs. 300,000/= (2 developers × Tshs. 150,000/=)  
-**Development Total:** Tshs. 6,300,000/=
-
-### Week 4: Documentation
-**Duration:** 7 days  
-**Team Members:**
-- Kusa Mchaina (Developer/Documentation Specialist)
-
-**Daily Cost:** Tshs. 150,000/= (1 developer × Tshs. 150,000/=)  
-**Documentation Total:** Tshs. 1,050,000/=
-
-### Week 5: Deployment
-**Duration:** 7 days  
-**Team Members:**
-- John Mduda (Deployment Specialist)
-- Kusa Mchaina (Developer)
-
-**Daily Cost:** Tshs. 300,000/= (2 developers × Tshs. 150,000/=)  
-**Deployment Total:** Tshs. 2,100,000/=
+| **Phase** | **Week(s)** | **Duration** | **Team Members** | **Daily Cost** | **Phase Total** |
+|-----------|-------------|--------------|------------------|----------------|-----------------|
+| Development | 1-3 | 21 days | Kusa Mchaina, Fagason Mduma | Tshs. 300,000/= | **Tshs. 6,300,000/=** |
+| Documentation | 4 | 7 days | Kusa Mchaina | Tshs. 150,000/= | **Tshs. 1,050,000/=** |
+| Deployment | 5 | 7 days | John Mduda, Kusa Mchaina | Tshs. 300,000/= | **Tshs. 2,100,000/=** |
+| | | **35 days** | | | **Tshs. 9,450,000/=** |
 
 ---
 
-## Budget Breakdown
+## Detailed Task Breakdown by Phase
 
-| Phase | Duration | Team Members | Daily Rate | Daily Cost | Total Cost |
-|-------|----------|--------------|------------|------------|------------|
-| Development | 21 days | Kusa Mchaina, Fagason Mduma | Tshs. 150,000/= each | Tshs. 300,000/= | **Tshs. 6,300,000/=** |
-| Documentation | 7 days | Kusa Mchaina | Tshs. 150,000/= | Tshs. 150,000/= | **Tshs. 1,050,000/=** |
-| Deployment | 7 days | John Mduda, Kusa Mchaina | Tshs. 150,000/= each | Tshs. 300,000/= | **Tshs. 2,100,000/=** |
+### Phase 1: Development (Week 1-3) - 21 Days Total
 
-### **TOTAL PROJECT COST: Tshs. 9,450,000/=**
+#### Week 1: System Foundation & Architecture (7 Days)
+| **Task** | **Duration** | **Description** | **Responsible** | **Cost** |
+|----------|--------------|-----------------|-----------------|----------|
+| Project Setup & Environment | 1 day | Development environment setup, version control, project structure | Kusa Mchaina, Fagason Mduma | Tshs. 300,000/= |
+| Database Design & Schema | 2 days | Database architecture, table design, relationships, data modeling | Kusa Mchaina, Fagason Mduma | Tshs. 600,000/= |
+| System Architecture Planning | 2 days | System design, module planning, API structure, security framework | Kusa Mchaina, Fagason Mduma | Tshs. 600,000/= |
+| Authentication System | 2 days | User login, session management, role-based access control | Kusa Mchaina, Fagason Mduma | Tshs. 600,000/= |
+| **Week 1 Total** | **7 days** | | | **Tshs. 2,100,000/=** |
+
+#### Week 2: Core Functionality Development (7 Days)
+| **Task** | **Duration** | **Description** | **Responsible** | **Cost** |
+|----------|--------------|-----------------|-----------------|----------|
+| User Management Module | 2 days | User registration, profile management, user roles | Kusa Mchaina, Fagason Mduma | Tshs. 600,000/= |
+| Document Management System | 2 days | File upload, storage, categorization, version control | Kusa Mchaina, Fagason Mduma | Tshs. 600,000/= |
+| News & Announcements | 1 day | News posting, announcement system, notifications | Kusa Mchaina, Fagason Mduma | Tshs. 300,000/= |
+| Communication Tools | 2 days | Internal messaging, discussion forums, chat features | Kusa Mchaina, Fagason Mduma | Tshs. 600,000/= |
+| **Week 2 Total** | **7 days** | | | **Tshs. 2,100,000/=** |
+
+#### Week 3: UI/UX & Integration (7 Days)
+| **Task** | **Duration** | **Description** | **Responsible** | **Cost** |
+|----------|--------------|-----------------|-----------------|----------|
+| Frontend Development | 3 days | User interface design, responsive layout, navigation | Kusa Mchaina, Fagason Mduma | Tshs. 900,000/= |
+| API Integration | 2 days | Backend-frontend integration, API endpoints, data flow | Kusa Mchaina, Fagason Mduma | Tshs. 600,000/= |
+| Testing & Bug Fixes | 1 day | Unit testing, integration testing, bug resolution | Kusa Mchaina, Fagason Mduma | Tshs. 300,000/= |
+| Security Implementation | 1 day | Security testing, vulnerability assessment, fixes | Kusa Mchaina, Fagason Mduma | Tshs. 300,000/= |
+| **Week 3 Total** | **7 days** | | | **Tshs. 2,100,000/=** |
+
+**Development Phase Total: 21 days - Tshs. 6,300,000/=**
 
 ---
 
-## Individual Developer Costs
+### Phase 2: Documentation (Week 4) - 7 Days Total
 
-### Kusa Mchaina
-- Week 1-3 (Development): Tshs. 3,150,000/=
-- Week 4 (Documentation): Tshs. 1,050,000/=
-- Week 5 (Deployment): Tshs. 1,050,000/=
-- **Total for Kusa Mchaina: Tshs. 5,250,000/=**
-
-### Fagason Mduma
-- Week 1-3 (Development): Tshs. 3,150,000/=
-- **Total for Fagason Mduma: Tshs. 3,150,000/=**
-
-### John Mduda
-- Week 5 (Deployment): Tshs. 1,050,000/=
-- **Total for John Mduda: Tshs. 1,050,000/=**
+| **Task** | **Duration** | **Description** | **Responsible** | **Cost** |
+|----------|--------------|-----------------|-----------------|----------|
+| Technical Documentation | 2 days | System architecture docs, API documentation, code comments | Kusa Mchaina | Tshs. 300,000/= |
+| User Manual Creation | 2 days | End-user guides, step-by-step instructions, screenshots | Kusa Mchaina | Tshs. 300,000/= |
+| Administrator Guide | 1 day | System admin procedures, maintenance tasks, troubleshooting | Kusa Mchaina | Tshs. 150,000/= |
+| Training Materials | 1 day | Training presentations, video guides, quick reference cards | Kusa Mchaina | Tshs. 150,000/= |
+| Installation Guide | 1 day | Deployment procedures, server requirements, configuration | Kusa Mchaina | Tshs. 150,000/= |
+| **Documentation Total** | **7 days** | **400+ pages total documentation** | | **Tshs. 1,050,000/=** |
 
 ---
 
-## Payment Schedule Recommendation
+### Phase 3: Deployment (Week 5) - 7 Days Total
 
-### Option 1: Weekly Payments
-- **Week 1-3 Payment:** Tshs. 6,300,000/= (Development phase - 3 weeks)
-- **Week 4 Payment:** Tshs. 1,050,000/= (Documentation phase)
-- **Week 5 Payment:** Tshs. 2,100,000/= (Deployment phase)
+| **Task** | **Duration** | **Description** | **Responsible** | **Cost** |
+|----------|--------------|-----------------|-----------------|----------|
+| Server Setup & Configuration | 2 days | Server installation, environment setup, security configuration | John Mduda, Kusa Mchaina | Tshs. 600,000/= |
+| System Deployment | 1 day | Application deployment, database migration, initial data setup | John Mduda, Kusa Mchaina | Tshs. 300,000/= |
+| Performance Optimization | 1 day | System tuning, performance testing, optimization | John Mduda, Kusa Mchaina | Tshs. 300,000/= |
+| User Training Sessions | 2 days | Staff training, hands-on sessions, Q&A support | John Mduda, Kusa Mchaina | Tshs. 600,000/= |
+| Go-Live Support & Handover | 1 day | System launch, monitoring, issue resolution, final handover | John Mduda, Kusa Mchaina | Tshs. 300,000/= |
+| **Deployment Total** | **7 days** | | | **Tshs. 2,100,000/=** |
+
+---
+
+## Individual Developer Allocation & Costs
+
+| **Developer** | **Week 1-3** | **Week 4** | **Week 5** | **Total Days** | **Total Cost** |
+|---------------|--------------|------------|------------|----------------|----------------|
+| Kusa Mchaina | Development (21 days) | Documentation (7 days) | Deployment (7 days) | 35 days | **Tshs. 5,250,000/=** |
+| Fagason Mduma | Development (21 days) | - | - | 21 days | **Tshs. 3,150,000/=** |
+| John Mduda | - | - | Deployment (7 days) | 7 days | **Tshs. 1,050,000/=** |
+| **TOTALS** | | | | **63 days** | **Tshs. 9,450,000/=** |
+
+---
+
+## Weekly Cost Breakdown
+
+| **Week** | **Phase** | **Team Members** | **Days** | **Daily Cost** | **Weekly Total** |
+|----------|-----------|------------------|----------|----------------|------------------|
+| Week 1 | Development | Kusa Mchaina, Fagason Mduma | 7 | Tshs. 300,000/= | **Tshs. 2,100,000/=** |
+| Week 2 | Development | Kusa Mchaina, Fagason Mduma | 7 | Tshs. 300,000/= | **Tshs. 2,100,000/=** |
+| Week 3 | Development | Kusa Mchaina, Fagason Mduma | 7 | Tshs. 300,000/= | **Tshs. 2,100,000/=** |
+| Week 4 | Documentation | Kusa Mchaina | 7 | Tshs. 150,000/= | **Tshs. 1,050,000/=** |
+| Week 5 | Deployment | John Mduda, Kusa Mchaina | 7 | Tshs. 300,000/= | **Tshs. 2,100,000/=** |
+| | | | **35 days** | | **Tshs. 9,450,000/=** |
+
+---
+
+## Payment Schedule Options
+
+### Option 1: Phase-Based Payments
+| **Payment** | **Phase** | **Amount** | **Percentage** |
+|-------------|-----------|------------|----------------|
+| Payment 1 | Development Completion | Tshs. 6,300,000/= | 66.7% |
+| Payment 2 | Documentation Completion | Tshs. 1,050,000/= | 11.1% |
+| Payment 3 | Deployment Completion | Tshs. 2,100,000/= | 22.2% |
+| **TOTAL** | | **Tshs. 9,450,000/=** | **100%** |
 
 ### Option 2: Milestone-Based Payments
-- **30% Upfront:** Tshs. 2,835,000/= (Project initiation)
-- **50% Mid-project:** Tshs. 4,725,000/= (Development completion)
-- **20% Final:** Tshs. 1,890,000/= (Deployment completion)
+| **Payment** | **Milestone** | **Amount** | **Percentage** |
+|-------------|---------------|------------|----------------|
+| Payment 1 | Project Initiation | Tshs. 2,835,000/= | 30% |
+| Payment 2 | Development Completion | Tshs. 4,725,000/= | 50% |
+| Payment 3 | Final Delivery | Tshs. 1,890,000/= | 20% |
+| **TOTAL** | | **Tshs. 9,450,000/=** | **100%** |
 
 ---
 
-## Project Deliverables
+## Deliverables by Phase
 
-### Week 1-3 - Development Phase
-- Complete NIMR Intranet system development
-- Core functionality implementation
-- User interface development
-- Database design and implementation
-- Security features integration
-- Initial testing and debugging
-- **Deliverable:** Functional intranet system
-
-### Week 4 - Documentation Phase
-- User manuals and guides
-- Technical documentation
-- Administrative procedures
-- Training materials
-- **Deliverable:** Complete documentation suite (400+ pages)
-
-### Week 5 - Deployment Phase
-- System deployment and configuration
-- Server setup and optimization
-- User training and handover
-- Go-live support
-- **Deliverable:** Live, operational intranet system
+| **Phase** | **Duration** | **Key Deliverables** | **Responsible** |
+|-----------|--------------|---------------------|-----------------|
+| Development | 3 weeks | • Complete system architecture<br>• Core functionality<br>• User interface<br>• Database implementation<br>• Security features<br>• Initial testing | Kusa Mchaina<br>Fagason Mduma |
+| Documentation | 1 week | • User manuals<br>• Technical documentation<br>• Admin procedures<br>• Training materials<br>• 400+ pages total | Kusa Mchaina |
+| Deployment | 1 week | • System deployment<br>• Server configuration<br>• User training<br>• Go-live support<br>• Handover | John Mduda<br>Kusa Mchaina |
 
 ---
 
 ## Budget Summary
 
-| **Item** | **Amount (Tshs.)** |
-|----------|-------------------|
-| Total Development Cost | 9,450,000/= |
-| Contingency (10%) | 945,000/= |
-| **GRAND TOTAL** | **10,395,000/=** |
+| **Cost Category** | **Amount (Tshs.)** | **Percentage** |
+|-------------------|-------------------|----------------|
+| Development Phase | 6,300,000/= | 66.7% |
+| Documentation Phase | 1,050,000/= | 11.1% |
+| Deployment Phase | 2,100,000/= | 22.2% |
+| **Subtotal** | **9,450,000/=** | **100%** |
+| Contingency (10%) | 945,000/= | 10% |
+| **GRAND TOTAL** | **10,395,000/=** | **110%** |
 
 ---
 
-## Notes
-1. All rates are inclusive of professional services
-2. Contingency budget recommended for unforeseen technical challenges
-3. Payment terms to be agreed upon contract signing
-4. Budget assumes standard working days (Monday-Friday)
-5. Weekend work, if required, may incur additional charges
+## Risk Management & Contingency
+
+| **Risk Category** | **Contingency Amount** | **Purpose** |
+|-------------------|------------------------|-------------|
+| Technical Challenges | Tshs. 472,500/= | Complex integration issues |
+| Scope Changes | Tshs. 283,500/= | Additional requirements |
+| Timeline Extensions | Tshs. 189,000/= | Unforeseen delays |
+| **Total Contingency** | **Tshs. 945,000/=** | **10% of project cost** |
 
 ---
 
-**Prepared by:** Project Management Team  
-**Date:** [Current Date]  
-**Approved by:** [To be filled]
+## Terms & Conditions
+
+| **Item** | **Details** |
+|----------|-------------|
+| Payment Terms | Net 30 days from invoice date |
+| Currency | Tanzanian Shillings (Tshs.) |
+| Working Days | Monday to Friday |
+| Working Hours | 8 hours per day |
+| Overtime Rate | 1.5x standard rate |
+| Budget Validity | 30 days from preparation date |
+| Contract Duration | 5 weeks from project start |
 
 ---
 
-*This budget is valid for 30 days from the date of preparation and subject to terms and conditions in the project contract.*
+**Document Information**
+| **Field** | **Value** |
+|-----------|-----------|
+| Prepared By | Project Management Team |
+| Date Prepared | [Current Date] |
+| Version | 1.0 |
+| Status | Draft |
+| Approved By | [To be filled] |
+| Approval Date | [To be filled] |
+
+---
+
+*This budget document is subject to final contract terms and conditions. All amounts are exclusive of applicable taxes unless otherwise specified.*

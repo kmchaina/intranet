@@ -64,8 +64,9 @@
             </label>
 
             @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}"
-                    class="text-sm font-medium text-nimr-primary-600 hover:text-nimr-primary-700 hover:underline transition-colors">
+                <a href="{{ route('password.request') }}" style="color: #2563eb;"
+                    class="text-sm font-medium hover:underline transition-colors"
+                    onmouseover="this.style.color='#1e40af'" onmouseout="this.style.color='#2563eb'">
                     Forgot password?
                 </a>
             @endif
@@ -85,8 +86,9 @@
             <div class="text-center pt-4 border-t border-nimr-neutral-200">
                 <p class="text-sm text-nimr-neutral-600">
                     Don't have an account?
-                    <a href="{{ route('register') }}"
-                        class="font-medium text-nimr-primary-600 hover:text-nimr-primary-700 hover:underline transition-colors">
+                    <a href="{{ route('register') }}" style="color: #2563eb;"
+                        class="font-medium hover:underline transition-colors" onmouseover="this.style.color='#1e40af'"
+                        onmouseout="this.style.color='#2563eb'">
                         Create one here
                     </a>
                 </p>

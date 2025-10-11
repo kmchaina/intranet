@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class HqUserController extends Controller
@@ -21,19 +22,43 @@ class HqUserController extends Controller
         }
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->ensureHqAdmin();
 
-        $users = User::whereNull('centre_id')
+        $query = User::whereNull('centre_id')
             ->whereNull('station_id')
-            ->where('role', 'staff')
-            ->orderBy('name')
-            ->get();
+            ->where('role', 'staff');
 
-        return view('admin.users.hq.index', [
-            'users' => $users,
-        ]);
+        // Search
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Filter by status
+        if ($status = $request->input('status')) {
+            if ($status === 'verified') {
+                $query->whereNotNull('email_verified_at');
+            } elseif ($status === 'unverified') {
+                $query->whereNull('email_verified_at');
+            }
+        }
+
+        $users = $query->orderBy('name')->paginate(20)->withQueryString();
+
+        // Calculate stats
+        $baseQuery = User::whereNull('centre_id')->whereNull('station_id')->where('role', 'staff');
+        $stats = [
+            'total' => (clone $baseQuery)->count(),
+            'active' => (clone $baseQuery)->whereNotNull('email_verified_at')->count(),
+            'new_this_month' => (clone $baseQuery)->where('created_at', '>=', now()->startOfMonth())->count(),
+            'unverified' => (clone $baseQuery)->whereNull('email_verified_at')->count(),
+        ];
+
+        return view('admin.users.hq.index', compact('users', 'stats'));
     }
 
     public function create(): View
@@ -58,9 +83,12 @@ class HqUserController extends Controller
                 'unique:users,email',
                 'regex:/^[a-zA-Z0-9._%+-]+@nimr\.or\.tz$/'
             ],
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'confirmed', Password::defaults()],
             'phone' => 'nullable|string|max:20',
             'employee_id' => 'nullable|string|max:50|unique:users,employee_id',
+            'bio' => 'nullable|string|max:500',
+            'birth_date' => 'nullable|date|before_or_equal:today',
+            'hire_date' => 'nullable|date',
         ], [
             'email.regex' => 'Email address must be from the @nimr.or.tz domain.'
         ]);
@@ -73,6 +101,9 @@ class HqUserController extends Controller
             'password' => Hash::make($validated['password']),
             'phone' => $validated['phone'] ?? null,
             'employee_id' => $validated['employee_id'] ?? null,
+            'bio' => $validated['bio'] ?? null,
+            'birth_date' => $validated['birth_date'] ?? null,
+            'hire_date' => $validated['hire_date'] ?? null,
             'role' => 'staff',
             'headquarters_id' => $admin->headquarters_id,
         ]);
@@ -119,7 +150,10 @@ class HqUserController extends Controller
             ],
             'phone' => 'nullable|string|max:20',
             'employee_id' => 'nullable|string|max:50|unique:users,employee_id,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'bio' => 'nullable|string|max:500',
+            'birth_date' => 'nullable|date|before_or_equal:today',
+            'hire_date' => 'nullable|date',
+            'password' => ['nullable', 'confirmed', Password::defaults()],
         ], [
             'email.regex' => 'Email address must be from the @nimr.or.tz domain.'
         ]);
@@ -128,6 +162,9 @@ class HqUserController extends Controller
         $user->email = $validated['email'];
         $user->phone = $validated['phone'] ?? null;
         $user->employee_id = $validated['employee_id'] ?? null;
+        $user->bio = $validated['bio'] ?? null;
+        $user->birth_date = $validated['birth_date'] ?? null;
+        $user->hire_date = $validated['hire_date'] ?? null;
 
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);

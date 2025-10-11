@@ -115,22 +115,34 @@
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open=!open"
                                 class="flex items-center space-x-2 p-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                                <img class="w-8 h-8 rounded-full object-cover border border-gray-200"
-                                    src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=3b82f6&color=ffffff"
-                                    alt="{{ auth()->user()->name }}">
+                                @if (auth()->user()->profile_picture)
+                                    <img class="w-8 h-8 rounded-full object-cover border border-gray-200"
+                                        src="{{ asset('storage/' . auth()->user()->profile_picture) }}"
+                                        alt="{{ auth()->user()->name }}">
+                                @else
+                                    <img class="w-8 h-8 rounded-full object-cover border border-gray-200"
+                                        src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=3b82f6&color=ffffff"
+                                        alt="{{ auth()->user()->name }}">
+                                @endif
                             </button>
                             <div x-show="open" x-cloak @click.away="open=false" x-transition
                                 class="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                                 <div class="p-4 border-b border-gray-200 flex items-center space-x-3">
-                                    <img class="w-10 h-10 rounded-full object-cover border border-gray-200"
-                                        src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=3b82f6&color=ffffff"
-                                        alt="{{ auth()->user()->name }}">
+                                    @if (auth()->user()->profile_picture)
+                                        <img class="w-10 h-10 rounded-full object-cover border border-gray-200"
+                                            src="{{ asset('storage/' . auth()->user()->profile_picture) }}"
+                                            alt="{{ auth()->user()->name }}">
+                                    @else
+                                        <img class="w-10 h-10 rounded-full object-cover border border-gray-200"
+                                            src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=3b82f6&color=ffffff"
+                                            alt="{{ auth()->user()->name }}">
+                                    @endif
                                     <div>
                                         <p class="font-medium text-gray-900">{{ auth()->user()->name }}</p>
                                     </div>
                                 </div>
                                 <div class="p-2">
-                                    <a href="#"
+                                    <a href="{{ route('profile.show') }}"
                                         class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">Profile
                                         Settings</a>
                                     <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit"

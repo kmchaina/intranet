@@ -1,1 +1,223 @@
-@extends('layouts.dashboard') @section('title', 'Password Vault') @section('content') <div class="bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-100/40 min-h-screen"> <div class="max-w-7xl mx-auto p-6"> <x-breadcrumbs :items="[[ 'label' => 'Dashboard', 'href' => route('dashboard') ], [ 'label' => 'Password Vault' ]]" /> <!-- Header Section --> <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6"> <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-6 rounded-t-xl"> <div class="flex items-center justify-between"> <div class="flex items-center space-x-4"> <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"> <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path> </svg> </div> <div> <h1 class="text-2xl font-bold text-white">🔐 Password Vault</h1> <p class="text-indigo-100 mt-1">Secure storage for all your passwords and credentials</p> </div> </div> <a href="{{ route('password-vault.create') }}" class="inline-flex items-center px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-medium rounded-lg transition-colors duration-200 backdrop-blur-sm"> <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path> </svg> Add Password </a> </div> </div> </div> <!-- Stats Cards --> <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"> <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4"> <div class="flex items-center"> <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"> <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path> </svg> </div> <div class="ml-3"> <p class="text-sm font-medium text-gray-600">Total Passwords</p> <p class="text-lg font-semibold text-gray-900">{{ $passwords->count() }}</p> </div> </div> </div> <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4"> <div class="flex items-center"> <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center"> <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path> </svg> </div> <div class="ml-3"> <p class="text-sm font-medium text-gray-600">Favorites</p> <p class="text-lg font-semibold text-gray-900">{{ $passwords->where('is_favorite', true)->count() }}</p> </div> </div> </div> </div> <!-- Filters --> <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-6"> <form method="GET" class="flex flex-col sm:flex-row gap-4"> <div class="flex-1"> <div class="relative"> <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"> <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path> </svg> </div> <input type="text" name="search" value="{{ $search }}" placeholder="Search passwords, usernames, or websites..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"> </div> </div> <div class="flex gap-3"> <select name="category" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm"> <option value="">All Categories</option> @foreach ($categories as $key => $label) <option value="{{ $key }}" {{ $category === $key ? 'selected' : '' }}> {{ $label }} </option> @endforeach </select> @if ($folders->count() > 0) <select name="folder" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm"> <option value="">All Folders</option> @foreach ($folders as $folderName) <option value="{{ $folderName }}" {{ $folder === $folderName ? 'selected' : '' }}> 📁 {{ $folderName }} </option> @endforeach </select> @endif <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200"> Filter </button> @if ($search || $category || $folder) <a href="{{ route('password-vault.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg text-sm transition-colors duration-200"> Clear </a> @endif </div> </form> </div> <!-- Password List --> @if ($passwords->count() > 0) <div class="grid grid-cols-1 lg:grid-cols-2 gap-4"> @foreach ($passwords as $password) <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 p-5"> <div class="flex items-start justify-between"> <!-- Left Section --> <div class="flex items-start space-x-4 flex-1"> <!-- Website Favicon/Icon --> <div class="w-12 h-12 rounded-lg flex items-center justify-center @if ($password->category === 'work') bg-blue-100 text-blue-600 @elseif($password->category === 'personal') bg-green-100 text-green-600 @elseif($password->category === 'banking') bg-red-100 text-red-600 @elseif($password->category === 'social') bg-purple-100 text-purple-600 @elseif($password->category === 'shopping') bg-orange-100 text-orange-600 @elseif($password->category === 'entertainment') bg-pink-100 text-pink-600 @elseif($password->category === 'education') bg-indigo-100 text-indigo-600 @elseif($password->category === 'health') bg-emerald-100 text-emerald-600 @else bg-gray-100 text-gray-600 @endif"> @if ($password->website_url) <img src="https://www.google.com/s2/favicons?domain={{ parse_url($password->website_url, PHP_URL_HOST) }}&sz=32" alt="Website icon" class="w-8 h-8 rounded" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"> <svg class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path> </svg> @else <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path> </svg> @endif </div> <!-- Password Info --> <div class="flex-1 min-w-0"> <div class="flex items-center space-x-2 mb-1"> <h3 class="text-lg font-semibold text-gray-900 truncate">{{ $password->title }}</h3> @if ($password->is_favorite) <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24"> <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path> </svg> @endif @if ($password->requires_2fa) <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"> 2FA </span> @endif </div> @if ($password->username) <p class="text-sm text-gray-600 mb-2 truncate">👤 {{ $password->username }}</p> @endif @if ($password->website_url) <p class="text-sm text-gray-500 mb-2 truncate">🌐 {{ parse_url($password->website_url, PHP_URL_HOST) }}</p> @endif <!-- Metadata Row --> <div class="flex items-center space-x-4 text-xs text-gray-500"> <!-- Category --> <span class="inline-flex items-center px-2 py-1 rounded-full font-medium @if ($password->category === 'work') bg-blue-100 text-blue-700 @elseif($password->category === 'personal') bg-green-100 text-green-700 @elseif($password->category === 'banking') bg-red-100 text-red-700 @elseif($password->category === 'social') bg-purple-100 text-purple-700 @elseif($password->category === 'shopping') bg-orange-100 text-orange-700 @elseif($password->category === 'entertainment') bg-pink-100 text-pink-700 @elseif($password->category === 'education') bg-indigo-100 text-indigo-700 @elseif($password->category === 'health') bg-emerald-100 text-emerald-700 @else bg-gray-100 text-gray-700 @endif"> {{ $categories[$password->category] ?? $password->category }} </span> <!-- Last Used --> @if ($password->last_used_at) <span>Used {{ $password->last_used_at->diffForHumans() }}</span> @endif </div> <!-- Folder --> @if ($password->folder) <div class="mt-2"> <span class="inline-flex items-center text-xs text-gray-500"> 📁 {{ $password->folder }} </span> </div> @endif </div> </div> <!-- Right Section - Actions --> <div class="flex flex-col space-y-2 ml-4"> <a href="{{ route('password-vault.show', $password) }}" class="inline-flex items-center justify-center px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-medium rounded-lg transition-colors duration-200"> <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path> </svg> View </a> <a href="{{ route('password-vault.edit', $password) }}" class="inline-flex items-center justify-center px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm font-medium rounded-lg transition-colors duration-200"> <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path> </svg> Edit </a> </div> </div> </div> @endforeach </div> @else <!-- No Passwords Found --> <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center"> <div class="max-w-md mx-auto"> <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"> <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path> </svg> </div> <h3 class="text-lg font-medium text-gray-900 mb-2"> @if ($search || $category || $folder) No passwords match your filters @else No passwords saved yet @endif </h3> <p class="text-gray-600 mb-6"> @if ($search || $category || $folder) Try adjusting your search criteria or clearing the filters to see more results. @else Start securing your accounts by adding your first password to the vault. @endif </p> @if (!($search || $category || $folder)) <a href="{{ route('password-vault.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"> <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path> </svg> Add Your First Password </a> @endif </div> </div> @endif </div> </div> @endsection
+@extends('layouts.dashboard') @section('title', 'Password Vault') @section('content') <div class="bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto p-6"> <x-breadcrumbs :items="[['label' => 'Dashboard', 'href' => route('dashboard')], ['label' => 'Password Vault']]" /> <!-- Header Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+            <div class="bg-blue-600 p-6 rounded-t-xl">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div
+                            class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center border border-white/20">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                                </path>
+                            </svg> </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-white">🔐 Password Vault</h1>
+                            <p class="text-blue-100 mt-1">Secure storage for all your passwords and credentials</p>
+                        </div>
+                    </div> <a href="{{ route('password-vault.create') }}"
+                        class="inline-flex items-center px-4 py-2 bg-white hover:bg-blue-50 text-blue-700 text-sm font-medium rounded-lg transition-colors duration-200 border border-white shadow-sm">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg> Add Password </a>
+                </div>
+            </div>
+        </div> <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"> <svg
+                            class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                            </path>
+                        </svg> </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-600">Total Passwords</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ $passwords->count() }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center"> <svg
+                            class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                            </path>
+                        </svg> </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-600">Favorites</p>
+                        <p class="text-lg font-semibold text-gray-900">
+                            {{ $passwords->where('is_favorite', true)->count() }}</p>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- Filters -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 p-6">
+            <form method="GET" class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"> <svg
+                                class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg> </div> <input type="text" name="search" value="{{ $search }}"
+                            placeholder="Search passwords, usernames, or websites..."
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                </div>
+                <div class="flex gap-3"> <select name="category"
+                        class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option value="">All Categories</option>
+                        @foreach ($categories as $key => $label)
+                            <option value="{{ $key }}" {{ $category === $key ? 'selected' : '' }}>
+                                {{ $label }} </option>
+                            @endforeach
+                    </select>
+                    @if ($folders->count() > 0) <select name="folder"
+                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <option value="">All Folders</option>
+                            @foreach ($folders as $folderName)
+                                <option value="{{ $folderName }}" {{ $folder === $folderName ? 'selected' : '' }}> 📁
+                                    {{ $folderName }} </option>
+                                @endforeach
+                        </select> @endif <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200">
+                            Filter </button>
+                        @if ($search || $category || $folder)
+                            <a href="{{ route('password-vault.index') }}"
+                                class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg text-sm transition-colors duration-200">
+                                Clear </a>
+                            @endif
+                </div>
+            </form>
+        </div> <!-- Password List -->
+        @if ($passwords->count() > 0)
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                @foreach ($passwords as $password)
+                    <div
+                        class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 p-5">
+                        <div class="flex items-start justify-between"> <!-- Left Section -->
+                            <div class="flex items-start space-x-4 flex-1"> <!-- Website Favicon/Icon -->
+                                <div
+                                    class="w-12 h-12 rounded-lg flex items-center justify-center @if ($password->category === 'work') bg-blue-100 text-blue-600 @elseif($password->category === 'personal') bg-green-100 text-green-600 @elseif($password->category === 'banking') bg-red-100 text-red-600 @elseif($password->category === 'social') bg-purple-100 text-purple-600 @elseif($password->category === 'shopping') bg-orange-100 text-orange-600 @elseif($password->category === 'entertainment') bg-pink-100 text-pink-600 @elseif($password->category === 'education') bg-indigo-100 text-indigo-600 @elseif($password->category === 'health') bg-emerald-100 text-emerald-600 @else bg-gray-100 text-gray-600 @endif">
+                                    @if ($password->website_url)
+                                        <img src="https://www.google.com/s2/favicons?domain={{ parse_url($password->website_url, PHP_URL_HOST) }}&sz=32"
+                                            alt="Website icon" class="w-8 h-8 rounded"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                        <svg class="w-6 h-6 hidden" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                                            </path>
+                                        </svg>
+                                    @else
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                                            </path>
+                                        </svg>
+                                        @endif
+                                </div> <!-- Password Info -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <h3 class="text-lg font-semibold text-gray-900 truncate">
+                                            {{ $password->title }}</h3>
+                                        @if ($password->is_favorite)
+                                            <svg class="w-4 h-4 text-yellow-500" fill="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path
+                                                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                                </path>
+                                            </svg>
+                                            @endif @if ($password->requires_2fa)
+                                                <span
+                                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                                    2FA </span>
+                                                @endif
+                                    </div>
+                                    @if ($password->username)
+                                        <p class="text-sm text-gray-600 mb-2 truncate">👤 {{ $password->username }}
+                                        </p>
+                                        @endif @if ($password->website_url)
+                                            <p class="text-sm text-gray-500 mb-2 truncate">🌐
+                                                {{ parse_url($password->website_url, PHP_URL_HOST) }}</p>
+                                            @endif <!-- Metadata Row -->
+                                            <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                                <!-- Category --> <span
+                                                    class="inline-flex items-center px-2 py-1 rounded-full font-medium @if ($password->category === 'work') bg-blue-100 text-blue-700 @elseif($password->category === 'personal') bg-green-100 text-green-700 @elseif($password->category === 'banking') bg-red-100 text-red-700 @elseif($password->category === 'social') bg-purple-100 text-purple-700 @elseif($password->category === 'shopping') bg-orange-100 text-orange-700 @elseif($password->category === 'entertainment') bg-pink-100 text-pink-700 @elseif($password->category === 'education') bg-indigo-100 text-indigo-700 @elseif($password->category === 'health') bg-emerald-100 text-emerald-700 @else bg-gray-100 text-gray-700 @endif">
+                                                    {{ $categories[$password->category] ?? $password->category }}
+                                                </span> <!-- Last Used -->
+                                                @if ($password->last_used_at)
+                                                    <span>Used {{ $password->last_used_at->diffForHumans() }}</span>
+                                                    @endif
+                                            </div> <!-- Folder -->
+                                            @if ($password->folder)
+                                                <div class="mt-2"> <span
+                                                        class="inline-flex items-center text-xs text-gray-500"> 📁
+                                                        {{ $password->folder }} </span> </div>
+                                                @endif
+                                </div>
+                            </div> <!-- Right Section - Actions -->
+                            <div class="flex flex-col space-y-2 ml-4"> <a
+                                    href="{{ route('password-vault.show', $password) }}"
+                                    class="inline-flex items-center justify-center px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-medium rounded-lg transition-colors duration-200">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                        </path>
+                                    </svg> View </a> <a href="{{ route('password-vault.edit', $password) }}"
+                                    class="inline-flex items-center justify-center px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm font-medium rounded-lg transition-colors duration-200">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                        </path>
+                                    </svg> Edit </a> </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <!-- No Passwords Found -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+                <div class="max-w-md mx-auto">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"> <svg
+                            class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                            </path>
+                        </svg> </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        @if ($search || $category || $folder)
+                            No passwords match your filters
+                        @else
+                            No passwords saved yet
+                            @endif
+                    </h3>
+                    <p class="text-gray-600 mb-6">
+                        @if ($search || $category || $folder)
+                            Try adjusting your search criteria or clearing the filters to see more results.
+                        @else
+                            Start securing your accounts by adding your first password to the vault.
+                            @endif
+                    </p>
+                    @if (!($search || $category || $folder))
+                        <a href="{{ route('password-vault.create') }}"
+                            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg> Add Your First Password </a>
+                    @endif
+                </div>
+            </div>
+        @endif
+    </div>
+</div> @endsection

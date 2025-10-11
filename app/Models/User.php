@@ -24,6 +24,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'profile_picture',
+        'bio',
         'headquarters_id',
         'centre_id',
         'station_id',
@@ -132,6 +134,20 @@ class User extends Authenticatable implements MustVerifyEmail
     public function canCreateAnnouncements(): bool
     {
         return in_array($this->role, ['super_admin', 'hq_admin', 'centre_admin', 'station_admin']);
+    }
+
+    /**
+     * Get allowed target scopes based on user role
+     */
+    public function getAllowedTargetScopes(): array
+    {
+        return match ($this->role) {
+            'super_admin' => ['all', 'headquarters', 'my_centre', 'my_centre_stations', 'my_station', 'all_centres', 'all_stations', 'specific'],
+            'hq_admin' => ['all', 'headquarters', 'all_centres', 'all_stations', 'specific'],
+            'centre_admin' => ['my_centre', 'my_centre_stations', 'specific'],
+            'station_admin' => ['my_station', 'specific'],
+            default => [],
+        };
     }
 
     /**

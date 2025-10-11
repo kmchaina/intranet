@@ -82,7 +82,7 @@ class AnnouncementPolicy
      */
     public function canTargetScope(User $user, string $targetScope): bool
     {
-        $allowedScopes = array_keys($user->getAllowedTargetScopes());
+        $allowedScopes = $user->getAllowedTargetScopes();
         return in_array($targetScope, $allowedScopes);
     }
 
@@ -134,6 +134,48 @@ class AnnouncementPolicy
         // Station admin can only target their own station
         if ($user->isStationAdmin() && $user->station_id) {
             return count($stationIds) === 1 && $stationIds[0] == $user->station_id;
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate specific targets based on user role
+     */
+    public function validateSpecificTargets(User $user, array $centreIds, array $stationIds): bool
+    {
+        // Super admin and HQ admin can target anything
+        if ($user->isSuperAdmin() || $user->isHqAdmin()) {
+            return true;
+        }
+
+        // Centre admin validation
+        if ($user->isCentreAdmin()) {
+            // Can only target their own centre
+            if (!empty($centreIds)) {
+                if (count($centreIds) !== 1 || $centreIds[0] != $user->centre_id) {
+                    return false;
+                }
+            }
+
+            // Can only target stations under their centre
+            if (!empty($stationIds)) {
+                $userCentreStations = \App\Models\Station::where('centre_id', $user->centre_id)->pluck('id')->toArray();
+                if (!empty(array_diff($stationIds, $userCentreStations))) {
+                    return false;
+                }
+            }
+
+            return !empty($centreIds) || !empty($stationIds);
+        }
+
+        // Station admin validation
+        if ($user->isStationAdmin()) {
+            // Can only target their own station
+            if (!empty($stationIds)) {
+                return count($stationIds) === 1 && $stationIds[0] == $user->station_id;
+            }
+            return false;
         }
 
         return false;

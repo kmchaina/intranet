@@ -1,26 +1,8 @@
 @extends('layouts.dashboard')
 
 @section('content')
-    <div x-data="messagingApp()" x-init="init();
-    console.log('Alpine.js initialized, messagingApp:', messagingApp);
-    console.log('Alpine object:', window.Alpine);
-    console.log('Current user:', {{ auth()->id() }})" class="flex gap-6 max-w-7xl mx-auto h-[calc(100vh-12rem)]"
+    <div x-data="messagingApp()" x-init="init()" class="flex gap-6 max-w-7xl mx-auto h-[calc(100vh-12rem)]"
         style="position: relative; z-index: 1;">
-        <!-- Test Button -->
-        <div class="fixed top-4 left-4 z-50 space-y-2">
-            <button @click="console.log('Test button clicked'); alert('Alpine.js is working!')"
-                class="bg-red-500 text-white px-4 py-2 rounded block">
-                Test Alpine.js
-            </button>
-            <button @click="testAuth()" class="bg-blue-500 text-white px-4 py-2 rounded block">
-                Test Auth
-            </button>
-            <button @click="console.log('Simple test clicked'); alert('Simple test works!')"
-                class="bg-green-500 text-white px-4 py-2 rounded block">
-                Simple Test
-            </button>
-        </div>
-
         <!-- Conversations List -->
         <div class="w-80 flex flex-col bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
             <!-- Header -->
@@ -50,7 +32,7 @@
 
             <!-- Conversations List -->
             <div class="flex-1 overflow-y-auto" x-ref="conversationList">
-                <template x-for="c in filteredConversations" :key="c.id">
+                <template x-for="c in filteredConversations()" :key="c.id">
                     <div @click="selectConversation(c)"
                         class="p-4 cursor-pointer hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100"
                         :class="{
@@ -74,7 +56,7 @@
                                         class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center"></span>
                                 </div>
                                 <p class="text-sm text-gray-600 truncate mb-1"
-                                    x-text="c.last_message ? (c.last_message.body || '[Attachment]') : 'No messages yet'">
+                                    x-text="c.last_message ? (c.last_message.deleted ? 'Message deleted' : (c.last_message.body || '[Attachment]')) : 'No messages yet'">
                                 </p>
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs text-gray-500"
@@ -86,7 +68,7 @@
                         </div>
                     </div>
                 </template>
-                <div x-show="filteredConversations.length===0" class="p-8 text-center">
+                <div x-show="filteredConversations().length===0" class="p-8 text-center">
                     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -104,12 +86,12 @@
             <template x-if="current">
                 <div class="flex flex-col h-full">
                     <!-- Chat Header -->
-                    <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+                    <div class="p-6 border-b border-gray-100 bg-indigo-50">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4">
                                 <!-- Avatar -->
                                 <div
-                                    class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                    class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
                                     <span x-text="current.title.charAt(0).toUpperCase()"></span>
                                 </div>
 
@@ -130,11 +112,12 @@
                                         <button @click="cancelRename()"
                                             class="text-xs px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
                                     </div>
-                                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <div class="flex items-center gap-2 text-sm text-gray-600"
+                                        x-show="current && current.type === 'group'">
                                         <span x-text="participantNames(current)" class="text-gray-500"></span>
                                         <button type="button"
                                             class="text-indigo-600 hover:text-indigo-800 text-xs font-medium"
-                                            x-show="current && current.type==='group'" @click="openParticipants()">
+                                            @click="openParticipants()">
                                             • Manage
                                         </button>
                                     </div>
@@ -256,7 +239,10 @@
                                             </div>
 
                                             <!-- Message content -->
-                                            <div class="text-sm leading-relaxed" x-text="m.body"></div>
+                                            <div class="text-sm leading-relaxed"
+                                                :class="m.deleted ? (m.user.id === userId ? 'italic text-white/80' :
+                                                    'italic text-gray-600') : ''"
+                                                x-text="m.deleted ? 'Message deleted' : m.body"></div>
 
                                             <!-- Attachments -->
                                             <template x-if="m.attachments && m.attachments.length">
@@ -530,7 +516,7 @@
 
                                     <!-- Send Button -->
                                     <button type="submit"
-                                        class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                                         :disabled="sending || (!draft.trim() && attachmentTokens.length === 0)">
                                         <span x-show="!sending" class="flex items-center gap-2">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -561,8 +547,7 @@
             <!-- Empty State -->
             <div x-show="!current" class="flex-1 flex items-center justify-center bg-gray-50">
                 <div class="text-center">
-                    <div
-                        class="w-24 h-24 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div class="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
                         <svg class="w-12 h-12 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -572,7 +557,7 @@
                     <p class="text-gray-600 mb-6 max-w-sm">Select a conversation from the sidebar to start chatting, or
                         create a new group conversation.</p>
                     <button @click="showNewGroup = true"
-                        class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -587,7 +572,7 @@
         <div x-show="showNewChatChoice" x-cloak class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
                 <!-- Header -->
-                <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+                <div class="p-6 border-b border-gray-100 bg-indigo-50">
                     <h3 class="text-lg font-bold text-gray-900">Start a New Conversation</h3>
                     <p class="text-sm text-gray-600 mt-1">Choose how you want to chat</p>
                 </div>
@@ -599,7 +584,7 @@
                         class="w-full p-4 border-2 border-gray-200 rounded-xl hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left group">
                         <div class="flex items-center gap-4">
                             <div
-                                class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -622,7 +607,7 @@
                         class="w-full p-4 border-2 border-gray-200 rounded-xl hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left group">
                         <div class="flex items-center gap-4">
                             <div
-                                class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -655,10 +640,9 @@
         <div x-show="showDirectMessage" x-cloak class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
                 <!-- Header -->
-                <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
+                <div class="p-6 border-b border-gray-100 bg-blue-50">
                     <div class="flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -739,10 +723,9 @@
         <div x-show="showNewGroup" x-cloak class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
                 <!-- Header -->
-                <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+                <div class="p-6 border-b border-gray-100 bg-indigo-50">
                     <div class="flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -870,7 +853,7 @@
                         <button @click="showNewGroup=false"
                             class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors">Cancel</button>
                         <button @click="createGroup"
-                            class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50"
                             :disabled="creatingGroup || newGroupSelectedUsers.length < 2 || !newGroup.title.trim()">
                             <span x-show="!creatingGroup">Create Group</span>
                             <span x-show="creatingGroup" class="flex items-center gap-2">
@@ -892,11 +875,10 @@
             <div
                 class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-gray-100 flex flex-col max-h-[80vh] overflow-hidden">
                 <!-- Header -->
-                <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+                <div class="p-6 border-b border-gray-100 bg-indigo-50">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <div
-                                class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
                                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -947,7 +929,7 @@
                                 <template x-for="p in participants" :key="p.user_id">
                                     <div class="flex items-center justify-between p-4 rounded-xl border transition-all duration-200"
                                         :class="current && p.user_id === current.created_by ?
-                                            'bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200' :
+                                            'bg-amber-50 border-amber-200' :
                                             'bg-gray-50 border-gray-200'">
                                         <div class="flex items-center gap-3">
                                             <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
@@ -1057,7 +1039,7 @@
                                     </template>
                                 </div>
                                 <button @click="addSelectedUsers"
-                                    class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
                                     :disabled="!selectedAdd.length">
                                     Add Selected Members
                                 </button>
@@ -1206,9 +1188,9 @@
             <template x-for="t in toasts" :key="t.id">
                 <div class="px-4 py-3 rounded-xl shadow-lg text-sm text-white pointer-events-auto border border-white/20 backdrop-blur-sm transition-all duration-300 transform"
                     :class="{
-                        'bg-gradient-to-r from-indigo-600 to-purple-600': t.type==='info',
-                        'bg-gradient-to-r from-green-600 to-emerald-600': t.type==='success',
-                        'bg-gradient-to-r from-red-600 to-pink-600': t.type==='error'
+                        'bg-indigo-600': t.type==='info',
+                        'bg-green-600': t.type==='success',
+                        'bg-red-600': t.type==='error'
                     }"
                     x-text="t.msg">
                 </div>
@@ -1219,10 +1201,9 @@
         <div x-show="showConfirmModal" x-cloak class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
                 <!-- Header -->
-                <div class="p-6 bg-gradient-to-r from-red-50 to-pink-50 border-b border-gray-100">
+                <div class="p-6 bg-red-50 border-b border-gray-100">
                     <div class="flex items-center gap-3">
-                        <div
-                            class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center">
+                        <div class="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -1246,7 +1227,7 @@
                         Cancel
                     </button>
                     <button @click="showConfirmModal = false; confirmModal.onConfirm && confirmModal.onConfirm()"
-                        class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
+                        class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
                         <span x-text="confirmModal.confirmText || 'Confirm'"></span>
                     </button>
                 </div>

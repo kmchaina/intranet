@@ -298,39 +298,54 @@ class DashboardController extends Controller
     {
         $stats = [];
 
-        if ($user->isSuperAdmin() || $user->isHqAdmin()) {
+        if ($user->isSuperAdmin()) {
+            // Super Admin sees EVERYTHING system-wide
             $stats = [
                 'totalUsers' => User::count(),
+                'totalCentres' => Centre::count(),
+                'totalStations' => Station::count(),
                 'totalAnnouncements' => Announcement::count(),
-                'totalPolls' => Poll::count(),
+                'totalNews' => News::count(),
+                'totalEvents' => Event::count(),
                 'totalDocuments' => Document::count(),
+                'totalPolicies' => Document::where('category', 'policy')->count(),
                 'activeUsers' => User::whereNotNull('email_verified_at')->count(),
+                'newUsersThisMonth' => User::where('created_at', '>=', now()->startOfMonth())->count(),
+                'unverifiedUsers' => User::whereNull('email_verified_at')->count(),
+            ];
+        } elseif ($user->isHqAdmin()) {
+            // HQ Admin sees only HQ-level stats (users without centre/station) + content they created
+            $stats = [
+                'hqUsers' => User::whereNull('centre_id')->whereNull('station_id')->where('role', 'staff')->count(),
+                'activeHqUsers' => User::whereNull('centre_id')->whereNull('station_id')->whereNotNull('email_verified_at')->count(),
+                'myAnnouncements' => Announcement::where('created_by', $user->id)->count(),
+                'myNews' => News::where('author_id', $user->id)->count(),
+                'myEvents' => Event::where('created_by', $user->id)->count(),
+                'myDocuments' => Document::where('uploaded_by', $user->id)->count(),
+                'myPolicies' => Document::where('uploaded_by', $user->id)->where('category', 'policy')->count(),
+                'publishedContent' => Announcement::where('created_by', $user->id)->published()->count(),
             ];
         } elseif ($user->isCentreAdmin()) {
+            // Centre Admin sees centre stats + content they created
             $stats = [
                 'centreUsers' => User::where('centre_id', $user->centre_id)->count(),
-                'centreAnnouncements' => Announcement::whereHas('creator', function ($query) use ($user) {
-                    $query->where('centre_id', $user->centre_id);
-                })->count(),
-                'centrePolls' => Poll::whereHas('creator', function ($query) use ($user) {
-                    $query->where('centre_id', $user->centre_id);
-                })->count(),
-                'centreDocuments' => Document::whereHas('uploader', function ($query) use ($user) {
-                    $query->where('centre_id', $user->centre_id);
-                })->count(),
+                'centreStations' => Station::where('centre_id', $user->centre_id)->count(),
+                'stationAdmins' => User::where('centre_id', $user->centre_id)->where('role', 'station_admin')->count(),
+                'activeCentreUsers' => User::where('centre_id', $user->centre_id)->whereNotNull('email_verified_at')->count(),
+                'myAnnouncements' => Announcement::where('created_by', $user->id)->count(),
+                'myNews' => News::where('author_id', $user->id)->count(),
+                'myEvents' => Event::where('created_by', $user->id)->count(),
+                'myDocuments' => Document::where('uploaded_by', $user->id)->count(),
             ];
         } elseif ($user->isStationAdmin()) {
+            // Station Admin sees station stats + content they created
             $stats = [
                 'stationUsers' => User::where('station_id', $user->station_id)->count(),
-                'stationAnnouncements' => Announcement::whereHas('creator', function ($query) use ($user) {
-                    $query->where('station_id', $user->station_id);
-                })->count(),
-                'stationPolls' => Poll::whereHas('creator', function ($query) use ($user) {
-                    $query->where('station_id', $user->station_id);
-                })->count(),
-                'stationDocuments' => Document::whereHas('uploader', function ($query) use ($user) {
-                    $query->where('station_id', $user->station_id);
-                })->count(),
+                'activeStationUsers' => User::where('station_id', $user->station_id)->whereNotNull('email_verified_at')->count(),
+                'myAnnouncements' => Announcement::where('created_by', $user->id)->count(),
+                'myNews' => News::where('author_id', $user->id)->count(),
+                'myEvents' => Event::where('created_by', $user->id)->count(),
+                'myDocuments' => Document::where('uploaded_by', $user->id)->count(),
             ];
         }
 
@@ -344,32 +359,20 @@ class DashboardController extends Controller
         $weekStart = $now->copy()->startOfWeek();
 
         // Base queries adjusted by scope
-        if ($user->isSuperAdmin() || $user->isHqAdmin()) {
+        if ($user->isSuperAdmin()) {
+            // Super Admin sees system-wide stats
             $announcementsMonth = Announcement::where('created_at', '>=', $monthWindowStart)->count();
             $documentsWeek = Document::where('created_at', '>=', $weekStart)->count();
-        } elseif ($user->isCentreAdmin() && $user->centre_id) {
-            $announcementsMonth = Announcement::whereHas('creator', function ($q) use ($user) {
-                $q->where('centre_id', $user->centre_id);
-            })
+        } elseif ($user->isAdmin()) {
+            // Other admins see only their own created content
+            $announcementsMonth = Announcement::where('created_by', $user->id)
                 ->where('created_at', '>=', $monthWindowStart)
                 ->count();
-            $documentsWeek = Document::whereHas('uploader', function ($q) use ($user) {
-                $q->where('centre_id', $user->centre_id);
-            })
+            $documentsWeek = Document::where('uploaded_by', $user->id)
                 ->where('created_at', '>=', $weekStart)
                 ->count();
-        } elseif ($user->isStationAdmin() && $user->station_id) {
-            $announcementsMonth = Announcement::whereHas('creator', function ($q) use ($user) {
-                $q->where('station_id', $user->station_id);
-            })
-                ->where('created_at', '>=', $monthWindowStart)
-                ->count();
-            $documentsWeek = Document::whereHas('uploader', function ($q) use ($user) {
-                $q->where('station_id', $user->station_id);
-            })
-                ->where('created_at', '>=', $weekStart)
-                ->count();
-        } else { // Staff scope (personal / visible)
+        } else {
+            // Staff scope (personal / visible)
             $announcementsMonth = Announcement::visibleTo($user)
                 ->where('created_at', '>=', $monthWindowStart)
                 ->count();

@@ -1,1 +1,344 @@
-@extends('layouts.dashboard') @section('title', $news->title) @section('content') <div class="bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-100/40 min-h-screen"> <div class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8"> {{-- Breadcrumbs --}} <x-breadcrumbs :items="[['label' => 'Dashboard', 'href' => route('dashboard')],['label' => 'News Feed', 'href' => route('news.index')],['label' => Str::limit($news->title, 50)],]" /> <!-- Article Header --> <article class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-8"> <!-- Featured Image --> @if ($news && $news->featured_image) <div class="relative h-96 overflow-hidden"> <img src="{{ asset('storage/' . $news->featured_image) }}" alt="{{ $news->title }}" class="w-full h-full object-cover"> <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div> <!-- Floating back button --> <div class="absolute top-6 left-6"> <a href="{{ route('news.index') }}" class="inline-flex items-center px-4 py-2 bg-white/90 hover:bg-white text-gray-900 rounded-lg backdrop-blur-sm transition-all duration-200 shadow-lg"> <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path> </svg> Back to News </a> </div> </div> @else <div class="h-64 bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 flex items-center justify-center relative"> <div class="text-center"> <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm"> <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path> </svg> </div> <h2 class="text-xl font-semibold text-gray-700">NIMR News Article</h2> </div> <!-- Floating back button --> <div class="absolute top-6 left-6"> <a href="{{ route('news.index') }}" class="inline-flex items-center px-4 py-2 bg-white/90 hover:bg-white text-gray-900 rounded-lg backdrop-blur-sm transition-all duration-200 shadow-lg"> <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path> </svg> Back to News </a> </div> </div> @endif <!-- Article Content --> <!-- Article Content --> <div class="p-8"> <!-- Meta Information --> <div class="flex flex-wrap items-center gap-3 mb-6"> <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800"> <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 616 0z"></path> </svg> {{ $news->location ?? 'Unknown Location' }} </span> @if ($news->is_featured) <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800"> <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"> <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path> </svg> Featured </span> @endif @can('update', $news) <div class="ml-auto"> <a href="{{ route('news.edit', $news) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm"> <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path> </svg> Edit Article </a> </div> @endcan </div> <!-- Title --> <h1 class="text-4xl font-bold text-gray-900 mb-6 leading-tight"> {{ $news->title }} </h1> <!-- Author and Date Information --> <div class="flex flex-wrap items-center justify-between text-sm text-gray-600 mb-8 pb-6 border-b border-gray-200"> <div class="flex flex-wrap items-center gap-6"> <div class="flex items-center"> <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path> </svg> <div> <div class="font-medium text-gray-900">{{ $news->published_at ? $news->published_at->format('M j, Y') : 'Unknown Date' }}</div> <div class="text-xs text-gray-500">{{ $news->published_at ? $news->published_at->format('g:i A') : '' }}</div> </div> </div> <div class="flex items-center"> <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 616 0z"></path> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path> </svg> <div> <div class="font-medium text-gray-900">{{ $news->views_count ?? 0 }} {{ Str::plural('view', $news->views_count ?? 0) }}</div> <div class="text-xs text-gray-500">Total views</div> </div> </div> </div> <div class="text-xs text-gray-500 mt-4 sm:mt-0"> Last updated: {{ $news->updated_at->diffForHumans() }} </div> </div> <!-- Content --> <div class="prose prose-lg max-w-none text-gray-900 leading-relaxed mb-8"> <div class="text-lg text-gray-700 leading-8"> {!! nl2br(e($news->content ?? 'No content available')) !!} </div> </div> <!-- Tags --> @if ($news->tags ?? false) <div class="mb-8 pb-6 border-b border-gray-200"> <div class="flex flex-wrap items-center gap-2"> <span class="text-sm font-medium text-gray-700 mr-2">Tags:</span> @foreach ($news->tags as $tag) <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"> <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path> </svg> {{ $tag }} </span> @endforeach </div> </div> @endif <!-- Enhanced Engagement Section --> <div class="bg-gray-50 rounded-xl p-6 border border-gray-200"> <div class="flex flex-wrap items-center justify-between gap-4"> <div class="flex flex-wrap items-center gap-4"> <!-- Like Button --> <button id="like-btn" data-news-id="{{ $news->id }}" class="flex items-center space-x-3 px-6 py-3 rounded-xl transition-all duration-200 font-medium {{ isset($isLiked) && $isLiked ? 'bg-red-100 text-red-700 hover:bg-red-200 shadow-md' : 'bg-white text-gray-700 hover:bg-gray-100 shadow-sm border border-gray-200' }}"> <svg class="w-5 h-5" fill="{{ isset($isLiked) && $isLiked ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path> </svg> <span id="like-count" class="text-lg font-semibold">{{ $news->likes_count ?? 0 }}</span> <span>{{ isset($isLiked) && $isLiked ? 'Liked' : 'Like' }}</span> </button> <!-- Share Button --> <button onclick="shareNews()" class="flex items-center space-x-3 px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-100 transition-all duration-200 font-medium shadow-sm border border-gray-200"> <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path> </svg> <span>Share</span> </button> <!-- Comments Count --> @if ($news->allow_comments) <div class="flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg"> <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path> </svg> <span class="font-semibold">{{ $news->comments_count ?? 0 }}</span> <span>{{ Str::plural('Comment', $news->comments_count ?? 0) }}</span> </div> @endif </div> </div> </div> </div> </article> <!-- Comments Section --> @if ($news->allow_comments) <div class="mt-8 bg-white rounded-lg shadow-md border border-gray-200 p-6"> <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center"> <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"> </path> </svg> Comments ({{ $news->comments_count }}) </h3> <!-- Comment Form --> <form id="comment-form" class="mb-8"> @csrf <input type="hidden" name="news_id" value="{{ $news->id }}"> <div class="mb-4"> <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Add a comment</label> <textarea name="content" id="comment" rows="3" placeholder="Share your thoughts..." class="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm resize-none"></textarea> </div> <button type="submit" class="inline-flex items-center px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg transition-colors duration-200"> <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path> </svg> Post Comment </button> </form> <!-- Comments List --> <div id="comments-list"> @foreach ($news->comments()->whereNull('parent_id')->latest()->get() as $comment) <div class="border-b border-gray-200 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0"> <div class="flex items-start space-x-3"> <div class="flex-shrink-0"> <div class="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center"> <span class="text-white text-sm font-medium"> {{ substr($comment->user->name, 0, 1) }} </span> </div> </div> <div class="flex-1"> <div class="flex items-center space-x-2 mb-1"> <span class="font-medium text-gray-900">{{ $comment->user->name }}</span> <span class="text-sm text-gray-500">{{ $comment->created_at->diffForHumans() }}</span> </div> <p class="text-gray-700">{{ $comment->content }}</p> <!-- Reply button --> <button onclick="toggleReplyForm({{ $comment->id }})" class="mt-2 text-sm text-teal-600 hover:text-teal-700 font-medium"> Reply </button> <!-- Reply form (hidden by default) --> <form id="reply-form-{{ $comment->id }}" class="mt-4 hidden reply-form"> @csrf <input type="hidden" name="news_id" value="{{ $news->id }}"> <input type="hidden" name="parent_id" value="{{ $comment->id }}"> <div class="flex space-x-3"> <textarea name="content" rows="2" placeholder="Write a reply..." class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm resize-none"></textarea> <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"> Reply </button> </div> </form> <!-- Replies --> @if ($comment->replies->count() > 0) <div class="mt-4 space-y-4"> @foreach ($comment->replies as $reply) <div class="flex items-start space-x-3 pl-6 border-l-2 border-gray-200"> <div class="flex-shrink-0"> <div class="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center"> <span class="text-white text-xs font-medium"> {{ substr($reply->user->name, 0, 1) }} </span> </div> </div> <div class="flex-1"> <div class="flex items-center space-x-2 mb-1"> <span class="font-medium text-gray-900">{{ $reply->user->name }}</span> <span class="text-sm text-gray-500">{{ $reply->created_at->diffForHumans() }}</span> </div> <p class="text-gray-700">{{ $reply->content }}</p> </div> </div> @endforeach </div> @endif </div> </div> </div> @endforeach @if ($news->comments()->whereNull('parent_id')->count() === 0) <div class="text-center py-8"> <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"> </path> </svg> <h3 class="mt-2 text-sm font-medium text-gray-900">No comments yet</h3> <p class="mt-1 text-sm text-gray-500">Be the first to share your thoughts on this news.</p> </div> @endif </div> </div> @endif <!-- Related News --> @if ($relatedNews->count() > 0) <div class="mt-8"> <h3 class="text-lg font-semibold text-gray-900 mb-6">Related News</h3> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> @foreach ($relatedNews as $related) <article class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200"> @if ($related && is_object($related) && $related->featured_image) <div class="aspect-w-16 aspect-h-9"> <img src="{{ asset('storage/' . $related->featured_image) }}" alt="{{ $related && is_object($related) ? $related->title : 'Related News' }}" class="w-full h-32 object-cover"> </div> @endif <div class="p-4"> <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-2"> {{ $related && is_object($related) ? $related->location_display : 'Unknown Location' }} </span> <h4 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2"> <a href="{{ route('news.show', $related) }}" class="hover:text-teal-600 transition-colors"> {{ $related && is_object($related) ? $related->title : 'Related News' }} </a> </h4> <p class="text-gray-600 text-sm line-clamp-2 mb-3"> {{ $related && is_object($related) && $related->excerpt ? $related->excerpt : 'No excerpt available' }} </p> <div class="flex items-center justify-between text-xs text-gray-500"> <span>{{ $related && is_object($related) && $related->published_at ? $related->published_at->diffForHumans() : 'Unknown Date' }}</span> <span class="flex items-center"> <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"> </path> </svg> {{ $related && is_object($related) ? $related->views_count : 0 }} </span> </div> </div> </article> @endforeach </div> </div> @endif </div> @push('styles') <style> .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } .aspect-w-16 { position: relative; padding-bottom: 56.25%; } .aspect-w-16>* { position: absolute; height: 100%; width: 100%; top: 0; right: 0; bottom: 0; left: 0; } .prose { line-height: 1.7; } .prose p { margin-bottom: 1rem; } </style> @endpush @push('scripts') <script> // Like functionality document.getElementById('like-btn').addEventListener('click', function() { const newsId = this.dataset.newsId; const likeCount = document.getElementById('like-count'); const button = this; fetch(`/news/${newsId}/like`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute( 'content') } }) .then(response => response.json()) .then(data => { if (data.success) { likeCount.textContent = data.likes_count; const svg = button.querySelector('svg'); const span = button.querySelector('span:last-child'); if (data.liked) { button.className = 'flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 bg-red-100 text-red-700 hover:bg-red-200'; svg.setAttribute('fill', 'currentColor'); span.textContent = 'Liked'; } else { button.className = 'flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200'; svg.setAttribute('fill', 'none'); span.textContent = 'Like'; } } }) .catch(error => { console.error('Error:', error); }); }); // Comment functionality document.getElementById('comment-form').addEventListener('submit', function(e) { e.preventDefault(); const formData = new FormData(this); const newsId = formData.get('news_id'); fetch(`/news/${newsId}/comment`, { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute( 'content') }, body: formData }) .then(response => response.json()) .then(data => { if (data.success) { location.reload(); // Simple reload for now } }) .catch(error => { console.error('Error:', error); }); }); // Reply forms document.querySelectorAll('.reply-form').forEach(form => { form.addEventListener('submit', function(e) { e.preventDefault(); const formData = new FormData(this); const newsId = formData.get('news_id'); fetch(`/news/${newsId}/comment`, { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') .getAttribute('content') }, body: formData }) .then(response => response.json()) .then(data => { if (data.success) { location.reload(); // Simple reload for now } }) .catch(error => { console.error('Error:', error); }); }); }); // Toggle reply forms function toggleReplyForm(commentId) { const form = document.getElementById(`reply-form-${commentId}`); form.classList.toggle('hidden'); if (!form.classList.contains('hidden')) { form.querySelector('textarea').focus(); } } // Share functionality function shareNews() { if (navigator.share) { navigator.share({ title: '{{ $news && is_object($news) ? $news->title : 'News Article' }}', text: '{{ $news && is_object($news) && $news->excerpt ? $news->excerpt : 'Check out this news article' }}', url: window.location.href }); } else { // Fallback to copying URL navigator.clipboard.writeText(window.location.href).then(() => { alert('Link copied to clipboard!'); }); } } </script> @endpush @endsection
+@extends('layouts.dashboard')
+@section('title', $news->title)
+
+@section('content')
+    <div class="max-w-5xl mx-auto space-y-6">
+
+        {{-- Breadcrumbs --}}
+        <div class="animate-fade-in">
+            <x-breadcrumbs :items="[
+                ['label' => 'Dashboard', 'href' => route('dashboard')],
+                ['label' => 'News Feed', 'href' => route('news.index')],
+                ['label' => Str::limit($news->title, 50)],
+            ]" />
+        </div>
+
+        {{-- Main Article Card --}}
+        <article class="card-premium overflow-hidden">
+
+            {{-- Featured Image --}}
+            @if ($news && $news->featured_image)
+                <div class="relative h-96 overflow-hidden">
+                    <img src="{{ asset('storage/' . $news->featured_image) }}" alt="{{ $news->title }}"
+                        class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                </div>
+            @endif
+
+            {{-- Article Content --}}
+            <div class="p-8">
+
+                {{-- Meta Information --}}
+                <div class="flex flex-wrap items-center gap-3 mb-6">
+                    <span
+                        class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {{ $news->location ?? 'NIMR' }}
+                    </span>
+
+                    @if ($news->is_featured)
+                        <span
+                            class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                            <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            Featured
+                        </span>
+                    @endif
+                </div>
+
+                {{-- Title --}}
+                <h1 class="text-4xl font-bold text-gray-900 mb-6 leading-tight">
+                    {{ $news->title }}
+                </h1>
+
+                {{-- Author and Date Information --}}
+                <div
+                    class="flex flex-wrap items-center justify-between text-sm text-gray-600 mb-8 pb-6 border-b border-gray-200">
+                    <div class="flex flex-wrap items-center gap-6">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                                <div class="font-medium text-gray-900">
+                                    {{ $news->published_at ? $news->published_at->format('M j, Y') : $news->created_at->format('M j, Y') }}
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    {{ $news->published_at ? $news->published_at->format('g:i A') : $news->created_at->format('g:i A') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <div>
+                                <div class="font-medium text-gray-900">
+                                    {{ $news->views_count ?? 0 }} {{ Str::plural('view', $news->views_count ?? 0) }}
+                                </div>
+                                <div class="text-xs text-gray-500">Total views</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-gray-500 mt-4 sm:mt-0">
+                        Last updated: {{ $news->updated_at->diffForHumans() }}
+                    </div>
+                </div>
+
+                {{-- Content --}}
+                <div class="prose prose-lg max-w-none text-gray-800 leading-relaxed mb-8">
+                    {!! nl2br(e($news->content ?? 'No content available')) !!}
+                </div>
+
+                {{-- Tags --}}
+                @if (isset($news->tags) && is_array($news->tags) && count($news->tags) > 0)
+                    <div class="mb-8 pb-6 border-b border-gray-200">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-sm font-medium text-gray-700 mr-2">Tags:</span>
+                            @foreach ($news->tags as $tag)
+                                <span
+                                    class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                    </svg>
+                                    {{ $tag }}
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+            </div>
+
+            {{-- Attachments --}}
+            @if (isset($news->attachments) && $news->attachments->count() > 0)
+                <div class="px-8 pb-8">
+                    <div class="border-t border-gray-200 pt-6">
+
+                        @php
+                            $images = $news->attachments->filter(fn($a) => $a->isImage());
+                            $documents = $news->attachments->filter(fn($a) => !$a->isImage());
+                        @endphp
+
+                        {{-- Image Gallery --}}
+                        @if ($images->count() > 0)
+                            <div class="mb-8">
+                                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    Images ({{ $images->count() }})
+                                </h3>
+
+                                @if ($images->count() === 1)
+                                    {{-- Single image - large display --}}
+                                    @php $image = $images->first(); @endphp
+                                    <div class="rounded-lg overflow-hidden border border-gray-200 cursor-pointer hover:border-blue-400 transition-colors"
+                                        onclick="openImageModal('{{ asset('storage/' . $image->file_path) }}', '{{ $image->original_name }}')">
+                                        <img src="{{ asset('storage/' . $image->file_path) }}"
+                                            alt="{{ $image->original_name }}"
+                                            class="w-full h-auto max-h-[600px] object-contain bg-gray-50">
+                                    </div>
+                                @else
+                                    {{-- Multiple images - grid layout --}}
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                        @foreach ($images as $image)
+                                            <div class="group relative aspect-square rounded-lg overflow-hidden border border-gray-200 cursor-pointer hover:border-blue-400 transition-colors"
+                                                onclick="openImageModal('{{ asset('storage/' . $image->file_path) }}', '{{ $image->original_name }}')">
+                                                <img src="{{ asset('storage/' . $image->file_path) }}"
+                                                    alt="{{ $image->original_name }}"
+                                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                                <div
+                                                    class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                                    <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        {{-- Documents Section --}}
+                        @if ($documents->count() > 0)
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                    Documents ({{ $documents->count() }})
+                                </h3>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    @foreach ($documents as $attachment)
+                                        <a href="{{ route('news.download-attachment', $attachment) }}"
+                                            class="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all">
+                                            <div class="flex-shrink-0">
+                                                <div
+                                                    class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm font-medium text-gray-900 truncate">
+                                                    {{ $attachment->original_name }}</p>
+                                                <p class="text-xs text-gray-500">{{ $attachment->formatted_size }}</p>
+                                            </div>
+                                            <div class="flex-shrink-0">
+                                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                </svg>
+                                            </div>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            {{-- Image Modal --}}
+            <div id="imageModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+                onclick="closeImageModal()">
+                <div class="relative max-w-7xl max-h-full">
+                    <button onclick="closeImageModal()"
+                        class="absolute top-4 right-4 text-white hover:text-gray-300 bg-black/50 rounded-full p-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    <img id="modalImage" src="" alt="" class="max-w-full max-h-[90vh] object-contain"
+                        onclick="event.stopPropagation()">
+                    <p id="modalCaption" class="text-white text-center mt-4 text-sm"></p>
+                </div>
+            </div>
+        </article>
+
+        {{-- Related News --}}
+        @if (isset($relatedNews) && $relatedNews->count() > 0)
+            <div class="mt-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6">Related News</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach ($relatedNews as $related)
+                        <article class="card-premium group hover:-translate-y-1 transition-all duration-300">
+                            @if ($related && is_object($related) && $related->featured_image)
+                                <div class="aspect-video overflow-hidden">
+                                    <img src="{{ asset('storage/' . $related->featured_image) }}"
+                                        alt="{{ $related->title }}"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                </div>
+                            @endif
+
+                            <div class="p-4">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-2">
+                                    {{ $related && is_object($related) ? $related->location ?? 'NIMR' : 'NIMR' }}
+                                </span>
+
+                                <h4
+                                    class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                                    <a href="{{ route('news.show', $related) }}">
+                                        {{ $related && is_object($related) ? $related->title : 'Related News' }}
+                                    </a>
+                                </h4>
+
+                                @if ($related && is_object($related) && isset($related->excerpt))
+                                    <p class="text-gray-600 text-sm line-clamp-2 mb-3">
+                                        {{ $related->excerpt }}
+                                    </p>
+                                @endif
+
+                                <div class="flex items-center justify-between text-xs text-gray-500">
+                                    <span>
+                                        {{ $related && is_object($related) && $related->published_at ? $related->published_at->diffForHumans() : 'Recently' }}
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        {{ $related && is_object($related) ? $related->views_count ?? 0 : 0 }}
+                                    </span>
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        {{-- Back Button --}}
+        <div class="flex justify-center">
+            <a href="{{ route('news.index') }}"
+                class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">
+                ← Back to News Feed
+            </a>
+        </div>
+
+    </div>
+
+    @push('scripts')
+        <script>
+            // Image modal functions
+            function openImageModal(imageSrc, imageAlt) {
+                const modal = document.getElementById('imageModal');
+                const modalImage = document.getElementById('modalImage');
+                const modalCaption = document.getElementById('modalCaption');
+
+                modalImage.src = imageSrc;
+                modalImage.alt = imageAlt;
+                modalCaption.textContent = imageAlt;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeImageModal() {
+                const modal = document.getElementById('imageModal');
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+
+            // Close modal on ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeImageModal();
+                }
+            });
+        </script>
+    @endpush
+
+@endsection

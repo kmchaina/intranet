@@ -19,9 +19,9 @@ class EventController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $view = $request->get('view', 'calendar'); // calendar, list
+        $view = $request->get('view', 'list'); // list is default, calendar optional
         if (!in_array($view, ['calendar', 'list'], true)) {
-            $view = 'calendar';
+            $view = 'list';
         }
         $date = $request->get('date', now()->toDateString());
         $category = $request->get('category');
@@ -140,6 +140,12 @@ class EventController extends Controller
             'created_by' => Auth::id(),
         ]);
 
+        // Redirect based on user role - admins go to management page, staff to event detail
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.events.index')
+                ->with('success', 'Event created successfully!');
+        }
+
         return redirect()->route('events.show', $event)
             ->with('success', 'Event created successfully!');
     }
@@ -250,6 +256,12 @@ class EventController extends Controller
 
         $event->update($request->all());
 
+        // Redirect based on user role
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.events.index')
+                ->with('success', 'Event updated successfully!');
+        }
+
         return redirect()->route('events.show', $event)
             ->with('success', 'Event updated successfully!');
     }
@@ -267,6 +279,12 @@ class EventController extends Controller
         }
 
         $event->delete();
+
+        // Redirect based on user role
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.events.index')
+                ->with('success', 'Event deleted successfully!');
+        }
 
         return redirect()->route('events.index')
             ->with('success', 'Event deleted successfully!');
@@ -319,7 +337,7 @@ class EventController extends Controller
             'maybe' => 'marked yourself as maybe attending',
         };
 
-        return back()->with('success', "You have {$statusMessage} for this event.");
+        return redirect()->route('events.index')->with('success', "You have {$statusMessage} for this event.");
     }
 
     /**

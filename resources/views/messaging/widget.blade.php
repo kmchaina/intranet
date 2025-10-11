@@ -24,11 +24,9 @@
         <div x-show="open" x-transition x-cloak
             class="fixed bottom-24 right-5 w-96 max-h-[70vh] bg-white rounded-xl shadow-2xl border flex flex-col z-40 overflow-hidden">
             <!-- Header -->
-            <div
-                class="px-4 py-3 border-b flex items-center justify-between bg-gradient-to-r from-indigo-600 to-indigo-500 text-white">
+            <div class="px-4 py-3 border-b flex items-center justify-between bg-indigo-600 text-white">
                 <div>
                     <h3 class="font-semibold text-sm">Messages</h3>
-                    <p class="text-[9px] text-yellow-300">DEBUG: Updated Oct 9 - 3:45pm</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <button @click="startNewGroup()" class="text-[10px] bg-white/10 hover:bg-white/20 px-2 py-0.5 rounded">+
@@ -53,7 +51,7 @@
                                         x-text="c.unread"></span>
                                 </div>
                                 <div class="text-[10px] text-gray-500 truncate"
-                                    x-text="c.last_message ? (c.last_message.body || '[Attachment]') : 'No messages' ">
+                                    x-text="c.last_message ? (c.last_message.deleted ? 'Message deleted' : (c.last_message.body || '[Attachment]')) : 'No messages' ">
                                 </div>
                             </div>
                         </template>

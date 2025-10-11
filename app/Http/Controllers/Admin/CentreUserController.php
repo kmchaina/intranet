@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class CentreUserController extends Controller
@@ -21,7 +22,7 @@ class CentreUserController extends Controller
         }
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->ensureCentreAdmin();
         $admin = Auth::user();
@@ -31,41 +32,42 @@ class CentreUserController extends Controller
             ->with(['station', 'centre']);
 
         // Apply search filter
-        if (request('search')) {
-            $search = request('search');
+        if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%");
             });
         }
 
         // Apply role filter
-        if (request('role')) {
-            $query->where('role', request('role'));
+        if ($role = $request->input('role')) {
+            $query->where('role', $role);
         }
 
         // Apply station filter
-        if (request('station_id')) {
-            $query->where('station_id', request('station_id'));
+        if ($stationId = $request->input('station_id')) {
+            $query->where('station_id', $stationId);
         }
 
-        $users = $query->orderBy('name')->paginate(15);
+        // Filter by verification status
+        if ($status = $request->input('status')) {
+            if ($status === 'verified') {
+                $query->whereNotNull('email_verified_at');
+            } elseif ($status === 'unverified') {
+                $query->whereNull('email_verified_at');
+            }
+        }
 
-        // Get separate collections for stats
-        $centreStaff = User::where('centre_id', $admin->centre_id)
-            ->whereNull('station_id')
-            ->where('role', 'staff')
-            ->get();
+        $users = $query->orderBy('name')->paginate(20)->withQueryString();
 
-        $stationAdmins = User::where('centre_id', $admin->centre_id)
-            ->whereNotNull('station_id')
-            ->where('role', 'station_admin')
-            ->get();
-
-        $stationStaff = User::where('centre_id', $admin->centre_id)
-            ->whereNotNull('station_id')
-            ->where('role', 'staff')
-            ->get();
+        // Calculate stats
+        $baseQuery = User::where('centre_id', $admin->centre_id);
+        $stats = [
+            'total' => (clone $baseQuery)->count(),
+            'active' => (clone $baseQuery)->whereNotNull('email_verified_at')->count(),
+            'new_this_month' => (clone $baseQuery)->where('created_at', '>=', now()->startOfMonth())->count(),
+            'unverified' => (clone $baseQuery)->whereNull('email_verified_at')->count(),
+        ];
 
         // Get stations for filter dropdown
         $stations = \App\Models\Station::where('centre_id', $admin->centre_id)
@@ -73,13 +75,7 @@ class CentreUserController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('admin.users.centre.index', [
-            'users' => $users,
-            'centreStaff' => $centreStaff,
-            'stationAdmins' => $stationAdmins,
-            'stationStaff' => $stationStaff,
-            'stations' => $stations,
-        ]);
+        return view('admin.users.centre.index', compact('users', 'stats', 'stations'));
     }
 
     public function create(): View
@@ -113,9 +109,12 @@ class CentreUserController extends Controller
                 'unique:users,email',
                 'regex:/^[a-zA-Z0-9._%+-]+@nimr\.or\.tz$/'
             ],
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'confirmed', Password::defaults()],
             'phone' => 'nullable|string|max:20',
             'employee_id' => 'nullable|string|max:50|unique:users,employee_id',
+            'bio' => 'nullable|string|max:500',
+            'birth_date' => 'nullable|date|before_or_equal:today',
+            'hire_date' => 'nullable|date',
             'role' => 'required|in:staff,station_admin',
             'station_id' => 'nullable|exists:stations,id',
         ], [
@@ -141,6 +140,9 @@ class CentreUserController extends Controller
             'password' => Hash::make($validated['password']),
             'phone' => $validated['phone'] ?? null,
             'employee_id' => $validated['employee_id'] ?? null,
+            'bio' => $validated['bio'] ?? null,
+            'birth_date' => $validated['birth_date'] ?? null,
+            'hire_date' => $validated['hire_date'] ?? null,
             'role' => $validated['role'],
             'centre_id' => $admin->centre_id,
         ];
@@ -205,7 +207,10 @@ class CentreUserController extends Controller
             ],
             'phone' => 'nullable|string|max:20',
             'employee_id' => 'nullable|string|max:50|unique:users,employee_id,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'bio' => 'nullable|string|max:500',
+            'birth_date' => 'nullable|date|before_or_equal:today',
+            'hire_date' => 'nullable|date',
+            'password' => ['nullable', 'confirmed', Password::defaults()],
             'role' => 'required|in:staff,station_admin',
             'station_id' => 'nullable|exists:stations,id',
         ], [
@@ -229,6 +234,9 @@ class CentreUserController extends Controller
         $user->email = $validated['email'];
         $user->phone = $validated['phone'] ?? null;
         $user->employee_id = $validated['employee_id'] ?? null;
+        $user->bio = $validated['bio'] ?? null;
+        $user->birth_date = $validated['birth_date'] ?? null;
+        $user->hire_date = $validated['hire_date'] ?? null;
         $user->role = $validated['role'];
 
         // Set station_id if provided, otherwise clear it

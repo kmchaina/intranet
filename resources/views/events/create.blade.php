@@ -173,9 +173,10 @@
                                 their stations</option>
                             <option value="stations" {{ $fallbackScope === 'stations' ? 'selected' : '' }}>All stations
                             </option>
-                            <option value="my_centre" {{ $fallbackScope === 'my_centre' ? 'selected' : '' }}>My centre
+                            <option value="my_centre" {{ $fallbackScope === 'my_centre' ? 'selected' : '' }}>Centre level
                                 only</option>
-                            <option value="my_station" {{ $fallbackScope === 'my_station' ? 'selected' : '' }}>My station
+                            <option value="my_station" {{ $fallbackScope === 'my_station' ? 'selected' : '' }}>Station
+                                level
                                 only</option>
                         </select>
 

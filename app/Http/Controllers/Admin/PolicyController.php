@@ -22,9 +22,17 @@ class PolicyController extends Controller
     {
         $this->ensureAuthorized();
 
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         $query = Document::query()
             ->where('category', 'policy')
             ->with(['uploader']);
+
+        // Filter by creator (only Super Admin sees ALL, others see only what they uploaded)
+        if (!$user->isSuperAdmin()) {
+            $query->where('uploaded_by', $user->id);
+        }
 
         $search = $request->input('search');
         if ($search) {
@@ -43,9 +51,14 @@ class PolicyController extends Controller
             $query->where('access_level', $request->access_level);
         }
 
-        $policies = $query->orderByDesc('updated_at')->paginate(12)->withQueryString();
+        $policies = $query->orderByDesc('updated_at')->paginate(20)->withQueryString();
 
         $basePolicyQuery = Document::query()->where('category', 'policy');
+
+        // Filter stats by creator
+        if (!$user->isSuperAdmin()) {
+            $basePolicyQuery->where('uploaded_by', $user->id);
+        }
 
         $policyStats = [
             'total' => (clone $basePolicyQuery)->count(),
@@ -124,7 +137,13 @@ class PolicyController extends Controller
             'is_active' => true,
         ]);
 
-        return redirect()->route('admin.policies.index')
+        // Redirect based on role
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.policies.index')
+                ->with('success', 'Policy uploaded successfully.');
+        }
+
+        return redirect()->route('documents.index')
             ->with('success', 'Policy uploaded successfully.');
     }
 
@@ -134,6 +153,14 @@ class PolicyController extends Controller
 
         if ($policy->category !== 'policy') {
             abort(404);
+        }
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Check if user can delete this policy
+        if (!$user->isSuperAdmin() && $policy->uploaded_by !== $user->id) {
+            abort(403, 'You do not have permission to delete this policy.');
         }
 
         if (Storage::disk('public')->exists($policy->file_path)) {

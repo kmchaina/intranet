@@ -1,234 +1,324 @@
 @extends('layouts.dashboard')
-
-@section('title', 'User Management')
-@section('page-title', 'User Management')
+@section('title', 'Manage All Users')
 
 @section('content')
     <div class="space-y-6">
-        <!-- Header Section -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+
+        {{-- Page Header --}}
+        <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">User Management</h1>
-                <p class="text-gray-600 mt-1">Manage user roles and organizational assignments</p>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        Manage All Users
+                    </span>
+                </h1>
+                <p class="text-gray-600 mt-1">System-wide user and role management</p>
             </div>
-            <div class="mt-4 sm:mt-0">
-                <a href="{{ route('admin.users.create') }}"
-                    class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors mr-3">
-                    <i class="fas fa-plus mr-2"></i>
-                    Create User
-                </a>
-                <a href="{{ route('admin.users.suggestions') }}"
-                    class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
-                    <i class="fas fa-lightbulb mr-2"></i>
-                    Role Suggestions
-                </a>
+            <a href="{{ route('admin.users.create') }}"
+                class="btn btn-primary shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6" />
+                </svg>
+                Create New User
+            </a>
+        </div>
+
+        {{-- Stats Cards --}}
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium uppercase">Total Users</p>
+                        <p class="text-3xl font-bold mt-1">{{ $stats['total'] }}</p>
+                    </div>
+                    <svg class="w-12 h-12 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm font-medium uppercase">Active</p>
+                        <p class="text-3xl font-bold mt-1">{{ $stats['active'] }}</p>
+                    </div>
+                    <svg class="w-12 h-12 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100 text-sm font-medium uppercase">New This Month</p>
+                        <p class="text-3xl font-bold mt-1">{{ $stats['new_this_month'] }}</p>
+                    </div>
+                    <svg class="w-12 h-12 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl p-6 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-100 text-sm font-medium uppercase">Pending Verification</p>
+                        <p class="text-3xl font-bold mt-1">{{ $stats['unverified'] }}</p>
+                    </div>
+                    <svg class="w-12 h-12 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
             </div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            @foreach ($roleCounts as $role => $count)
-                <div class="bg-white rounded-lg p-4 shadow-card">
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-gray-900">{{ $count }}</div>
-                        <div class="text-sm text-gray-600 capitalize">{{ str_replace('_', ' ', $role) }}</div>
+        {{-- Role Distribution --}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Role Distribution</h3>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                @foreach ($roleCounts as $role => $count)
+                    <div class="text-center p-4 rounded-lg bg-gray-50 border border-gray-200">
+                        <p class="text-2xl font-bold text-gray-900">{{ $count }}</p>
+                        <p class="text-xs text-gray-600 mt-1">{{ ucwords(str_replace('_', ' ', $role)) }}</p>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Filters --}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search Users</label>
+                    <div class="relative">
+                        <input type="search" name="search" value="{{ request('search') }}"
+                            placeholder="Search by name, email, or employee ID..."
+                            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                     </div>
                 </div>
-            @endforeach
-        </div>
 
-        <!-- Filters and Search -->
-        <div class="bg-white rounded-lg p-6 shadow-card">
-            <form method="GET" action="{{ route('admin.users.index') }}"
-                class="space-y-4 md:space-y-0 md:flex md:items-end md:space-x-4">
-                <!-- Search -->
-                <div class="flex-1">
-                    <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search Users</label>
-                    <input type="text" name="search" id="search" value="{{ request('search') }}"
-                        placeholder="Search by name or email..."
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-
-                <!-- Role Filter -->
                 <div>
-                    <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Filter by Role</label>
-                    <select name="role" id="role"
-                        class="border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <select name="role"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">All Roles</option>
-                        <option value="super_admin" {{ request('role') === 'super_admin' ? 'selected' : '' }}>Super Admin
-                        </option>
-                        <option value="hq_admin" {{ request('role') === 'hq_admin' ? 'selected' : '' }}>HQ Admin</option>
-                        <option value="centre_admin" {{ request('role') === 'centre_admin' ? 'selected' : '' }}>Centre Admin
-                        </option>
-                        <option value="station_admin" {{ request('role') === 'station_admin' ? 'selected' : '' }}>Station
-                            Admin</option>
-                        <option value="staff" {{ request('role') === 'staff' ? 'selected' : '' }}>Staff</option>
+                        <option value="super_admin" @selected(request('role') === 'super_admin')>Super Admin</option>
+                        <option value="hq_admin" @selected(request('role') === 'hq_admin')>HQ Admin</option>
+                        <option value="centre_admin" @selected(request('role') === 'centre_admin')>Centre Admin</option>
+                        <option value="station_admin" @selected(request('role') === 'station_admin')>Station Admin</option>
+                        <option value="staff" @selected(request('role') === 'staff')>Staff</option>
                     </select>
                 </div>
 
-                <!-- Centre Filter -->
                 <div>
-                    <label for="centre_id" class="block text-sm font-medium text-gray-700 mb-1">Filter by Centre</label>
-                    <select name="centre_id" id="centre_id"
-                        class="border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Centre</label>
+                    <select name="centre_id"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">All Centres</option>
                         @foreach ($centres as $centre)
-                            <option value="{{ $centre->id }}"
-                                {{ request('centre_id') == $centre->id ? 'selected' : '' }}>
+                            <option value="{{ $centre->id }}" @selected(request('centre_id') == $centre->id)>
                                 {{ $centre->name }}
                             </option>
                         @endforeach
                     </select>
                 </div>
 
-                <!-- Buttons -->
-                <div class="flex space-x-2">
+                <div class="flex items-end">
                     <button type="submit"
-                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-                        <i class="fas fa-search mr-1"></i>
-                        Filter
+                        class="w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md">
+                        Apply Filters
                     </button>
-                    <a href="{{ route('admin.users.index') }}"
-                        class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors">
-                        <i class="fas fa-times mr-1"></i>
-                        Clear
-                    </a>
                 </div>
             </form>
         </div>
 
-        <!-- Bulk Actions -->
-        <div class="bg-white rounded-lg p-4 shadow-card" x-data="{ selectedUsers: [], showBulkActions: false }" x-init="$watch('selectedUsers', value => showBulkActions = value.length > 0)">
-            <div x-show="showBulkActions" x-transition class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">
-                    <span x-text="selectedUsers.length"></span> user(s) selected
-                </span>
-                <form method="POST" action="{{ route('admin.users.bulk-update') }}" class="flex items-center space-x-3"
-                    x-on:submit="$event.target.querySelector('input[name=user_ids]').value = JSON.stringify(selectedUsers)">
-                    @csrf
-                    @method('PATCH')
-                    <input type="hidden" name="user_ids">
-                    <select name="bulk_role" required
-                        class="border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-900 text-sm">
-                        <option value="">Select new role...</option>
-                        <option value="super_admin">Super Admin</option>
-                        <option value="hq_admin">HQ Admin</option>
-                        <option value="centre_admin">Centre Admin</option>
-                        <option value="station_admin">Station Admin</option>
-                        <option value="staff">Staff</option>
-                    </select>
-                    <button type="submit"
-                        class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm rounded-lg transition-colors">
-                        <i class="fas fa-users-cog mr-1"></i>
-                        Update Roles
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Users Table -->
-        <div class="bg-white rounded-lg shadow-card overflow-hidden">
+        {{-- Users Table --}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left">
-                                <input type="checkbox"
-                                    x-on:change="selectedUsers = $event.target.checked ? {{ $users->pluck('id')->toJson() }} : []"
-                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                User
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Role
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Assignment
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Organization</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions</th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Contact
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($users as $user)
-                            <tr class="hover:bg-gray-50">
+                        @forelse ($users as $user)
+                            <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-4">
-                                    <input type="checkbox" value="{{ $user->id }}" x-model="selectedUsers"
-                                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center">
-                                        <img class="h-10 w-10 rounded-full"
-                                            src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=4A90E2&color=fff"
-                                            alt="{{ $user->name }}">
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
-                                            <div class="text-sm text-gray-500">{{ $user->email }}</div>
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-md">
+                                            {{ substr($user->name, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-semibold text-gray-900">{{ $user->name }}</p>
+                                            <p class="text-xs text-gray-500">{{ $user->email }}</p>
                                         </div>
                                     </div>
                                 </td>
+
                                 <td class="px-6 py-4">
-                                    @php
-                                        $roleColors = [
-                                            'super_admin' => 'bg-red-100 text-red-800',
-                                            'hq_admin' => 'bg-purple-100 text-purple-800',
-                                            'centre_admin' => 'bg-blue-100 text-blue-800',
-                                            'station_admin' => 'bg-green-100 text-green-800',
-                                            'staff' => 'bg-gray-100 text-gray-800',
-                                        ];
-                                    @endphp
                                     <span
-                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $roleColors[$user->role] ?? 'bg-gray-100 text-gray-800' }}">
-                                        {{ str_replace('_', ' ', ucwords($user->role)) }}
+                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ match ($user->role) {
+                                            'super_admin' => 'bg-red-100 text-red-700',
+                                            'hq_admin' => 'bg-orange-100 text-orange-700',
+                                            'centre_admin' => 'bg-yellow-100 text-yellow-700',
+                                            'station_admin' => 'bg-green-100 text-green-700',
+                                            'staff' => 'bg-blue-100 text-blue-700',
+                                            default => 'bg-gray-100 text-gray-700',
+                                        } }}">
+                                        {{ ucwords(str_replace('_', ' ', $user->role)) }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-900">
-                                    @if ($user->station)
-                                        <div>{{ $user->station->name }}</div>
-                                        @if ($user->centre)
-                                            <div class="text-xs text-gray-500">{{ $user->centre->name }}</div>
-                                        @endif
-                                    @elseif($user->centre)
-                                        <div>{{ $user->centre->name }}</div>
-                                    @else
-                                        <span class="text-gray-500">Not assigned</span>
-                                    @endif
-                                </td>
+
                                 <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-600">
+                                        @if ($user->station)
+                                            <p class="font-medium text-gray-900">{{ $user->station->name }}</p>
+                                            @if ($user->centre)
+                                                <p class="text-xs">{{ $user->centre->name }}</p>
+                                            @endif
+                                        @elseif ($user->centre)
+                                            <p class="font-medium text-gray-900">{{ $user->centre->name }}</p>
+                                        @else
+                                            <span class="text-gray-400">Headquarters</span>
+                                        @endif
+                                    </div>
+                                </td>
+
+                                <td class="px-6 py-4">
+                                    <div class="text-sm">
+                                        @if ($user->employee_id)
+                                            <p class="text-gray-900">{{ $user->employee_id }}</p>
+                                        @endif
+                                        @if ($user->phone)
+                                            <p class="text-gray-500">{{ $user->phone }}</p>
+                                        @endif
+                                    </div>
+                                </td>
+
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     @if ($user->email_verified_at)
                                         <span
-                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Verified</span>
+                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            Verified
+                                        </span>
                                     @else
                                         <span
-                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            Pending
+                                        </span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex space-x-2">
-                                        <a href="{{ route('admin.users.edit', $user) }}"
-                                            class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors">
-                                            <i class="fas fa-edit mr-1"></i>
-                                            Edit
+
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{{ route('staff.show', $user) }}"
+                                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            title="View Profile">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
                                         </a>
-                                        <form method="POST" action="{{ route('admin.users.destroy', $user) }}"
-                                            class="inline"
-                                            onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors">
-                                                <i class="fas fa-trash mr-1"></i>
-                                                Delete
-                                            </button>
-                                        </form>
+
+                                        <a href="{{ route('admin.users.edit', $user) }}"
+                                            class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                            title="Edit">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </a>
+
+                                        @if ($user->id !== auth()->id())
+                                            <form id="deleteForm{{ $user->id }}"
+                                                action="{{ route('admin.users.destroy', $user) }}" method="POST"
+                                                class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button"
+                                                    onclick="showConfirmModal({
+                                                        type: 'danger',
+                                                        title: 'Delete User?',
+                                                        message: 'This will permanently remove this user and all their data.',
+                                                        confirmText: 'Delete User',
+                                                        onConfirm: () => document.getElementById('deleteForm{{ $user->id }}').submit()
+                                                    })"
+                                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    title="Delete">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                                    <i class="fas fa-users text-4xl mb-4 text-gray-300"></i>
-                                    <p>No users found matching your criteria.</p>
+                                <td colspan="6" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                        <p class="text-gray-500 font-medium">No users found</p>
+                                        <p class="text-gray-400 text-sm mt-1">Adjust your filters or create a new user</p>
+                                    </div>
                                 </td>
                             </tr>
                         @endforelse
@@ -236,30 +326,15 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
+            {{-- Pagination --}}
             @if ($users->hasPages())
-                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
                     {{ $users->links() }}
                 </div>
             @endif
         </div>
     </div>
 
-    @push('scripts')
-        <script>
-            // Auto-submit filters on change
-            document.addEventListener('DOMContentLoaded', function() {
-                const filters = ['role', 'centre_id'];
-                filters.forEach(filterId => {
-                    const element = document.getElementById(filterId);
-                    if (element) {
-                        element.addEventListener('change', function() {
-                            this.form.submit();
-                        });
-                    }
-                });
-            });
-        </script>
-    @endpush
-
+    {{-- Confirmation Modal Component --}}
+    <x-confirm-modal />
 @endsection

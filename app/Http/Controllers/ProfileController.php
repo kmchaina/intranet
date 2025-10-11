@@ -48,6 +48,30 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update the user's profile picture.
+     */
+    public function updateProfilePicture(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'profile_picture' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+        ]);
+
+        $user = $request->user();
+
+        // Delete old profile picture if exists
+        if ($user->profile_picture && \Storage::disk('public')->exists($user->profile_picture)) {
+            \Storage::disk('public')->delete($user->profile_picture);
+        }
+
+        // Store new profile picture
+        $path = $request->file('profile_picture')->store('profile-pictures', 'public');
+
+        $user->update(['profile_picture' => $path]);
+
+        return Redirect::back()->with('success', 'Profile picture updated successfully!');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse

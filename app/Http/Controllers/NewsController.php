@@ -62,7 +62,7 @@ class NewsController extends Controller
                 ->paginate(9);
         }
 
-    $featuredNews = News::published()->featured()->take(3)->get();
+        $featuredNews = News::published()->featured()->take(3)->get();
 
         // Get unique locations for filter
         $locations = News::published()
@@ -106,7 +106,7 @@ class NewsController extends Controller
         }
 
         // Process tags
-        if ($validated['tags']) {
+        if (!empty($validated['tags'])) {
             $validated['tags'] = array_map('trim', explode(',', $validated['tags']));
         }
 
@@ -133,9 +133,14 @@ class NewsController extends Controller
 
         $news = News::create($validated);
 
-        return redirect()
-            ->route('news.show', $news)
-            ->with('success', 'News article created successfully!');
+        // Redirect based on user role - admins go to management page, staff to regular index
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.news.index')
+                ->with('success', 'News article ' . ($validated['status'] === 'published' ? 'published' : 'saved as draft') . ' successfully!');
+        }
+
+        return redirect()->route('news.index')
+            ->with('success', 'News article ' . ($validated['status'] === 'published' ? 'published' : 'saved as draft') . ' successfully!');
     }
 
     /**

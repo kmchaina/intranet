@@ -49,7 +49,7 @@ class BirthdayController extends Controller
     public function updateProfile(Request $request)
     {
         $request->validate([
-            'birth_date' => 'nullable|date|before:today',
+            'birth_date' => 'nullable|date|before_or_equal:today',
             'birthday_visibility' => 'required|in:public,team,private'
         ]);
 
@@ -187,7 +187,7 @@ class BirthdayController extends Controller
         if ($request->parent_wish_id) {
             $parentWish = BirthdayWish::find($request->parent_wish_id);
             $parentWish->increment('reply_count');
-            
+
             // Create notification for the parent wish sender (if not replying to own wish)
             if ($parentWish->sender_id !== Auth::id()) {
                 $replier = Auth::user();
@@ -233,7 +233,7 @@ class BirthdayController extends Controller
         ]);
 
         $userId = Auth::id();
-        
+
         // Check if user already reacted with this emoji
         if ($wish->hasUserReacted($request->emoji, $userId)) {
             return response()->json([
@@ -263,7 +263,7 @@ class BirthdayController extends Controller
         // Get reactor names for tooltip
         $reactorIds = $wish->reactions[$request->emoji] ?? [];
         $reactors = User::whereIn('id', $reactorIds)->pluck('name')->take(3);
-        
+
         return response()->json([
             'success' => true,
             'reaction_count' => $wish->getReactionCount($request->emoji),
@@ -283,7 +283,7 @@ class BirthdayController extends Controller
         ]);
 
         $userId = Auth::id();
-        
+
         // Check if user has reacted with this emoji
         if (!$wish->hasUserReacted($request->emoji, $userId)) {
             return response()->json([
@@ -313,7 +313,7 @@ class BirthdayController extends Controller
     public function getReactionDetails(BirthdayWish $wish)
     {
         $reactionDetails = [];
-        
+
         foreach ($wish->reactions ?? [] as $emoji => $userIds) {
             if (!empty($userIds)) {
                 $users = User::whereIn('id', $userIds)->get(['id', 'name']);

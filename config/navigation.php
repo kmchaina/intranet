@@ -29,7 +29,14 @@ return [
     'super_admin' => [
         '👥 User Management' => [
             ['route' => 'admin.users.index', 'icon' => 'user-cog', 'label' => 'Manage Users'],
-            ['route' => 'admin.users.create', 'icon' => 'user-plus', 'label' => 'Add User'],
+        ],
+        '📋 Content Management' => [
+            ['route' => 'admin.announcements.index', 'icon' => 'announcement', 'label' => 'Announcements'],
+            ['route' => 'admin.news.index', 'icon' => 'news', 'label' => 'News Articles'],
+            ['route' => 'admin.events.index', 'icon' => 'calendar', 'label' => 'Events'],
+            ['route' => 'admin.documents.index', 'icon' => 'document', 'label' => 'Documents'],
+            ['route' => 'admin.policies.index', 'icon' => 'document-text', 'label' => 'Policies'],
+            ['route' => 'admin.training.index', 'icon' => 'academic-cap', 'label' => 'Training'],
         ],
         '🏢 Organization' => [
             ['route' => 'admin.centres.index', 'icon' => 'building', 'label' => 'Centres'],
@@ -45,9 +52,6 @@ return [
         ],
         '⚙️ System Administration' => [
             ['route' => 'admin.settings.index', 'icon' => 'cog', 'label' => 'System Settings'],
-            ['route' => 'admin.content.index', 'icon' => 'layout', 'label' => 'Content Management'],
-            ['route' => 'admin.training.index', 'icon' => 'academic-cap', 'label' => 'Training Management'],
-            ['route' => 'admin.policies.index', 'icon' => 'document-text', 'label' => 'Policy Management'],
         ],
         '🛠️ System Tools' => [
             ['route' => 'admin.backup.index', 'icon' => 'cloud-arrow-up', 'label' => 'Backup Management'],
@@ -57,26 +61,26 @@ return [
 
     'hq_admin' => [
         '👥 User Management' => [
-            ['route' => 'admin.hq.users.index', 'icon' => 'users', 'label' => 'HQ Staff'],
-            ['route' => 'admin.hq.users.create', 'icon' => 'user-plus', 'label' => 'Add HQ Staff'],
+            ['route' => 'admin.hq.users.index', 'icon' => 'users', 'label' => 'Manage HQ Staff'],
         ],
         '📋 Content Management' => [
-            ['route' => 'announcements.create', 'icon' => 'plus', 'label' => 'Create Announcement'],
-            ['route' => 'news.create', 'icon' => 'plus', 'label' => 'Create News'],
-            ['route' => 'events.create', 'icon' => 'calendar', 'label' => 'Create Event'],
-            ['route' => 'admin.policies.index', 'icon' => 'document-text', 'label' => 'Manage Policies'],
+            ['route' => 'admin.announcements.index', 'icon' => 'announcement', 'label' => 'Announcements'],
+            ['route' => 'admin.news.index', 'icon' => 'news', 'label' => 'News Articles'],
+            ['route' => 'admin.events.index', 'icon' => 'calendar', 'label' => 'Events'],
+            ['route' => 'admin.documents.index', 'icon' => 'document', 'label' => 'Documents'],
+            ['route' => 'admin.policies.index', 'icon' => 'document-text', 'label' => 'Policies'],
         ],
     ],
 
     'centre_admin' => [
         '👥 User Management' => [
-            ['route' => 'admin.centre.users.index', 'icon' => 'users', 'label' => 'Centre & Station Staff'],
-            ['route' => 'admin.centre.users.create', 'icon' => 'user-plus', 'label' => 'Add Staff/Admin'],
+            ['route' => 'admin.centre.users.index', 'icon' => 'users', 'label' => 'Manage Centre Staff'],
         ],
         '📋 Content Management' => [
-            ['route' => 'announcements.create', 'icon' => 'plus', 'label' => 'Create Announcement'],
-            ['route' => 'news.create', 'icon' => 'plus', 'label' => 'Create News'],
-            ['route' => 'events.create', 'icon' => 'calendar', 'label' => 'Create Event'],
+            ['route' => 'admin.announcements.index', 'icon' => 'announcement', 'label' => 'Announcements'],
+            ['route' => 'admin.news.index', 'icon' => 'news', 'label' => 'News Articles'],
+            ['route' => 'admin.events.index', 'icon' => 'calendar', 'label' => 'Events'],
+            ['route' => 'admin.documents.index', 'icon' => 'document', 'label' => 'Documents'],
         ],
         '📊 Reports' => [
             ['route' => 'admin.station.reports.index', 'icon' => 'chart-bar', 'label' => 'Station Reports'],
@@ -85,13 +89,12 @@ return [
 
     'station_admin' => [
         '👥 User Management' => [
-            ['route' => 'admin.station.users.index', 'icon' => 'users', 'label' => 'Station Staff'],
-            ['route' => 'admin.station.users.create', 'icon' => 'user-plus', 'label' => 'Add Station Staff'],
+            ['route' => 'admin.station.users.index', 'icon' => 'users', 'label' => 'Manage Station Staff'],
         ],
         '📋 Content Management' => [
-            ['route' => 'announcements.create', 'icon' => 'plus', 'label' => 'Create Announcement'],
-            ['route' => 'news.create', 'icon' => 'plus', 'label' => 'Create News'],
-            ['route' => 'events.create', 'icon' => 'calendar', 'label' => 'Create Event'],
+            ['route' => 'admin.announcements.index', 'icon' => 'announcement', 'label' => 'Announcements'],
+            ['route' => 'admin.news.index', 'icon' => 'news', 'label' => 'News Articles'],
+            ['route' => 'admin.events.index', 'icon' => 'calendar', 'label' => 'Events'],
         ],
         '📊 Reports' => [
             ['route' => 'admin.station.reports.index', 'icon' => 'chart-bar', 'label' => 'Station Reports'],

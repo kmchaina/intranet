@@ -57,6 +57,9 @@ class DocumentController extends Controller
 
         $documents = $query->paginate(12)->withQueryString();
 
+        // Get all departments from config
+        $allDepartments = config('departments');
+
         // Get available filters
         $categories = Document::active()->forUser($user)->distinct()->pluck('category');
         $accessLevels = Document::active()->forUser($user)->distinct()->pluck('access_level');
@@ -71,13 +74,13 @@ class DocumentController extends Controller
             ->values();
 
         // Get category counts for department cards
-        $categoryCounts = [
-            'administrative' => Document::active()->forUser($user)->where('category', 'administrative')->count(),
-            'general' => Document::active()->forUser($user)->where('category', 'general')->count(),
-            'research' => Document::active()->forUser($user)->where('category', 'research')->count(),
-            'policy' => Document::active()->forUser($user)->where('category', 'policy')->count(),
-            'training' => Document::active()->forUser($user)->where('category', 'training')->count(),
-        ];
+        $categoryCounts = [];
+        foreach (array_keys($allDepartments) as $deptKey) {
+            $categoryCounts[$deptKey] = Document::active()->forUser($user)->where('category', $deptKey)->count();
+        }
+
+        // Add policy count (special category)
+        $categoryCounts['policy'] = Document::active()->forUser($user)->where('category', 'policy')->count();
 
         // Get document statistics
         $stats = [
@@ -87,7 +90,7 @@ class DocumentController extends Controller
             'myDownloads' => 0, // TODO: Implement user download tracking
         ];
 
-        return view('documents.index', compact('documents', 'categories', 'accessLevels', 'allTags', 'categoryCounts', 'stats'));
+        return view('documents.index', compact('documents', 'categories', 'accessLevels', 'allTags', 'categoryCounts', 'stats', 'allDepartments'));
     }
 
     /**
@@ -95,11 +98,17 @@ class DocumentController extends Controller
      */
     public function create(): View
     {
-        // For now, allow all authenticated users to upload
+        // Only super admins and HQ admins can upload documents
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !$user->isHqAdmin()) {
+            abort(403, 'Only administrators can upload documents.');
+        }
+
         $centres = Centre::where('is_active', true)->orderBy('name')->get();
         $stations = Station::where('is_active', true)->with('centre')->orderBy('name')->get();
+        $departments = config('departments');
 
-        return view('documents.create', compact('centres', 'stations'));
+        return view('documents.create', compact('centres', 'stations', 'departments'));
     }
 
     /**
@@ -107,11 +116,19 @@ class DocumentController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Only super admins and HQ admins can upload documents
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !$user->isHqAdmin()) {
+            abort(403, 'Only administrators can upload documents.');
+        }
+
+        $departmentKeys = implode(',', array_keys(config('departments')));
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'file' => 'required|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,jpg,jpeg,png,gif,zip,rar,mp4,mp3',
-            'category' => 'required|in:general,policy,research,administrative,training',
+            'category' => "required|in:{$departmentKeys}",
             'access_level' => 'required|in:public,restricted,confidential',
             'visibility_scope' => 'required|in:all,headquarters,centres,stations,specific',
             'target_centres' => 'nullable|array',
@@ -165,6 +182,12 @@ class DocumentController extends Controller
             'is_active' => true,
         ]);
 
+        // Redirect based on user role - admins go to management page, staff to regular index
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.documents.index')
+                ->with('success', 'Document uploaded successfully!');
+        }
+
         return redirect()->route('documents.index')
             ->with('success', 'Document uploaded successfully!');
     }
@@ -198,6 +221,38 @@ class DocumentController extends Controller
         }]);
 
         return view('documents.show', compact('document'));
+    }
+
+    /**
+     * View the document inline (for browser preview)
+     */
+    public function view(Document $document)
+    {
+        $user = Auth::user();
+
+        // Check if user can access this document
+        $canAccess = Document::active()
+            ->forUser($user)
+            ->where('id', $document->id)
+            ->exists();
+
+        if (!$canAccess) {
+            abort(403, 'You do not have permission to view this document.');
+        }
+
+        // Check if file exists
+        if (!Storage::disk('public')->exists($document->file_path)) {
+            abort(404, 'File not found.');
+        }
+
+        $filePath = Storage::disk('public')->path($document->file_path);
+        $mimeType = $document->mime_type ?? mime_content_type($filePath);
+
+        // Return file with inline disposition (view in browser)
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $document->original_name . '"'
+        ]);
     }
 
     /**
@@ -246,8 +301,9 @@ class DocumentController extends Controller
 
         $centres = Centre::where('is_active', true)->orderBy('name')->get();
         $stations = Station::where('is_active', true)->with('centre')->orderBy('name')->get();
+        $departments = config('departments');
 
-        return view('documents.edit', compact('document', 'centres', 'stations'));
+        return view('documents.edit', compact('document', 'centres', 'stations', 'departments'));
     }
 
     /**
@@ -260,10 +316,12 @@ class DocumentController extends Controller
             abort(403, 'You can only edit documents you uploaded.');
         }
 
+        $departmentKeys = implode(',', array_keys(config('departments')));
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'category' => 'required|in:general,policy,research,administrative,training',
+            'category' => "required|in:{$departmentKeys}",
             'access_level' => 'required|in:public,restricted,confidential',
             'visibility_scope' => 'required|in:all,headquarters,centres,stations,specific',
             'target_centres' => 'nullable|array',
@@ -304,6 +362,12 @@ class DocumentController extends Controller
             'expires_at' => $validated['expires_at'] ?? null,
         ]);
 
+        // Redirect based on user role
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.documents.index')
+                ->with('success', 'Document updated successfully!');
+        }
+
         return redirect()->route('documents.show', $document)
             ->with('success', 'Document updated successfully!');
     }
@@ -325,6 +389,12 @@ class DocumentController extends Controller
 
         // Delete the document record
         $document->delete();
+
+        // Redirect based on user role
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.documents.index')
+                ->with('success', 'Document deleted successfully!');
+        }
 
         return redirect()->route('documents.index')
             ->with('success', 'Document deleted successfully!');

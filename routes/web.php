@@ -60,26 +60,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/profile/show', [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/picture', [ProfileController::class, 'updateProfilePicture'])->name('profile.picture.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Global Search routes
     Route::get('/search', [GlobalSearchController::class, 'index'])->name('search');
     Route::get('/search/suggest', [GlobalSearchController::class, 'suggest'])->name('search.suggest');
 
-    // Announcements routes
-    Route::resource('announcements', AnnouncementController::class);
+    // Announcements routes (Staff View - Read Only + Create)
+    Route::get('announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
+    Route::post('announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::get('announcements/{announcement}', [AnnouncementController::class, 'show'])->name('announcements.show');
     Route::post('announcements/{announcement}/mark-read', [AnnouncementController::class, 'markAsRead'])
         ->name('announcements.mark-read');
     Route::get('announcements/attachments/{attachment}/download', [AnnouncementController::class, 'downloadAttachment'])
         ->name('announcements.download-attachment');
 
-    // Documents routes
-    Route::resource('documents', DocumentController::class);
+    // Documents routes (Staff View - Read Only + Upload)
+    Route::get('documents', [DocumentController::class, 'index'])->name('documents.index');
+    Route::get('documents/create', [DocumentController::class, 'create'])->name('documents.create');
+    Route::post('documents', [DocumentController::class, 'store'])->name('documents.store');
+    Route::get('documents/{document}', [DocumentController::class, 'show'])->name('documents.show');
+    Route::get('documents/{document}/view', [DocumentController::class, 'view'])->name('documents.view');
     Route::get('documents/{document}/download', [DocumentController::class, 'download'])
         ->name('documents.download');
 
-    // Events routes
-    Route::resource('events', EventController::class);
+    // Events routes (Staff View - Read Only + Create)
+    Route::get('events', [EventController::class, 'index'])->name('events.index');
+    Route::get('events/create', [EventController::class, 'create'])->name('events.create');
+    Route::post('events', [EventController::class, 'store'])->name('events.store');
+    Route::get('events/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::get('events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
+    Route::patch('events/{event}', [EventController::class, 'update'])->name('events.update');
     Route::post('events/{event}/rsvp', [EventController::class, 'rsvp'])
         ->name('events.rsvp');
     Route::post('events/{event}/attendance', [EventController::class, 'markAttendance'])
@@ -133,8 +146,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('polls/{poll}/vote', [PollController::class, 'vote'])->name('polls.vote');
     Route::get('polls/{poll}/results', [PollController::class, 'results'])->name('polls.results');
 
-    // News routes
-    Route::resource('news', NewsController::class);
+    // News routes (Staff View - Read Only + Create)
+    Route::get('news', [NewsController::class, 'index'])->name('news.index');
+    Route::get('news/create', [NewsController::class, 'create'])->name('news.create');
+    Route::post('news', [NewsController::class, 'store'])->name('news.store');
+    Route::get('news/{news}', [NewsController::class, 'show'])->name('news.show');
     Route::post('news/{news}/like', [NewsController::class, 'toggleLike'])->name('news.like');
     Route::post('news/{news}/comment', [NewsController::class, 'storeComment'])->name('news.comment');
 
@@ -247,9 +263,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('station/users/{user}', [StationUserController::class, 'destroy'])->name('station.users.destroy');
         });
 
-        // Content Management (Super Admin, HQ Admin)
+        // Content Management (Super Admin, HQ Admin, Centre Admin, Station Admin)
+
+        // Announcements Management
+        Route::get('announcements', [App\Http\Controllers\Admin\AnnouncementAdminController::class, 'index'])->name('announcements.index');
+        Route::get('announcements/{announcement}/edit', [App\Http\Controllers\Admin\AnnouncementAdminController::class, 'edit'])->name('announcements.edit');
+        Route::patch('announcements/{announcement}', [App\Http\Controllers\Admin\AnnouncementAdminController::class, 'update'])->name('announcements.update');
+        Route::delete('announcements/{announcement}', [App\Http\Controllers\Admin\AnnouncementAdminController::class, 'destroy'])->name('announcements.destroy');
+        Route::delete('announcements/bulk-delete', [App\Http\Controllers\Admin\AnnouncementAdminController::class, 'bulkDelete'])->name('announcements.bulk-delete');
+        Route::patch('announcements/{announcement}/toggle-publish', [App\Http\Controllers\Admin\AnnouncementAdminController::class, 'togglePublish'])->name('announcements.toggle-publish');
+
+        // News Management
+        Route::get('news', [App\Http\Controllers\Admin\NewsAdminController::class, 'index'])->name('news.index');
+        Route::get('news/{news}/edit', [App\Http\Controllers\Admin\NewsAdminController::class, 'edit'])->name('news.edit');
+        Route::patch('news/{news}', [App\Http\Controllers\Admin\NewsAdminController::class, 'update'])->name('news.update');
+        Route::delete('news/{news}', [App\Http\Controllers\Admin\NewsAdminController::class, 'destroy'])->name('news.destroy');
+        Route::delete('news/bulk-delete', [App\Http\Controllers\Admin\NewsAdminController::class, 'bulkDelete'])->name('news.bulk-delete');
+        Route::patch('news/{news}/toggle-publish', [App\Http\Controllers\Admin\NewsAdminController::class, 'togglePublish'])->name('news.toggle-publish');
+
+        // Documents Management
+        Route::get('documents', [App\Http\Controllers\Admin\DocumentAdminController::class, 'index'])->name('documents.index');
+        Route::delete('documents/{document}', [App\Http\Controllers\Admin\DocumentAdminController::class, 'destroy'])->name('documents.destroy');
+        Route::delete('documents/bulk-delete', [App\Http\Controllers\Admin\DocumentAdminController::class, 'bulkDelete'])->name('documents.bulk-delete');
+
+        // Events Management
+        Route::get('events', [App\Http\Controllers\Admin\EventAdminController::class, 'index'])->name('events.index');
+        Route::delete('events/{event}', [App\Http\Controllers\Admin\EventAdminController::class, 'destroy'])->name('events.destroy');
+        Route::delete('events/bulk-delete', [App\Http\Controllers\Admin\EventAdminController::class, 'bulkDelete'])->name('events.bulk-delete');
+
         Route::get('content', function () {
-            return redirect()->route('announcements.index');
+            return redirect()->route('admin.announcements.index');
         })->name('content.index');
 
         // System Settings (Super Admin only)

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIMR Intranet System Development Budget</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2c5aa0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #2c5aa0;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #2c5aa0;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+
+        h3 {
+            color: #4a4a4a;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-left: 4px solid #2c5aa0;
+            margin-top: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #2c5aa0, #1e3d6f);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+
+        td {
+            padding: 12px 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+
+        .total-row {
+            background-color: #e8f4fd !important;
+            font-weight: bold;
+            border-top: 2px solid #2c5aa0;
+        }
+
+        .phase-header {
+            background-color: #2c5aa0;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .cost-highlight {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2c5aa0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .summary-box h3 {
+            margin-top: 0;
+            color: #1565c0;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .grand-total {
+            font-size: 1.5em;
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .week-section {
+            margin: 20px 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .week-header {
+            background: linear-gradient(135deg, #37474f, #263238);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .document-info {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>NIMR Intranet System Development Budget</h1>
+            <p style="font-size: 1.2em; color: #666;">Comprehensive Project Budget & Timeline</p>
+        </div>
+
+        <h2>Project Information</h2>
+        <table>
+            <tr>
+                <th>Item</th>
+                <th>Details</th>
+            </tr>
+            <tr>
+                <td><strong>Project Name</strong></td>
+                <td>NIMR Intranet System Development</td>
+            </tr>
+            <tr>
+                <td><strong>Total Duration</strong></td>
+                <td>5 weeks (35 working days)</td>
+            </tr>
+            <tr>
+                <td><strong>Daily Rate</strong></td>
+                <td>Tshs. 150,000/= per developer</td>
+            </tr>
+            <tr>
+                <td><strong>Budget Period</strong></td>
+                <td>Development, Documentation & Deployment</td>
+            </tr>
+            <tr>
+                <td><strong>Project Start</strong></td>
+                <td>[To be determined]</td>
+            </tr>
+            <tr>
+                <td><strong>Project End</strong></td>
+                <td>[To be determined]</td>
+            </tr>
+        </table>
+
+        <div class="summary-box">
+            <h3>Project Cost Summary</h3>
+            <p>Total Project Cost: <span class="cost-highlight">Tshs. 9,450,000/=</span></p>
+            <p>With Contingency (10%): <span class="grand-total">Tshs. 10,395,000/=</span></p>
+        </div>
+
+        <h2>Phase Overview</h2>
+        <table>
+            <tr>
+                <th>Phase</th>
+                <th>Week(s)</th>
+                <th>Duration</th>
+                <th>Team Members</th>
+                <th>Daily Cost</th>
+                <th>Phase Total</th>
+            </tr>
+            <tr>
+                <td><strong>Development</strong></td>
+                <td>1-3</td>
+                <td>21 days</td>
+                <td>Kusa Mchaina, Fagason Mduma</td>
+                <td>Tshs. 300,000/=</td>
+                <td class="cost-highlight"><strong>Tshs. 6,300,000/=</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Documentation</strong></td>
+                <td>4</td>
+                <td>7 days</td>
+                <td>Kusa Mchaina</td>
+                <td>Tshs. 150,000/=</td>
+                <td class="cost-highlight"><strong>Tshs. 1,050,000/=</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Deployment</strong></td>
+                <td>5</td>
+                <td>7 days</td>
+                <td>John Mduda, Kusa Mchaina</td>
+                <td>Tshs. 300,000/=</td>
+                <td class="cost-highlight"><strong>Tshs. 2,100,000/=</strong></td>
+            </tr>
+            <tr class="total-row">
+                <td colspan="4"><strong>TOTAL PROJECT</strong></td>
+                <td><strong>35 days</strong></td>
+                <td class="cost-highlight"><strong>Tshs. 9,450,000/=</strong></td>
+            </tr>
+        </table>
+        <h2>Detailed Task Breakdown by Phase</h2>
+
+        <h3>Phase 1: Development (Week 1-3) - 21 Days Total</h3>
+
+        <div class="week-section">
+            <div class="week-header">Week 1: System Foundation & Architecture (7 Days)</div>
+            <table>
+                <tr>
+                    <th>Task</th>
+                    <th>Duration</th>
+                    <th>Description</th>
+                    <th>Kusa Mchaina</th>
+                    <th>Fagason Mduma</th>
+                </tr>
+                <tr>
+                    <td><strong>Project Setup & Environment</strong></td>
+                    <td>1 day</td>
+                    <td>Development environment setup, version control, project structure</td>
+                    <td>✓</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>Database Design & Schema</strong></td>
+                    <td>3 days</td>
+                    <td>Database architecture, table design, relationships, data modeling</td>
+                    <td>✓</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>System Architecture Planning</strong></td>
+                    <td>2 days</td>
+                    <td>System design, module planning, security framework</td>
+                    <td>✓</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>Authentication System</strong></td>
+                    <td>1 day</td>
+                    <td>User login, session management, role-based access control</td>
+                    <td>✓</td>
+                    <td></td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="5"><strong>Week 1 Total: 7 Days - Tshs. 2,100,000/=</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">Week 2: Core Functionality Development (7 Days)</div>
+            <table>
+                <tr>
+                    <th>Task</th>
+                    <th>Duration</th>
+                    <th>Description</th>
+                    <th>Kusa Mchaina</th>
+                    <th>Fagason Mduma</th>
+                </tr>
+                <tr>
+                    <td><strong>User Management Module</strong></td>
+                    <td>3 days</td>
+                    <td>User registration, profile management, user roles</td>
+                    <td>✓</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>Document Management System</strong></td>
+                    <td>3 days</td>
+                    <td>File upload, storage, categorization, version control</td>
+                    <td>✓</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>News & Announcements</strong></td>
+                    <td>1 day</td>
+                    <td>News posting, announcement system, notifications</td>
+                    <td>✓</td>
+                    <td></td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="5"><strong>Week 2 Total: 7 Days - Tshs. 2,100,000/=</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">Week 3: UI/UX & Integration (7 Days)</div>
+            <table>
+                <tr>
+                    <th>Task</th>
+                    <th>Duration</th>
+                    <th>Description</th>
+                    <th>Kusa Mchaina</th>
+                    <th>Fagason Mduma</th>
+                </tr>
+                <tr>
+                    <td><strong>Frontend Development</strong></td>
+                    <td>4 days</td>
+                    <td>User interface design, responsive layout, navigation</td>
+                    <td>✓</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>System Integration</strong></td>
+                    <td>2 days</td>
+                    <td>Backend-frontend integration, data flow, module connections</td>
+                    <td>✓</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Testing & Bug Fixes</strong></td>
+                    <td>1 day</td>
+                    <td>Unit testing, integration testing, bug resolution</td>
+                    <td>✓</td>
+                    <td>✓</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="5"><strong>Week 3 Total: 7 Days - Tshs. 2,100,000/=</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="summary-box">
+            <h3>Development Phase Summary</h3>
+            <p><strong>Total Duration:</strong> 21 days</p>
+            <p><strong>Total Cost:</strong> <span class="cost-highlight">Tshs. 6,300,000/=</span></p>
+        </div>
+
+        <h3>Phase 2: Documentation (Week 4) - 7 Days Total</h3>
+
+        <div class="week-section">
+            <div class="week-header">Week 4: Complete Documentation Suite</div>
+            <table>
+                <tr>
+                    <th>Task</th>
+                    <th>Duration</th>
+                    <th>Description</th>
+                    <th>Kusa Mchaina</th>
+                    <th>Fagason Mduma</th>
+                    <th>John Mduda</th>
+                </tr>
+                <tr>
+                    <td><strong>Technical Documentation</strong></td>
+                    <td>3 days</td>
+                    <td>System architecture docs, code documentation, technical specifications</td>
+                    <td>✓</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>User Manual Creation</strong></td>
+                    <td>2 days</td>
+                    <td>End-user guides, step-by-step instructions, screenshots</td>
+                    <td>✓</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Administrator Guide</strong></td>
+                    <td>1 day</td>
+                    <td>System admin procedures, maintenance tasks, troubleshooting</td>
+                    <td>✓</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Installation Guide</strong></td>
+                    <td>1 day</td>
+                    <td>Deployment procedures, server requirements, configuration</td>
+                    <td>✓</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="6"><strong>Week 4 Total: 7 Days - Tshs. 1,050,000/= (400+ pages documentation)</strong>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <h3>Phase 3: Deployment (Week 5) - 7 Days Total</h3>
+
+        <div class="week-section">
+            <div class="week-header">Week 5: System Deployment & Go-Live</div>
+            <table>
+                <tr>
+                    <th>Task</th>
+                    <th>Duration</th>
+                    <th>Description</th>
+                    <th>Kusa Mchaina</th>
+                    <th>Fagason Mduma</th>
+                    <th>John Mduda</th>
+                </tr>
+                <tr>
+                    <td><strong>Server Setup & Configuration</strong></td>
+                    <td>3 days</td>
+                    <td>Server installation, environment setup, security configuration</td>
+                    <td>✓</td>
+                    <td></td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>System Deployment</strong></td>
+                    <td>2 days</td>
+                    <td>Application deployment, database migration, initial data setup</td>
+                    <td>✓</td>
+                    <td></td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>Performance Optimization</strong></td>
+                    <td>1 day</td>
+                    <td>System tuning, performance testing, optimization</td>
+                    <td>✓</td>
+                    <td></td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td><strong>Go-Live Support & Handover</strong></td>
+                    <td>1 day</td>
+                    <td>System launch, monitoring, issue resolution, final handover</td>
+                    <td>✓</td>
+                    <td></td>
+                    <td>✓</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="6"><strong>Week 5 Total: 7 Days - Tshs. 2,100,000/=</strong></td>
+                </tr>
+            </table>
+        </div>
+        <h2>Individual Developer Allocation & Costs</h2>
+        <table>
+            <tr>
+                <th>Developer</th>
+                <th>Week 1-3</th>
+                <th>Week 4</th>
+                <th>Week 5</th>
+                <th>Total Days</th>
+                <th>Total Cost</th>
+            </tr>
+            <tr>
+                <td><strong>Kusa Mchaina</strong></td>
+                <td>Development (21 days)</td>
+                <td>Documentation (7 days)</td>
+                <td>Deployment (7 days)</td>
+                <td>35 days</td>
+                <td class="cost-highlight"><strong>Tshs. 5,250,000/=</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Fagason Mduma</strong></td>
+                <td>Development (21 days)</td>
+                <td>-</td>
+                <td>-</td>
+                <td>21 days</td>
+                <td class="cost-highlight"><strong>Tshs. 3,150,000/=</strong></td>
+            </tr>
+            <tr>
+                <td><strong>John Mduda</strong></td>
+                <td>-</td>
+                <td>-</td>
+                <td>Deployment (7 days)</td>
+                <td>7 days</td>
+                <td class="cost-highlight"><strong>Tshs. 1,050,000/=</strong></td>
+            </tr>
+            <tr class="total-row">
+                <td><strong>TOTALS</strong></td>
+                <td colspan="3"></td>
+                <td><strong>63 days</strong></td>
+                <td class="cost-highlight"><strong>Tshs. 9,450,000/=</strong></td>
+            </tr>
+        </table>
+
+        <h2>Payment Schedule Options</h2>
+
+        <h3>Option 1: Phase-Based Payments</h3>
+        <table>
+            <tr>
+                <th>Payment</th>
+                <th>Phase</th>
+                <th>Amount</th>
+                <th>Percentage</th>
+            </tr>
+            <tr>
+                <td><strong>Payment 1</strong></td>
+                <td>Development Completion</td>
+                <td class="cost-highlight">Tshs. 6,300,000/=</td>
+                <td>66.7%</td>
+            </tr>
+            <tr>
+                <td><strong>Payment 2</strong></td>
+                <td>Documentation Completion</td>
+                <td class="cost-highlight">Tshs. 1,050,000/=</td>
+                <td>11.1%</td>
+            </tr>
+            <tr>
+                <td><strong>Payment 3</strong></td>
+                <td>Deployment Completion</td>
+                <td class="cost-highlight">Tshs. 2,100,000/=</td>
+                <td>22.2%</td>
+            </tr>
+            <tr class="total-row">
+                <td><strong>TOTAL</strong></td>
+                <td></td>
+                <td class="cost-highlight"><strong>Tshs. 9,450,000/=</strong></td>
+                <td><strong>100%</strong></td>
+            </tr>
+        </table>
+
+        <h3>Option 2: Milestone-Based Payments</h3>
+        <table>
+            <tr>
+                <th>Payment</th>
+                <th>Milestone</th>
+                <th>Amount</th>
+                <th>Percentage</th>
+            </tr>
+            <tr>
+                <td><strong>Payment 1</strong></td>
+                <td>Project Initiation</td>
+                <td class="cost-highlight">Tshs. 2,835,000/=</td>
+                <td>30%</td>
+            </tr>
+            <tr>
+                <td><strong>Payment 2</strong></td>
+                <td>Development Completion</td>
+                <td class="cost-highlight">Tshs. 4,725,000/=</td>
+                <td>50%</td>
+            </tr>
+            <tr>
+                <td><strong>Payment 3</strong></td>
+                <td>Final Delivery</td>
+                <td class="cost-highlight">Tshs. 1,890,000/=</td>
+                <td>20%</td>
+            </tr>
+            <tr class="total-row">
+                <td><strong>TOTAL</strong></td>
+                <td></td>
+                <td class="cost-highlight"><strong>Tshs. 9,450,000/=</strong></td>
+                <td><strong>100%</strong></td>
+            </tr>
+        </table>
+
+        <h2>Budget Summary</h2>
+        <table>
+            <tr>
+                <th>Cost Category</th>
+                <th>Amount (Tshs.)</th>
+                <th>Percentage</th>
+            </tr>
+            <tr>
+                <td><strong>Development Phase</strong></td>
+                <td class="cost-highlight">6,300,000/=</td>
+                <td>66.7%</td>
+            </tr>
+            <tr>
+                <td><strong>Documentation Phase</strong></td>
+                <td class="cost-highlight">1,050,000/=</td>
+                <td>11.1%</td>
+            </tr>
+            <tr>
+                <td><strong>Deployment Phase</strong></td>
+                <td class="cost-highlight">2,100,000/=</td>
+                <td>22.2%</td>
+            </tr>
+            <tr class="total-row">
+                <td><strong>Subtotal</strong></td>
+                <td class="cost-highlight"><strong>9,450,000/=</strong></td>
+                <td><strong>100%</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Contingency (10%)</strong></td>
+                <td class="cost-highlight">945,000/=</td>
+                <td>10%</td>
+            </tr>
+            <tr class="total-row">
+                <td><strong>GRAND TOTAL</strong></td>
+                <td class="grand-total">10,395,000/=</td>
+                <td><strong>110%</strong></td>
+            </tr>
+        </table>
+
+        <h2>Risk Management & Contingency</h2>
+        <table>
+            <tr>
+                <th>Risk Category</th>
+                <th>Contingency Amount</th>
+                <th>Purpose</th>
+            </tr>
+            <tr>
+                <td><strong>Technical Challenges</strong></td>
+                <td class="cost-highlight">Tshs. 472,500/=</td>
+                <td>Complex integration issues</td>
+            </tr>
+            <tr>
+                <td><strong>Scope Changes</strong></td>
+                <td class="cost-highlight">Tshs. 283,500/=</td>
+                <td>Additional requirements</td>
+            </tr>
+            <tr>
+                <td><strong>Timeline Extensions</strong></td>
+                <td class="cost-highlight">Tshs. 189,000/=</td>
+                <td>Unforeseen delays</td>
+            </tr>
+            <tr class="total-row">
+                <td><strong>Total Contingency</strong></td>
+                <td class="cost-highlight"><strong>Tshs. 945,000/=</strong></td>
+                <td><strong>10% of project cost</strong></td>
+            </tr>
+        </table>
+
+        <h2>Terms & Conditions</h2>
+        <table>
+            <tr>
+                <th>Item</th>
+                <th>Details</th>
+            </tr>
+            <tr>
+                <td><strong>Payment Terms</strong></td>
+                <td>Net 30 days from invoice date</td>
+            </tr>
+            <tr>
+                <td><strong>Currency</strong></td>
+                <td>Tanzanian Shillings (Tshs.)</td>
+            </tr>
+            <tr>
+                <td><strong>Working Days</strong></td>
+                <td>Monday to Friday</td>
+            </tr>
+            <tr>
+                <td><strong>Working Hours</strong></td>
+                <td>8 hours per day</td>
+            </tr>
+            <tr>
+                <td><strong>Overtime Rate</strong></td>
+                <td>1.5x standard rate</td>
+            </tr>
+            <tr>
+                <td><strong>Budget Validity</strong></td>
+                <td>30 days from preparation date</td>
+            </tr>
+            <tr>
+                <td><strong>Contract Duration</strong></td>
+                <td>5 weeks from project start</td>
+            </tr>
+        </table>
+
+        <div class="document-info">
+            <h3>Document Information</h3>
+            <table>
+                <tr>
+                    <th>Field</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td><strong>Prepared By</strong></td>
+                    <td>Project Management Team</td>
+                </tr>
+                <tr>
+                    <td><strong>Date Prepared</strong></td>
+                    <td>[Current Date]</td>
+                </tr>
+                <tr>
+                    <td><strong>Version</strong></td>
+                    <td>1.0</td>
+                </tr>
+                <tr>
+                    <td><strong>Status</strong></td>
+                    <td>Draft</td>
+                </tr>
+                <tr>
+                    <td><strong>Approved By</strong></td>
+                    <td>[To be filled]</td>
+                </tr>
+                <tr>
+                    <td><strong>Approval Date</strong></td>
+                    <td>[To be filled]</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p><em>This budget document is subject to final contract terms and conditions. All amounts are exclusive of
+                    applicable taxes unless otherwise specified.</em></p>
+            <p><strong>Document prepared for management review and approval</strong></p>
+        </div>
+    </div>
+</body>
+
+</html>

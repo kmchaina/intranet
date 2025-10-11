@@ -12,7 +12,21 @@
 }
 
 .btn-primary {
-    @apply bg-nimr-primary-500 text-white hover:bg-nimr-primary-600 active:bg-nimr-primary-700 focus:ring-nimr-primary-500 shadow-nimr-sm hover:shadow-nimr-md hover:-translate-y-0.5;
+    @apply text-white focus:ring-2 focus:ring-offset-2 shadow-nimr-sm hover:shadow-nimr-md hover:-translate-y-0.5 transition-all duration-200;
+    background: #2563eb;
+}
+
+.btn-primary:hover {
+    background: #1e40af;
+}
+
+.btn-primary:active {
+    background: #1e3a8a;
+}
+
+.btn-primary:focus {
+    outline: none;
+    ring-color: #2563eb;
 }
 
 .btn-secondary {
@@ -376,11 +390,11 @@
 
 /* NIMR Icon Containers */
 .nimr-icon-primary {
-    @apply w-10 h-10 bg-gradient-to-br from-nimr-primary-500 to-nimr-primary-600 rounded-xl flex items-center justify-center shadow-nimr-md;
+    @apply w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-nimr-md;
 }
 
 .nimr-icon-secondary {
-    @apply w-10 h-10 bg-gradient-to-br from-nimr-secondary-500 to-nimr-secondary-600 rounded-xl flex items-center justify-center shadow-sm;
+    @apply w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center shadow-sm;
 }
 
 /* NIMR Card Components */

@@ -7,7 +7,7 @@
 
         <!-- Header Card -->
         <div class="card-premium overflow-hidden">
-            <div class="bg-gradient-to-r from-nimr-primary-500 to-indigo-600 p-8 text-white">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-8 text-white">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -48,7 +48,7 @@
                                 </div>
                                 <div class="absolute bottom-3 left-3">
                                     <span
-                                        class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold bg-white/90 text-nimr-primary-700 backdrop-blur-sm">
+                                        class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold bg-white/90 text-blue-700 backdrop-blur-sm">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -59,8 +59,8 @@
                             </div>
                         @else
                             <div
-                                class="h-48 bg-gradient-to-br from-nimr-primary-100 via-purple-100 to-indigo-100 flex items-center justify-center">
-                                <svg class="w-16 h-16 text-nimr-primary-400" fill="none" stroke="currentColor"
+                                class="h-48 bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 flex items-center justify-center">
+                                <svg class="w-16 h-16 text-blue-400" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
@@ -71,16 +71,16 @@
                         <!-- Card Content -->
                         <div class="p-6">
                             <h3
-                                class="text-lg font-bold text-nimr-neutral-900 mb-3 line-clamp-2 group-hover:text-nimr-primary-600 transition-colors">
+                                class="text-lg font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
                                 <a href="{{ route('news.show', $article) }}">{{ $article->title }}</a>
                             </h3>
 
-                            <p class="text-sm text-nimr-neutral-600 mb-4 line-clamp-3 leading-relaxed">
+                            <p class="text-sm text-gray-600 mb-4 line-clamp-3 leading-relaxed">
                                 {{ $article->excerpt ?? Str::limit(strip_tags($article->content ?? ''), 150) }}
                             </p>
 
-                            <div class="flex items-center justify-between pt-4 border-t border-nimr-neutral-100">
-                                <div class="flex items-center gap-2 text-xs text-nimr-neutral-500">
+                            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                                <div class="flex items-center gap-2 text-xs text-gray-500">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -88,7 +88,7 @@
                                     <span>{{ $article->published_at ? $article->published_at->diffForHumans() : $article->created_at->diffForHumans() }}</span>
                                 </div>
                                 <a href="{{ route('news.show', $article) }}"
-                                    class="text-sm font-semibold text-nimr-primary-600 hover:text-nimr-primary-700 flex items-center gap-1">
+                                    class="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
                                     Read more
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

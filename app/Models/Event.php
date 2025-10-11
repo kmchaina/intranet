@@ -58,6 +58,14 @@ class Event extends Model
     }
 
     /**
+     * Get the organizer of this event (alias for creator)
+     */
+    public function organizer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
      * Get all RSVPs for this event
      */
     public function rsvps(): HasMany
@@ -251,6 +259,22 @@ class Event extends Model
         }
 
         return $hours . ' hour' . ($hours > 1 ? 's' : '');
+    }
+
+    /**
+     * Get start_date accessor (alias for start_datetime)
+     */
+    public function getStartDateAttribute()
+    {
+        return $this->start_datetime;
+    }
+
+    /**
+     * Get end_date accessor (alias for end_datetime)
+     */
+    public function getEndDateAttribute()
+    {
+        return $this->end_datetime;
     }
 
     /**

@@ -97,7 +97,13 @@ class News extends Model
             ->where('published_at', '<=', now());
     }
 
-    
+    /**
+     * Scope a query to only include draft news.
+     */
+    public function scopeDraft(Builder $query): Builder
+    {
+        return $query->where('status', 'draft');
+    }
 
     /**
      * Scope a query to only include featured news.
@@ -108,17 +114,18 @@ class News extends Model
     }
 
     /**
-     * Scope a query to order by priority and date.
+     * Scope a query to order by date first, then priority.
      */
     public function scopeOrdered(Builder $query): Builder
     {
-        return $query->orderByRaw("
-            CASE priority 
-                WHEN 'high' THEN 1 
-                WHEN 'normal' THEN 2 
-                WHEN 'low' THEN 3 
-            END
-        ")->orderBy('published_at', 'desc');
+        return $query->orderBy('published_at', 'desc')
+            ->orderByRaw("
+                CASE priority 
+                    WHEN 'high' THEN 1 
+                    WHEN 'normal' THEN 2 
+                    WHEN 'low' THEN 3 
+                END
+            ");
     }
 
     /**

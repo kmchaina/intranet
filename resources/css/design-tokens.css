@@ -1,44 +1,44 @@
 /**
  * NIMR Intranet - Design Tokens
- * Premium UI/UX Design System
+ * Professional Business Design System
  * 
  * This file defines the core visual language of the application.
- * Brand Color: #00aced (NIMR Cyan)
+ * Updated with professional, business-appropriate color scheme
  */
 
 :root {
     /* ========================================
-       BRAND COLORS - NIMR Cyan
+       BRAND COLORS - Professional Blue
        ======================================== */
-    --color-primary-50: #e6f9ff;
-    --color-primary-100: #ccf3ff;
-    --color-primary-200: #99e7ff;
-    --color-primary-300: #66dbff;
-    --color-primary-400: #33ceff;
-    --color-primary-500: #00aced; /* NIMR Brand */
-    --color-primary-600: #0099d4;
-    --color-primary-700: #0086bb;
-    --color-primary-800: #0073a2;
-    --color-primary-900: #006089;
+    --color-primary-50: #eff6ff;
+    --color-primary-100: #dbeafe;
+    --color-primary-200: #bfdbfe;
+    --color-primary-300: #93c5fd;
+    --color-primary-400: #60a5fa;
+    --color-primary-500: #2563eb; /* Primary Brand */
+    --color-primary-600: #1d4ed8;
+    --color-primary-700: #1e40af;
+    --color-primary-800: #1e3a8a;
+    --color-primary-900: #1e293b;
 
     /* ========================================
        SEMANTIC COLORS
        ======================================== */
-    --color-success: #22c55e;
+    --color-success: #16a34a;
     --color-success-light: #bbf7d0;
     --color-success-dark: #15803d;
 
-    --color-warning: #f59e0b;
+    --color-warning: #d97706;
     --color-warning-light: #fde68a;
     --color-warning-dark: #b45309;
 
-    --color-error: #ef4444;
+    --color-error: #dc2626;
     --color-error-light: #fecaca;
     --color-error-dark: #b91c1c;
 
-    --color-info: #00aced; /* Use brand color for info */
-    --color-info-light: #ccf3ff;
-    --color-info-dark: #0086bb;
+    --color-info: #0284c7;
+    --color-info-light: #bae6fd;
+    --color-info-dark: #075985;
 
     /* ========================================
        NEUTRAL COLORS (Grays)
@@ -115,18 +115,16 @@
     --radius-full: 9999px;
 
     /* ========================================
-       SHADOWS
+       SHADOWS - Professional & Subtle
        ======================================== */
-    --shadow-sm: 0 2px 4px rgba(0, 172, 237, 0.1);
-    --shadow-md: 0 4px 8px rgba(0, 172, 237, 0.12);
-    --shadow-lg: 0 8px 16px rgba(0, 172, 237, 0.15);
-    --shadow-xl: 0 12px 24px rgba(0, 172, 237, 0.18);
-    --shadow-2xl: 0 16px 32px rgba(0, 172, 237, 0.2);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 
     /* Special Effects */
-    --shadow-glow: 0 0 20px rgba(0, 172, 237, 0.3);
-    --shadow-glow-lg: 0 0 40px rgba(0, 172, 237, 0.4);
-    --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 
     /* ========================================
        TRANSITIONS

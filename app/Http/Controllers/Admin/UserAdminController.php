@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class UserAdminController extends Controller
 {
@@ -23,25 +25,34 @@ class UserAdminController extends Controller
             abort(403, 'Only Super Administrators can manage user roles.');
         }
 
-        $query = User::with(['centre', 'station']);
+        $query = User::with(['centre', 'station', 'headquarters']);
+
+        // Search by name or email
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%")
+                    ->orWhere('employee_id', 'LIKE', "%{$search}%");
+            });
+        }
 
         // Filter by role
-        if ($request->filled('role')) {
-            $query->where('role', $request->role);
+        if ($role = $request->input('role')) {
+            $query->where('role', $role);
         }
 
         // Filter by centre
-        if ($request->filled('centre_id')) {
-            $query->where('centre_id', $request->centre_id);
+        if ($centreId = $request->input('centre_id')) {
+            $query->where('centre_id', $centreId);
         }
 
-        // Search by name or email
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%")
-                    ->orWhere('email', 'LIKE', "%{$search}%");
-            });
+        // Filter by verification status
+        if ($status = $request->input('status')) {
+            if ($status === 'verified') {
+                $query->whereNotNull('email_verified_at');
+            } elseif ($status === 'unverified') {
+                $query->whereNull('email_verified_at');
+            }
         }
 
         $users = $query->orderBy('role')
@@ -50,6 +61,15 @@ class UserAdminController extends Controller
             ->withQueryString();
 
         $centres = Centre::where('is_active', true)->orderBy('name')->get();
+        $stations = Station::where('is_active', true)->with('centre')->orderBy('name')->get();
+
+        // Calculate stats
+        $stats = [
+            'total' => User::count(),
+            'active' => User::whereNotNull('email_verified_at')->count(),
+            'new_this_month' => User::where('created_at', '>=', now()->startOfMonth())->count(),
+            'unverified' => User::whereNull('email_verified_at')->count(),
+        ];
 
         $roleCounts = [
             'super_admin' => User::where('role', 'super_admin')->count(),
@@ -59,7 +79,7 @@ class UserAdminController extends Controller
             'staff' => User::where('role', 'staff')->count(),
         ];
 
-        return view('admin.users.index', compact('users', 'centres', 'roleCounts'));
+        return view('admin.users.index', compact('users', 'centres', 'stations', 'stats', 'roleCounts'));
     }
 
     /**
@@ -87,9 +107,27 @@ class UserAdminController extends Controller
         }
 
         $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                'unique:users,email,' . $user->id,
+                'regex:/^[a-zA-Z0-9._%+-]+@nimr\.or\.tz$/'
+            ],
             'role' => 'required|in:super_admin,hq_admin,centre_admin,station_admin,staff',
             'centre_id' => 'nullable|exists:centres,id',
             'station_id' => 'nullable|exists:stations,id',
+            'phone' => 'nullable|string|max:20',
+            'employee_id' => 'nullable|string|max:50|unique:users,employee_id,' . $user->id,
+            'bio' => 'nullable|string|max:500',
+            'birth_date' => 'nullable|date|before_or_equal:today',
+            'hire_date' => 'nullable|date',
+            'password' => ['nullable', 'confirmed', Password::defaults()],
+        ], [
+            'email.regex' => 'Email address must be from the @nimr.or.tz domain.'
         ]);
 
         // Validation rules based on role
@@ -119,10 +157,17 @@ class UserAdminController extends Controller
             $validated['station_id'] = null;
         }
 
+        // Handle password update
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
         $user->update($validated);
 
         return redirect()->route('admin.users.index')
-            ->with('success', "User role updated successfully! {$user->name} is now a " . str_replace('_', ' ', $validated['role']) . ".");
+            ->with('success', "User updated successfully! {$user->name} is now a " . str_replace('_', ' ', $validated['role']) . ".");
     }
 
     /**
@@ -212,15 +257,15 @@ class UserAdminController extends Controller
                 'unique:users,email',
                 'regex:/^[a-zA-Z0-9._%+-]+@nimr\.or\.tz$/'
             ],
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'confirmed', Password::defaults()],
             'role' => 'required|in:super_admin,hq_admin,centre_admin,station_admin,staff',
             'centre_id' => 'nullable|integer',
             'station_id' => 'nullable|integer',
-            'department_id' => 'nullable|integer',
             'phone' => 'nullable|string|max:20',
-            'birth_date' => 'nullable|date|before:today',
-            'hire_date' => 'nullable|date|before_or_equal:today',
             'employee_id' => 'nullable|string|max:50|unique:users,employee_id',
+            'bio' => 'nullable|string|max:500',
+            'birth_date' => 'nullable|date|before_or_equal:today',
+            'hire_date' => 'nullable|date',
         ], [
             'email.regex' => 'Email address must be from the @nimr.or.tz domain.'
         ]);

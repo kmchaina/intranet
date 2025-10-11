@@ -128,7 +128,7 @@ class AnnouncementController extends Controller
             'published_at' => 'nullable|date',
             'expires_at' => 'nullable|date',
             'email_notification' => 'boolean',
-            'attachments' => 'nullable|array|max:5',
+            'attachments' => 'nullable|array|max:20',
             'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png,gif,zip,rar,xls,xlsx,ppt,pptx',
         ]);
 
@@ -166,6 +166,12 @@ class AnnouncementController extends Controller
                     'file_size' => $file->getSize(),
                 ]);
             }
+        }
+
+        // Redirect based on user role - admins go to management page, staff to regular index
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.announcements.index')
+                ->with('success', 'Announcement created successfully!');
         }
 
         return redirect()->route('announcements.index')
